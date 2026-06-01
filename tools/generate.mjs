@@ -9,14 +9,11 @@
 // is a pure port of that tool, so the output matches the preview — except crater
 // counts now scale with block area (see render.mjs).
 
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
-import { dirname, resolve, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { writeFileSync, existsSync } from 'node:fs';
+import { resolve, join } from 'node:path';
 import { renderSet, FILES } from './render.mjs';
 import { encodePNG } from './png.mjs';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const REPO = resolve(__dirname, '..');
+import { loadConfig, REPO } from './config.mjs';
 
 // Baseline params — the HULL FOUNDRY HTML control defaults.
 const DEFAULTS = {
@@ -37,15 +34,17 @@ const MATERIALS = {
   uranium:  { baseBright: 46, grain: 5, bevelBright: 26, normalStrength: 1.6 },
 };
 
-function resolveParams(part) {
-  const mat = MATERIALS[part.material] || {};
-  return { ...DEFAULTS, ...mat, ...part };
+// Build a render-params object for a variant from armors.config.json.
+function resolveParams(v) {
+  const tex = v.material.texture;          // { material, seed }
+  const mat = MATERIALS[tex.material] || {};
+  return { ...DEFAULTS, ...mat, material: tex.material, seed: tex.seed, tilesX: v.W, tilesY: v.H, dir: v.dir };
 }
 
 function main() {
-  const cfg = JSON.parse(readFileSync(join(__dirname, 'textures.config.json'), 'utf8'));
+  const { variants } = loadConfig();
   const filter = process.argv.slice(2);
-  const parts = filter.length ? cfg.parts.filter(p => filter.includes(p.dir)) : cfg.parts;
+  const parts = filter.length ? variants.filter(v => filter.includes(v.dir)) : variants;
 
   if (!parts.length) {
     console.error(filter.length ? `No matching parts for: ${filter.join(', ')}` : 'No parts in config.');
