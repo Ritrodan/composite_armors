@@ -1,9 +1,9 @@
-ID = Ritrodan.composite_armor // Replace "yourname" with your own author handle. Must not be "cosmoteer".
+ID = Ritrodan.composite_armor
 Name = "Composite Armors"
 Version = 1.0.0
-CompatibleGameVersions = ["0.30.1"] // Set this to your installed game version (shown on the title screen).
+CompatibleGameVersions = ["0.30.1"]
 Author = "Ritrodan"
-Description = "Adds three new armor types for testing: NERA, Face-Hardened Armor, and Depleted Uranium Armor."
+Description = "Adds new armor types for testing: NERA, Face-Hardened Armor, Composite-C, and Depleted Uranium Armor, with multiple size variants."
 ModifiesMultiplayer = true
 ModifiesGameplay = true
 StringsFolder = "strings"
@@ -16,8 +16,16 @@ Actions
 		ManyToAdd
 		[
 			&<nera/nera.rules>/Part
+			&<nera_2x1/nera_2x1.rules>/Part
+			&<nera_3x1/nera_3x1.rules>/Part
+			&<nera_4x1/nera_4x1.rules>/Part
+			&<nera_2x2/nera_2x2.rules>/Part
 			&<face_hardened/face_hardened.rules>/Part
+			&<face_hardened_2x1/face_hardened_2x1.rules>/Part
+			&<composite_c/composite_c.rules>/Part
+			&<composite_c_2x1/composite_c_2x1.rules>/Part
 			&<depleted_uranium/depleted_uranium.rules>/Part
+			&<depleted_uranium_2x1/depleted_uranium_2x1.rules>/Part
 		]
 	}
 ]
