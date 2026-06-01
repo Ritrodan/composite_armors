@@ -5,7 +5,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	ID = Ritrodan.depleted_uranium_2x1
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.depleted_uranium" ]
-	EditorReplacementPartID = depleted_uranium
+	EditorReplacementPartID = Ritrodan.depleted_uranium
 	DescriptionKey = "Parts/DepletedUranium2x1Desc"
 	Resources
 	[

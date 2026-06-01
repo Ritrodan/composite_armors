@@ -17,8 +17,8 @@ Actions
 		[
 			&<nera/nera.rules>/Part
 			&<nera_2x1/nera_2x1.rules>/Part
-			&<nera_1x3/nera_1x3.rules>/Part
-			&<nera_1x4/nera_1x4.rules>/Part
+			&<nera_3x1/nera_3x1.rules>/Part
+			&<nera_4x1/nera_4x1.rules>/Part
 			&<nera_2x2/nera_2x2.rules>/Part
 			&<face_hardened/face_hardened.rules>/Part
 			&<face_hardened_2x1/face_hardened_2x1.rules>/Part

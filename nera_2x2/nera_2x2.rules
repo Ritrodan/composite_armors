@@ -5,7 +5,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	ID = Ritrodan.nera_2x2
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.nera" ]
-	EditorReplacementPartID = nera
+	EditorReplacementPartID = Ritrodan.nera
 	DescriptionKey = "Parts/NERA2x2Desc"
 	Resources
 	[

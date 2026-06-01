@@ -5,7 +5,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	ID = Ritrodan.composite_c_2x1
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.composite_c" ]
-	EditorReplacementPartID = composite_c
+	EditorReplacementPartID = Ritrodan.composite_c
 	DescriptionKey = "Parts/CompositeC2x1Desc"
 	Resources
 	[

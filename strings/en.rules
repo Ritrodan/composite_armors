@@ -8,13 +8,13 @@ Parts
 	NERA2x1Icon = "NERA (2x1)"
 	NERA2x1Desc = "A 2x1 block of NERA."
 
-	NERA1x3 = "NERA (1x3)"
-	NERA1x3Icon = "NERA (1x3)"
-	NERA1x3Desc = "A 1x3 block of NERA."
+	NERA3x1 = "NERA (3x1)"
+	NERA3x1Icon = "NERA (3x1)"
+	NERA3x1Desc = "A 3x1 block of NERA."
 
-	NERA1x4 = "NERA (1x4)"
-	NERA1x4Icon = "NERA (1x4)"
-	NERA1x4Desc = "A 1x4 block of NERA."
+	NERA4x1 = "NERA (4x1)"
+	NERA4x1Icon = "NERA (4x1)"
+	NERA4x1Desc = "A 4x1 block of NERA."
 
 	NERA2x2 = "NERA (2x2)"
 	NERA2x2Icon = "NERA (2x2)"
