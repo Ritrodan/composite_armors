@@ -52,10 +52,17 @@ function main() {
     process.exit(1);
   }
 
+  // Validate up front: a stale/misspelled `dir` must fail loudly rather than
+  // silently skip, otherwise "Done" would hide a part whose PNGs never wrote.
+  const missing = parts.filter(p => !existsSync(resolve(REPO, p.dir)));
+  if (missing.length) {
+    console.error(`Error: missing part folder(s): ${missing.map(p => p.dir).join(', ')}`);
+    process.exit(1);
+  }
+
   let total = 0;
   for (const part of parts) {
     const dir = resolve(REPO, part.dir);
-    if (!existsSync(dir)) { console.error(`  ! skipping ${part.dir}: folder missing`); continue; }
     const P = resolveParams(part);
     const set = renderSet(P);
     for (const [name] of FILES) {
