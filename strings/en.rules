@@ -1,0 +1,14 @@
+Parts
+{
+	NERA = "NERA"
+	NERAIcon = "NERA"
+	NERADesc = "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+
+	FaceHardened = "Face-Hardened Armor"
+	FaceHardenedIcon = "Face-Hardened Armor"
+	FaceHardenedDesc = "Face-hardened armor consists of steel reinforced by tri-steel plating, which produces armor with more health and resistance to penetration and explosives. This comes at the cost of cost efficiency."
+
+	DepletedUranium = "Depleted Uranium Armor"
+	DepletedUraniumIcon = "Depleted Uranium Armor"
+	DepletedUraniumDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions."
+}
