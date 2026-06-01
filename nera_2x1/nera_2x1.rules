@@ -1,33 +1,37 @@
 Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
-	NameKey = "Parts/FaceHardened"
-	IconNameKey = "Parts/FaceHardenedIcon"
-	ID = Ritrodan.face_hardened
-	EditorGroups = ["Defenses", "Structure"]
-	DontStackInEditorGroups = ["Structure"]
-	DescriptionKey = "Parts/FaceHardenedDesc"
+	NameKey = "Parts/NERA2x1"
+	IconNameKey = "Parts/NERA2x1Icon"
+	ID = Ritrodan.nera_2x1
+	EditorGroup = "Structure"
+	EditorParentParts = [ "Ritrodan.nera" ]
+	EditorReplacementPartID = nera
+	DescriptionKey = "Parts/NERA2x1Desc"
 	Resources
 	[
 		[steel, 4]
-		[tristeel, 1]
+		[coil, 2]
 	]
 	AIValueFactor = 0
-	Size = [1, 1]
-	IsRotateable = false
+	Size = [2, 1]
+	FlipHRotate = [0, 1, 2, 3]
+	FlipVRotate = [0, 1, 2, 3]
 	SelectionTypeID = "armor"
-	MaxHealth = 6000
-	ExplosiveDamageAbsorption = 100%
+	MaxHealth = 4800
+	ExplosiveDamageAbsorption = 50%
 	DamageResistances
 	{
-		explosive = 66%
-		thermal = 0%
+		explosive = 50%
+		thermal = -25%
 	}
 	TypeCategories = [armor, non_flammable]
+	Flammable = false
 	InitialPenetrationResistance = 6
 	ContinuingPenetrationResistance = &InitialPenetrationResistance
 	CreatePartPerTileWhenGrabbed = ""
 	CrewSpeedFactor = 0
-	Density = 5.4
+	Density = 1.2
+	IsRotateable = true
 	IsWalled = true
 	IsSelfDestructible = false
 	AllowedDoorLocations = []
@@ -41,7 +45,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 			File = "icon.png"
 			SampleMode = Linear
 		}
-		Size = [32, 32]
+		Size = [64, 32]
 	}
 	Components : ^/0/Components
 	{
@@ -49,31 +53,22 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 		{
 			Type = ExplosiveResourceDrainSink
 			ResourceType = battery
-			AbsorbsResourceDrain = 1000
+			AbsorbsResourceDrain = 2000
 			RecoveryRate = (&AbsorbsResourceDrain) * 0.1
 		}
 
 		Graphics
 		{
 			Type = Graphics
-			Location = [0.5, 0.5]
-			Floor // This is needed so that armor shows up in ship ghosts.
+			Location = [1, 0.5]
+			Floor
 			{
 				Layer = "floors"
 				DamageLevels
 				[
-					{
-						File = "armor.png"
-						Size = [1, 1]
-					}
-					{
-						File = "armor_33.png"
-						Size = [1, 1]
-					}
-					{
-						File = "armor_66.png"
-						Size = [1, 1]
-					}
+					{ File = "armor.png" Size = [2, 1] }
+					{ File = "armor_33.png" Size = [2, 1] }
+					{ File = "armor_66.png" Size = [2, 1] }
 				]
 			}
 			Walls
@@ -81,18 +76,9 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 				Layer = "walls"
 				DamageLevels
 				[
-					{
-						File = "armor.png"
-						Size = [1, 1]
-					}
-					{
-						File = "armor_33.png"
-						Size = [1, 1]
-					}
-					{
-						File = "armor_66.png"
-						Size = [1, 1]
-					}
+					{ File = "armor.png" Size = [2, 1] }
+					{ File = "armor_33.png" Size = [2, 1] }
+					{ File = "armor_66.png" Size = [2, 1] }
 				]
 			}
 			Roof
@@ -100,21 +86,9 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 				Layer = "roofs"
 				DamageLevels
 				[
-					{
-						File = "roof.png"
-						NormalsFile = "roof_normals.png"
-						Size = [1, 1]
-					}
-					{
-						File = "roof_33.png"
-						NormalsFile = "roof_normals_33.png"
-						Size = [1, 1]
-					}
-					{
-						File = "roof_66.png"
-						NormalsFile = "roof_normals_66.png"
-						Size = [1, 1]
-					}
+					{ File = "roof2.png" NormalsFile = "roof_normals.png" Size = [2, 1] }
+					{ File = "roof_33.png" NormalsFile = "roof_normals_33.png" Size = [2, 1] }
+					{ File = "roof_66.png" NormalsFile = "roof_normals_66.png" Size = [2, 1] }
 				]
 			}
 		}
@@ -123,14 +97,14 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 		{
 			Type = DeathEffects
 			MediaEffects = &/COMMON_EFFECTS/SmallPartDestroyedDry
-			Location = [.5, .5]
+			Location = [1, 0.5]
 		}
 
 		Blueprints
 		{
 			Type = BlueprintSprite
 			File = "blueprints.png"
-			Size = [1, 1]
+			Size = [2, 1]
 		}
 	}
 

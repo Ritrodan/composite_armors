@@ -4,11 +4,43 @@ Parts
 	NERAIcon = "NERA"
 	NERADesc = "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
+	NERA2x1 = "NERA (2x1)"
+	NERA2x1Icon = "NERA (2x1)"
+	NERA2x1Desc = "A 2x1 block of NERA."
+
+	NERA1x3 = "NERA (1x3)"
+	NERA1x3Icon = "NERA (1x3)"
+	NERA1x3Desc = "A 1x3 block of NERA."
+
+	NERA1x4 = "NERA (1x4)"
+	NERA1x4Icon = "NERA (1x4)"
+	NERA1x4Desc = "A 1x4 block of NERA."
+
+	NERA2x2 = "NERA (2x2)"
+	NERA2x2Icon = "NERA (2x2)"
+	NERA2x2Desc = "A 2x2 block of NERA."
+
 	FaceHardened = "Face-Hardened Armor"
 	FaceHardenedIcon = "Face-Hardened Armor"
 	FaceHardenedDesc = "Face-hardened armor consists of steel reinforced by tri-steel plating, which produces armor with more health and resistance to penetration and explosives. This comes at the cost of cost efficiency."
 
+	FaceHardened2x1 = "Face-Hardened Armor (2x1)"
+	FaceHardened2x1Icon = "Face-Hardened Armor (2x1)"
+	FaceHardened2x1Desc = "A 2x1 block of face-hardened armor."
+
+	CompositeC = "Composite-C Armor"
+	CompositeCIcon = "Composite-C Armor"
+	CompositeCDesc = "High-hardness boron carbide spheres suspended in a steel matrix. Composite-C resists penetration better than standard armor at the same HP, with mild thermal resistance."
+
+	CompositeC2x1 = "Composite-C Armor (2x1)"
+	CompositeC2x1Icon = "Composite-C Armor (2x1)"
+	CompositeC2x1Desc = "A 2x1 block of Composite-C armor."
+
 	DepletedUranium = "Depleted Uranium Armor"
 	DepletedUraniumIcon = "Depleted Uranium Armor"
 	DepletedUraniumDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions."
+
+	DepletedUranium2x1 = "Depleted Uranium Armor (2x1)"
+	DepletedUranium2x1Icon = "Depleted Uranium Armor (2x1)"
+	DepletedUranium2x1Desc = "A 2x1 block of depleted uranium armor."
 }
