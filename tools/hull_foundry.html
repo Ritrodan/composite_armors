@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HULL FOUNDRY — Cosmoteer Armor Texture Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{--bg:#0d1014;--panel:#141a21;--panel-2:#1b232c;--line:#2a3642;--line-bright:#3a4a5a;
+  --ink:#c8d4de;--ink-dim:#7d8d9a;--ink-faint:#566370;--amber:#ff9d2f;--amber-dim:#b86c1c;
+  --cyan:#3fd0c9;--steel:#6f8aa0;--hot:#ff5a3c;--grid:rgba(63,208,201,0.06);}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
+body{background:var(--bg);background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:48px 48px;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;-webkit-font-smoothing:antialiased;}
+::selection{background:var(--amber);color:#000}
+header{border-bottom:1px solid var(--line);background:linear-gradient(180deg,#10161c,#0d1014);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 2px 0 #000a,0 6px 20px #0006;}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:34px;height:34px;position:relative;flex:none;border:2px solid var(--amber);background:repeating-linear-gradient(45deg,#1a1209,#1a1209 3px,#0d1014 3px,#0d1014 6px);box-shadow:0 0 14px rgba(255,157,47,.35),inset 0 0 8px #000;}
+.logo::after{content:"";position:absolute;inset:5px;border:1px solid var(--amber-dim)}
+.brand h1{font-family:'Chakra Petch',sans-serif;font-weight:700;font-size:20px;letter-spacing:3px;color:var(--ink);text-transform:uppercase;line-height:1}
+.brand h1 b{color:var(--amber)}
+.brand .sub{font-size:10px;color:var(--ink-faint);letter-spacing:2px;margin-top:3px;text-transform:uppercase}
+.head-meta{font-size:10px;color:var(--ink-faint);letter-spacing:1px;text-align:right;line-height:1.7}.head-meta b{color:var(--cyan)}
+main{display:grid;grid-template-columns:340px 1fr;min-height:calc(100vh - 64px)}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.controls{border-right:1px solid var(--line);background:var(--panel);padding:0 0 60px;overflow-y:auto;max-height:calc(100vh - 64px);position:sticky;top:64px}
+@media(max-width:900px){.controls{max-height:none;position:static;border-right:none;border-bottom:1px solid var(--line)}}
+.section{border-bottom:1px solid var(--line)}
+.section-head{display:flex;align-items:center;gap:8px;padding:11px 18px;background:var(--panel-2);font-family:'Chakra Petch',sans-serif;font-weight:600;letter-spacing:2px;font-size:11px;text-transform:uppercase;color:var(--steel);user-select:none}
+.section-head .tag{margin-left:auto;font-family:'IBM Plex Mono';font-size:9px;color:var(--ink-faint);border:1px solid var(--line-bright);padding:1px 5px;letter-spacing:1px}
+.section-head::before{content:"";width:5px;height:5px;background:var(--amber);box-shadow:0 0 6px var(--amber)}
+.section-body{padding:14px 18px 16px}
+.ctrl{margin-bottom:15px}.ctrl:last-child{margin-bottom:0}
+.ctrl label{display:flex;justify-content:space-between;align-items:baseline;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--ink-dim);margin-bottom:6px}
+.ctrl label .val{color:var(--amber);font-weight:600;font-size:11px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:3px;background:var(--line-bright);outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;background:var(--amber);border:2px solid #0d1014;cursor:pointer;box-shadow:0 0 8px rgba(255,157,47,.6)}
+input[type=range]::-moz-range-thumb{width:13px;height:13px;background:var(--amber);border:2px solid #0d1014;cursor:pointer}
+.row{display:flex;gap:9px}.row>*{flex:1}
+select,input[type=number],input[type=text]{width:100%;background:#0d1217;border:1px solid var(--line-bright);color:var(--ink);font-family:'IBM Plex Mono';font-size:12px;padding:7px 9px;outline:none}
+select:focus,input:focus{border-color:var(--amber)}
+input[type=color]{width:100%;height:32px;background:#0d1217;border:1px solid var(--line-bright);cursor:pointer;padding:2px}
+.btn{width:100%;padding:9px;background:var(--panel-2);color:var(--ink);border:1px solid var(--line-bright);font-family:'Chakra Petch',sans-serif;font-weight:600;letter-spacing:1.5px;font-size:11px;text-transform:uppercase;cursor:pointer;transition:all .12s}
+.btn:hover{border-color:var(--amber);color:var(--amber)}.btn:active{transform:translateY(1px)}
+.btn-primary{background:var(--amber);color:#0d1014;border-color:var(--amber)}.btn-primary:hover{background:#ffb455;color:#0d1014;box-shadow:0 0 16px rgba(255,157,47,.4)}
+.toggle{display:flex;align-items:center;gap:9px;cursor:pointer;font-size:11px;color:var(--ink-dim);letter-spacing:.5px}
+.toggle input{display:none}.toggle .box{width:16px;height:16px;border:1px solid var(--line-bright);background:#0d1217;flex:none;position:relative}
+.toggle input:checked + .box{background:var(--amber);border-color:var(--amber)}.toggle input:checked + .box::after{content:"";position:absolute;inset:3px;background:#0d1014}
+.stage{padding:22px;overflow-y:auto;max-height:calc(100vh - 64px)}@media(max-width:900px){.stage{max-height:none}}
+.stage-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.stage-head .title{font-family:'Chakra Petch',sans-serif;font-weight:600;letter-spacing:2px;font-size:13px;text-transform:uppercase;color:var(--ink)}
+.stage-head .dims-meta{font-size:10px;color:var(--cyan);letter-spacing:1px}
+.stage-head .zoomctl{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:10px;color:var(--ink-faint);letter-spacing:1px}
+.stage-head .zoomctl input[type=range]{width:120px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:16px}
+.tex{background:var(--panel);border:1px solid var(--line);display:flex;flex-direction:column}
+.tex-head{display:flex;align-items:center;justify-content:space-between;padding:8px 11px;border-bottom:1px solid var(--line);background:var(--panel-2)}
+.tex-head .name{font-size:11px;letter-spacing:1px;color:var(--ink)}.tex-head .name b{color:var(--amber)}
+.tex-head .dl{font-size:9px;letter-spacing:1px;color:var(--ink-faint);cursor:pointer;border:1px solid var(--line-bright);padding:2px 6px;text-transform:uppercase;transition:all .1s}
+.tex-head .dl:hover{color:var(--amber);border-color:var(--amber)}
+.tex-canvas-wrap{padding:14px;display:flex;align-items:center;justify-content:center;background:repeating-conic-gradient(#0c0f13 0% 25%,#0a0d11 0% 50%) 0/16px 16px;flex:1;min-height:120px}
+.tex canvas{image-rendering:pixelated;image-rendering:crisp-edges;display:block;border:1px solid #000;box-shadow:0 0 0 1px var(--line-bright),0 6px 18px #0008}
+.tex-foot{padding:7px 11px;border-top:1px solid var(--line);font-size:9px;color:var(--ink-faint);letter-spacing:.5px;line-height:1.6}.tex-foot b{color:var(--steel)}
+.placement-note{margin-top:22px;border:1px solid var(--line);background:var(--panel);padding:14px 16px;font-size:11px;color:var(--ink-dim);line-height:1.7}
+.placement-note h4{font-family:'Chakra Petch';letter-spacing:2px;font-size:11px;color:var(--cyan);text-transform:uppercase;margin-bottom:8px}
+.placement-note code{background:#0d1217;border:1px solid var(--line);padding:1px 5px;color:var(--amber);font-size:10px}
+.placement-note .files{margin-top:10px;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:4px 14px}
+.placement-note .files span{color:var(--ink-faint);font-size:10px}.placement-note .files span::before{content:"› ";color:var(--cyan)}
+footer{border-top:1px solid var(--line);padding:12px 22px;font-size:10px;color:var(--ink-faint);letter-spacing:1px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}footer b{color:var(--steel)}
+.spin{display:inline-block;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+.export-row{display:grid;grid-template-columns:1fr;gap:9px}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo"></div>
+    <div><h1>HULL <b>FOUNDRY</b></h1><div class="sub">Procedural Armor Texture Fabricator · Cosmoteer 0.30.x</div></div></div>
+  <div class="head-meta">OUTPUT · <b>64px / tile</b> · RGBA<br>NORMALS · <b>OpenGL</b> Y-up tangent space</div>
+</header>
+<main>
+  <aside class="controls" id="controls">
+    <div class="section"><div class="section-head">Part Geometry <span class="tag">SIZE</span></div>
+      <div class="section-body">
+        <div class="ctrl"><label>Preset</label>
+          <select id="preset">
+            <option value="1x1">1×1 Armor (square)</option><option value="2x1">2×1 Armor</option>
+            <option value="1x2">1×2 Armor</option><option value="1x3">1×3 Armor</option>
+            <option value="wedge1">1×1 Wedge (triangular)</option><option value="wedge2">1×2 Wedge</option>
+            <option value="wedge3">1×3 Wedge</option><option value="custom">Custom…</option>
+          </select></div>
+        <div class="row">
+          <div class="ctrl"><label>Tiles W <span class="val" id="twv">1</span></label><input type="range" id="tilesX" min="1" max="4" step="1" value="1"></div>
+          <div class="ctrl"><label>Tiles H <span class="val" id="thv">1</span></label><input type="range" id="tilesY" min="1" max="4" step="1" value="1"></div></div>
+        <div class="ctrl"><label class="toggle"><input type="checkbox" id="wedge"><span class="box"></span>Triangular wedge (hypotenuse → upper-left)</label></div>
+      </div></div>
+    <div class="section"><div class="section-head">Material Profile <span class="tag">LOOK</span></div>
+      <div class="section-body">
+        <div class="ctrl"><label>Material library</label>
+          <select id="material">
+            <option value="vanilla">Vanilla Steel Armor</option>
+            <option value="nera">NERA (plates + copper tubes)</option>
+            <option value="compc">Composite-C (embedded spheres)</option>
+            <option value="hardened">Face-Hardened (dense plate)</option>
+            <option value="uranium">Depleted Uranium (heavy)</option>
+            <option value="custom">— custom —</option>
+          </select></div>
+        <div class="ctrl"><label>Base brightness <span class="val" id="bbv">29</span></label><input type="range" id="baseBright" min="10" max="120" step="1" value="29"></div>
+        <div class="ctrl"><label>Surface grain <span class="val" id="grv">9.0</span></label><input type="range" id="grain" min="0" max="22" step="0.5" value="9"></div>
+        <div class="ctrl"><label>Grain scale <span class="val" id="gsv">9</span></label><input type="range" id="grainScale" min="3" max="20" step="1" value="9"></div>
+        <div class="ctrl" id="weaveCtrl" style="display:none"><label>Weave period (px) <span class="val" id="wpv">13</span></label><input type="range" id="weavePeriod" min="7" max="22" step="0.5" value="13"></div>
+        <div class="ctrl" id="ballSpaceCtrl" style="display:none"><label>Sphere spacing (px) <span class="val" id="bspv">15</span></label><input type="range" id="ballSpacing" min="8" max="28" step="1" value="15"></div>
+        <div class="ctrl" id="ballFillCtrl" style="display:none"><label>Sphere fill <span class="val" id="bfv">0.94</span></label><input type="range" id="ballFill" min="0.5" max="1" step="0.02" value="0.94"></div>
+      </div></div>
+    <div class="section"><div class="section-head">Edges &amp; Relief <span class="tag">FORM</span></div>
+      <div class="section-body">
+        <div class="ctrl"><label>Bevel brightness <span class="val" id="bvv">16</span></label><input type="range" id="bevelBright" min="0" max="40" step="1" value="16"></div>
+        <div class="ctrl"><label>Bevel width (px) <span class="val" id="bwv">2.0</span></label><input type="range" id="bevelWidth" min="1" max="5" step="0.1" value="2"></div>
+        <div class="ctrl"><label>Normal strength <span class="val" id="nsv">1.0</span></label><input type="range" id="normalStrength" min="0.2" max="3" step="0.05" value="1.0"></div>
+        <div class="ctrl"><label class="toggle"><input type="checkbox" id="normalFlipY"><span class="box"></span>Flip Y (DirectX convention)</label></div>
+      </div></div>
+    <div class="section"><div class="section-head">Battle Damage <span class="tag">DMG</span></div>
+      <div class="section-body">
+        <div class="ctrl"><label>Light state severity <span class="val" id="d33v">1.0</span></label><input type="range" id="dmg33" min="0.3" max="2" step="0.05" value="1.0"></div>
+        <div class="ctrl"><label>Heavy state severity <span class="val" id="d66v">1.9</span></label><input type="range" id="dmg66" min="0.8" max="3" step="0.05" value="1.9"></div>
+        <div class="ctrl"><label>Crater count <span class="val" id="dcv">6</span></label><input type="range" id="craters" min="2" max="14" step="1" value="6"></div>
+        <div class="ctrl"><label>Hole size <span class="val" id="hsv">0.62</span></label><input type="range" id="holeSize" min="0.3" max="0.9" step="0.02" value="0.62"></div>
+        <div class="ctrl"><label>Edge margin (px) <span class="val" id="emv">6</span></label><input type="range" id="edgeMargin" min="3" max="16" step="1" value="6"></div>
+        <div class="ctrl"><label class="toggle"><input type="checkbox" id="scorch" checked><span class="box"></span>Cool scorch tint on damage</label></div>
+      </div></div>
+    <div class="section"><div class="section-head">Roof Tint Preview <span class="tag">COLOR</span></div>
+      <div class="section-body">
+        <div class="ctrl"><label>Ship-color tint (preview only)</label><input type="color" id="tint" value="#7d8a99"></div>
+        <div class="ctrl"><label class="toggle"><input type="checkbox" id="applyTint"><span class="box"></span>Apply tint to roof preview</label></div>
+        <p style="font-size:10px;color:var(--ink-faint);line-height:1.6">roof.png exports as the green-channel mask the engine multiplies against ship color. NERA copper tubes carry a baked warm R offset so they stay coppery through tinting. Preview tint is not baked in.</p>
+      </div></div>
+    <div class="section"><div class="section-head">Seed <span class="tag">RNG</span></div>
+      <div class="section-body"><div class="row">
+        <div class="ctrl" style="margin:0"><input type="number" id="seed" value="1234"></div>
+        <div class="ctrl" style="margin:0;flex:0 0 70px"><button class="btn" id="randSeed">⟳ ROLL</button></div></div></div></div>
+    <div class="section"><div class="section-body export-row">
+      <button class="btn btn-primary" id="dlZip">⬇ EXPORT FULL SET (.ZIP)</button>
+      <button class="btn" id="dlPng">⬇ EXPORT INDIVIDUAL PNGs</button>
+      <button class="btn" id="copyRules">⧉ COPY .RULES SNIPPET</button>
+    </div></div>
+  </aside>
+  <section class="stage">
+    <div class="stage-head"><span class="title">Fabrication Preview</span>
+      <span id="dims" class="dims-meta"></span>
+      <div class="zoomctl">ZOOM <input type="range" id="zoom" min="1" max="6" step="1" value="3"> <span id="zoomv">3×</span></div></div>
+    <div class="grid" id="grid"></div>
+    <div class="placement-note"><h4>Output Manifest</h4>
+      Drop these into your part folder (e.g. <code>mymod/my_armor/</code>). Transparent pixels (checkerboard in preview) are real alpha — wedge cut-outs and blast holes punch all the way through floor, roof and normals. Holes are kept clear of the block edge by the edge-margin so the border stays intact.
+      <div class="files" id="manifest"></div></div>
+  </section>
+</main>
+<footer>
+  <span>HULL FOUNDRY · plate calibrated to vanilla <b>cosmoteer.armor</b> (mean≈30 · bevel≈43 · roof G 199–250 · normal n<sub>z</sub>≈0.89)</span>
+  <span id="status">READY</span>
+</footer>
+<script>
+const TILE=64;
+const FILES=[
+  ["armor.png","armor","Floor + Walls plate"],
+  ["armor_33.png","armor33","Floor/Walls · light damage"],
+  ["armor_66.png","armor66","Floor/Walls · heavy damage"],
+  ["roof.png","roof","Roof luminance mask"],
+  ["roof_33.png","roof33","Roof · light damage (open holes)"],
+  ["roof_66.png","roof66","Roof · heavy damage (open holes)"],
+  ["roof_normals.png","rnorm","Roof normal map (OpenGL)"],
+  ["roof_normals_33.png","rnorm33","Normals · light (open holes)"],
+  ["roof_normals_66.png","rnorm66","Normals · heavy (open holes)"],
+  ["blueprints.png","blue","Blueprint ghost (blue ch.)"],
+  ["icon.png","icon","Editor icon (= plate)"],
+];
+function smooth(t){return t*t*(3-2*t);}
+function cellVal(ix,iy,seed){let h=(Math.imul(ix,374761393)^Math.imul(iy,668265263)^seed)>>>0;h=Math.imul(h^(h>>>13),1274126177)>>>0;return (h&0xffff)/0xffff;}
+function valueNoise(x,y,period,seed){x/=period;y/=period;const x0=Math.floor(x),y0=Math.floor(y),fx=x-x0,fy=y-y0;
+  const v00=cellVal(x0,y0,seed),v10=cellVal(x0+1,y0,seed),v01=cellVal(x0,y0+1,seed),v11=cellVal(x0+1,y0+1,seed);
+  const sx=smooth(fx),sy=smooth(fy);return (v00*(1-sx)+v10*sx)*(1-sy)+(v01*(1-sx)+v11*sx)*sy;}
+function makeFBM(seed,oc,bp){const L=[];let amp=0.5,tot=0;for(let o=0;o<oc;o++){L.push([seed+o*101,bp/Math.pow(2,o),amp]);tot+=amp;amp*=0.5;}
+  return (x,y)=>{let n=0;for(const[s,p,a]of L)n+=valueNoise(x,y,p,s)*a;return n/tot;};}
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function gauss(d,w){return Math.exp(-(d*d)/(2*w*w));}
+
+function readParams(){const g=id=>document.getElementById(id);return{
+  tilesX:+g('tilesX').value,tilesY:+g('tilesY').value,wedge:g('wedge').checked,material:g('material').value,
+  baseBright:+g('baseBright').value,grain:+g('grain').value,grainScale:+g('grainScale').value,weavePeriod:+g('weavePeriod').value,
+  ballSpacing:+g('ballSpacing').value,ballFill:+g('ballFill').value,
+  bevelBright:+g('bevelBright').value,bevelWidth:+g('bevelWidth').value,normalStrength:+g('normalStrength').value,normalFlipY:g('normalFlipY').checked,
+  dmg33:+g('dmg33').value,dmg66:+g('dmg66').value,craters:+g('craters').value,holeSize:+g('holeSize').value,edgeMargin:+g('edgeMargin').value,
+  scorch:g('scorch').checked,seed:+g('seed').value|0,tint:g('tint').value,applyTint:g('applyTint').checked,
+};}
+
+/* per-pixel material surface: returns height + albedo RGB + roof green + copper warmth */
+function surface(P,W,H,x,y,bev,gn,gf,inside){
+  const grainV=gn*P.grain+gf*P.grain*0.4;
+  const vBase=P.baseBright + bev*P.bevelBright + grainV;
+  if(P.material==='nera'){
+    // Flat overlapping diagonal armor plates ("\"), copper binding hidden beneath,
+    // revealed only in the seam gaps where the perpendicular "/" tubes cross under.
+    const per=P.weavePeriod, p=x-y, c=x+y;
+    let pfr=p/per; pfr-=Math.floor(pfr);
+    let cfr=c/per; cfr-=Math.floor(cfr);
+    const gw=0.16;                                   // seam width (low-pfr side, tucked under next plate)
+    const td=(cfr-0.5)/0.30; const tube=Math.abs(td)<1?Math.sqrt(1-td*td):0;
+    const litedge=gauss(pfr-0.90,0.06);
+    if(pfr<gw){
+      if(tube>0.15){                                 // copper peeks through seam
+        const cu=tube*inside;
+        return {h:bev*3+tube*1.0*inside-0.3, r:18+cu*40, g:16+cu*16, b:12, rg:165+cu*30, warm:cu*26};
+      }
+      const dv=14+bev*P.bevelBright*0.3;             // dark shadow seam
+      return {h:bev*3-0.6, r:dv, g:dv, b:dv, rg:150, warm:0};
+    }
+    const shade=(pfr-gw)/(1-gw);                      // flat plate top, lit leading edge
+    const pv=vBase + litedge*36*inside + (shade-0.5)*6;
+    return {h:bev*3+1.3*inside+litedge*0.5, r:pv, g:pv, b:pv, rg:210+litedge*20*inside, warm:0};
+  }
+  if(P.material==='compc'){
+    // Steel plate with perfectly centered dark spheres embedded in offset hexagonal rows.
+    let r=vBase,g=vBase,b=vBase,h=bev*3+gn*0.8+gf*0.4,rg=211+bev*14+grainV*0.66;
+    const S=P.ballSpacing, R=S*0.5*P.ballFill;
+    const Sy = S * 0.8660254; // Hexagonal vertical row spacing
+    
+    // Bounds limit to prevent spheres from overflowing edges
+    const edgeLimit = R * 0.5 + 2;
+    const W_active = W - 1 - 2 * edgeLimit;
+    const H_active = H - 1 - 2 * edgeLimit;
+    
+    // Calculate columns and rows that fit the active area
+    const Nx = Math.max(1, Math.floor(W_active / S) + 1);
+    const Ny = Math.max(1, Math.floor(H_active / Sy) + 1);
+    
+    // Globally center the grid system
+    const x_start = W / 2 - ((Nx - 1) * S) / 2;
+    const y_start = H / 2 - ((Ny - 1) * Sy) / 2;
+    
+    // Find the closest ball coordinate to the current pixel (x, y)
+    const approx_row = Math.round((y - y_start) / Sy);
+    let best = 1e9, bcx = 0, bcy = 0;
+    
+    for(let rr = approx_row - 1; rr <= approx_row + 1; rr++){
+      if(rr < 0 || rr >= Ny) continue;
+      const cyc = y_start + rr * Sy;
+      const off = (rr & 1) * S * 0.5; // Offset alternate rows
+      
+      const approx_col = Math.round((x - x_start - off) / S);
+      const col_count = (rr & 1) ? Nx - 1 : Nx; // Odd rows have one less ball to maintain centering
+      
+      for(let cc = approx_col - 1; cc <= approx_col + 1; cc++){
+        if(cc < 0 || cc >= col_count) continue;
+        const cxc = x_start + off + cc * S;
+        const d = Math.hypot(x - cxc, y - cyc);
+        if(d < best){
+          best = d;
+          bcx = cxc;
+          bcy = cyc;
+        }
+      }
+    }
+    
+    // Respect triangular wedge diagonal cutting parameters for proper rendering
+    const diagLen = Math.hypot(W, H);
+    const getCde = (cx, cy) => {
+      if(P.wedge){
+        const dHyp = (H * cx + W * cy - W * H) / diagLen;
+        return Math.min(W - 1 - cx, H - 1 - cy, dHyp);
+      }
+      return Math.min(cx, cy, W - 1 - cx, H - 1 - cy);
+    };
+    
+    const cde = getCde(bcx, bcy);
+    if(best<R && cde>R*0.5+2){
+      const nx=(x-bcx)/R, ny=(y-bcy)/R, nz=Math.sqrt(Math.max(0,1-nx*nx-ny*ny));
+      const Lx=-0.4533,Ly=-0.4533,Lz=0.7686;          // light upper-left
+      const Hx=-0.3019,Hy=-0.3019,Hz=0.9043;          // half-vector (view +Z)
+      const diff=Math.max(0,nx*Lx+ny*Ly+nz*Lz);
+      const spec=Math.pow(Math.max(0,nx*Hx+ny*Hy+nz*Hz),22);
+      const mo=gf*8;
+      let bv=13 + 9 + diff*42 + spec*120 + mo;         // dark ball + bright spec spot
+      const edgeShade=smooth(Math.min(1,(R-best)/3));   // contact shadow at ball foot
+      bv*=0.5+0.5*edgeShade;
+      r=g=b=bv;
+      h=bev*3+nz*5.0;                                   // raised hemisphere
+      rg=170 + diff*40 + spec*60;
+    }
+    return {h,r,g,b,rg,warm:0};
+  }
+  const h=bev*3 + gn*0.8 + gf*0.4;
+  const rg=211 + bev*14 + grainV*0.66;
+  return {h,r:vBase,g:vBase,b:vBase,rg,warm:0};
+}
+
+function edgeDistAt(P,W,H,diagLen,x,y){
+  if(P.wedge){const dHyp=(H*(x+0.5)+W*(y+0.5)-W*H)/diagLen;return Math.min(W-1-x,H-1-y,dHyp);}
+  return Math.min(x,y,W-1-x,H-1-y);
+}
+
+function buildFields(P){
+  const W=P.tilesX*TILE,H=P.tilesY*TILE,N=W*H;
+  const fbm=makeFBM(P.seed,4,P.grainScale),fbmFine=makeFBM(P.seed+777,2,3);
+  const bw=P.bevelWidth, diagLen=Math.hypot(W,H);
+  const solid=new Uint8Array(N),edge=new Float32Array(N),height=new Float32Array(N);
+  const aR=new Float32Array(N),aG=new Float32Array(N),aB=new Float32Array(N),roofG=new Float32Array(N),warm=new Float32Array(N);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x;
+    let de,isSolid=1;
+    if(P.wedge){const dHyp=(H*(x+0.5)+W*(y+0.5)-W*H)/diagLen;isSolid=dHyp>=0?1:0;de=Math.min(W-1-x,H-1-y,dHyp);}
+    else de=Math.min(x,y,W-1-x,H-1-y);
+    solid[i]=isSolid; edge[i]=de;
+    let bev=Math.exp(-Math.pow(de-bw,2)/(2*0.65*bw*bw)); if(de<1) bev-=0.5;
+    const gn=(fbm(x,y)-0.5)*2, gf=(fbmFine(x,y)-0.5)*2;
+    const inside=Math.max(0,Math.min(1,(de-2)/1.0)); // fade interior pattern away from the bevel
+    const s=surface(P,W,H,x,y,bev,gn,gf,inside);
+    height[i]=s.h; aR[i]=s.r; aG[i]=s.g; aB[i]=s.b; roofG[i]=s.rg; warm[i]=s.warm;
+  }
+  return {W,H,N,solid,edge,height,aR,aG,aB,roofG,warm,diagLen};
+}
+
+function buildDamage(P,F,level){
+  const {W,H,N,diagLen}=F;
+  const rng=mulberry32(P.seed^0x9e37);
+  const intens=level===1?P.dmg33:P.dmg66;
+  const keep=P.edgeMargin;
+  const all=[];
+  for(let k=0;k<P.craters;k++){
+    const r=6+rng()*9;
+    let cx,cy,ok=false;
+    for(let tries=0;tries<16;tries++){
+      cx=rng()*W; cy=rng()*H;
+      const need=keep + r*intens*P.holeSize*0.7;
+      if(edgeDistAt(P,W,H,diagLen,cx,cy) >= need){ok=true;break;}
+    }
+    if(!ok){ // fallback: pull toward a safely-interior point
+      cx=P.wedge?W*0.62:W*0.5; cy=P.wedge?H*0.62:H*0.5;
+    }
+    all.push({x:cx,y:cy,r,depth:8+rng()*10});
+  }
+  const used=all.slice(0,level===1?Math.max(2,Math.round(P.craters*0.6)):P.craters);
+  const chaos=makeFBM(P.seed^0x55aa,3,2.6);
+  const hole=new Uint8Array(N),char=new Float32Array(N),dmgHeight=Float32Array.from(F.height);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x; let dent=0,rim=0,crush=0,isHole=0;
+    for(const c of used){
+      const rr=c.r*intens, d=Math.hypot(x-c.x,y-c.y);
+      if(d<rr*1.6){const t=Math.max(0,1-d/rr);dent+=Math.pow(t,1.3)*c.depth;
+        if(d>rr*0.7&&d<rr*1.35)rim+=(1-Math.abs(d-rr)/(rr*0.35))*c.depth*0.4;
+        crush+=t;char[i]+=t;if(d<rr*P.holeSize)isHole=1;}
+    }
+    // HARD keep-out: never let a hole reach the block edge
+    if(F.edge[i] < keep) isHole=0;
+    hole[i]=isHole;
+    if(crush>0){const ch=(chaos(x,y)-0.5)*2;dmgHeight[i]+=-dent+rim+ch*crush*2.4*intens;}
+    // fade scorch near the edge so the bevel border stays readable
+    char[i]=Math.min(1,char[i])*Math.max(0,Math.min(1,(F.edge[i]-2)/keep));
+  }
+  return {hole,char,dmgHeight,intens};
+}
+
+function normalsFromHeight(P,F,height,hole){
+  const {W,H}=F,out=new ImageData(W,H),d=out.data,s=P.normalStrength,flip=P.normalFlipY?-1:1;
+  const at=(x,y)=>height[Math.min(H-1,Math.max(0,y))*W+Math.min(W-1,Math.max(0,x))];
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x,i4=i*4;
+    if(!F.solid[i]||(hole&&hole[i])){d[i4]=128;d[i4+1]=128;d[i4+2]=255;d[i4+3]=0;continue;}
+    const gx=(at(x+1,y)-at(x-1,y))*0.5,gy=(at(x,y+1)-at(x,y-1))*0.5;
+    let nx=-gx*s,ny=-gy*s*flip,nz=1.0;const L=Math.hypot(nx,ny,nz);nx/=L;ny/=L;nz/=L;
+    d[i4]=Math.round((nx*0.5+0.5)*255);d[i4+1]=Math.round((ny*0.5+0.5)*255);d[i4+2]=Math.round((nz*0.5+0.5)*255);d[i4+3]=255;
+  }
+  return out;
+}
+function renderArmor(P,F,level){
+  const {W,H}=F,out=new ImageData(W,H),d=out.data;let dmg=null;if(level>0)dmg=buildDamage(P,F,level);
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x,i4=i*4;
+    if(!F.solid[i]){d[i4+3]=0;continue;}
+    if(level>0&&dmg.hole[i]){d[i4+3]=0;continue;}   // ALL holes punch through
+    let r=F.aR[i],g=F.aG[i],b=F.aB[i];
+    if(level>0){const c=dmg.char[i],f=1-c*0.72;r=r*f-c*14;g=g*f-c*14;b=b*f-c*14;if(P.scorch)b+=Math.min(42,c*9);}
+    d[i4]=clamp8(r,level);d[i4+1]=clamp8(g,level);d[i4+2]=clamp8(Math.min(255,b),level);d[i4+3]=255;
+  }
+  return {img:out,dmg};
+}
+function clamp8(v,level){return Math.max(level>0?0:6,Math.min(level>0?255:190,Math.round(v)));}
+function renderRoof(P,F,level,dmg){
+  const {W,H}=F,out=new ImageData(W,H),d=out.data,tint=hexToRgb(P.tint),useTint=P.applyTint;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x,i4=i*4;
+    if(!F.solid[i]){d[i4+3]=0;continue;}
+    if(level>0&&dmg.hole[i]){d[i4+3]=0;continue;}
+    let g=F.roofG[i]; if(level>0)g-=dmg.char[i]*150*dmg.intens; g=Math.max(0,Math.min(250,g));
+    if(useTint){const f=g/255;d[i4]=Math.round(tint.r*f);d[i4+1]=Math.round(tint.g*f);d[i4+2]=Math.round(tint.b*f);}
+    else{const rb=g*0.062,w=F.warm[i];d[i4]=Math.max(0,Math.min(255,Math.round(rb+w)));d[i4+1]=Math.round(g);d[i4+2]=Math.max(0,Math.min(255,Math.round(rb-w*0.4)));}
+    d[i4+3]=255;
+  }
+  return out;
+}
+function renderBlue(P,F){
+  const {W,H}=F,out=new ImageData(W,H),d=out.data;
+  for(let y=0;y<H;y++)for(let x=0;x<W;x++){
+    const i=y*W+x,i4=i*4;
+    if(!F.solid[i]){d[i4+3]=0;continue;}
+    let b=197+Math.max(0,Math.min(51,F.roofG[i]-199))/51*24; b=Math.max(197,Math.min(221,b));
+    d[i4]=0;d[i4+1]=0;d[i4+2]=Math.round(b);d[i4+3]=255;
+  }
+  return out;
+}
+function hexToRgb(h){const n=parseInt(h.slice(1),16);return{r:(n>>16)&255,g:(n>>8)&255,b:n&255};}
+
+const canvases={};let currentParams=null;
+function generateAll(){
+  const P=readParams();currentParams=P;
+  document.getElementById('weaveCtrl').style.display=(P.material==='nera')?'block':'none';
+  const showBall=(P.material==='compc')?'block':'none';
+  document.getElementById('ballSpaceCtrl').style.display=showBall;
+  document.getElementById('ballFillCtrl').style.display=showBall;
+  const F=buildFields(P);
+  const a0=renderArmor(P,F,0),a1=renderArmor(P,F,1),a2=renderArmor(P,F,2);
+  const r0=renderRoof(P,F,0,null),r1=renderRoof(P,F,1,a1.dmg),r2=renderRoof(P,F,2,a2.dmg);
+  const n0=normalsFromHeight(P,F,F.height,null),n1=normalsFromHeight(P,F,a1.dmg.dmgHeight,a1.dmg.hole),n2=normalsFromHeight(P,F,a2.dmg.dmgHeight,a2.dmg.hole);
+  const blue=renderBlue(P,F);
+  const map={armor:a0.img,armor33:a1.img,armor66:a2.img,roof:r0,roof33:r1,roof66:r2,rnorm:n0,rnorm33:n1,rnorm66:n2,blue:blue,icon:a0.img};
+  for(const[name,key]of FILES){const cv=canvases[key].canvas;cv.width=F.W;cv.height=F.H;cv.getContext('2d').putImageData(map[key],0,0);canvases[key].imgData=map[key];}
+  applyZoom();
+  document.getElementById('dims').textContent=`${F.W}×${F.H}px · ${P.tilesX}×${P.tilesY} tiles${P.wedge?' · WEDGE':''} · ${P.material.toUpperCase()}`;
+  setStatus('GENERATED · '+new Date().toLocaleTimeString());
+}
+function applyZoom(){const z=+document.getElementById('zoom').value;document.getElementById('zoomv').textContent=z+'×';
+  for(const k in canvases){const cv=canvases[k].canvas;cv.style.width=(cv.width*z)+'px';cv.style.height=(cv.height*z)+'px';}}
+function buildGrid(){
+  const grid=document.getElementById('grid');grid.innerHTML='';const manifest=document.getElementById('manifest');manifest.innerHTML='';
+  for(const[name,key,desc]of FILES){
+    const card=document.createElement('div');card.className='tex';
+    card.innerHTML=`<div class="tex-head"><span class="name">${name.replace('.png','')}<b>.png</b></span><span class="dl">SAVE</span></div><div class="tex-canvas-wrap"></div><div class="tex-foot">${desc}</div>`;
+    const cv=document.createElement('canvas');card.querySelector('.tex-canvas-wrap').appendChild(cv);grid.appendChild(card);
+    canvases[key]={canvas:cv,imgData:null};
+    card.querySelector('.dl').addEventListener('click',()=>downloadCanvas(canvases[key].canvas,name));
+    const m=document.createElement('span');m.textContent=name;manifest.appendChild(m);
+  }
+}
+function downloadCanvas(cv,name){cv.toBlob(b=>{const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000);});}
+function canvasBlob(cv){return new Promise(r=>cv.toBlob(r));}
+async function downloadZip(){setStatus('PACKING ZIP…','spin');const zip=new JSZip(),folder=zip.folder('armor_textures');
+  for(const[name,key]of FILES)folder.file(name,await canvasBlob(canvases[key].canvas));
+  folder.file('PLACEMENT.txt',rulesSnippet(currentParams)+'\n\nFILES:\n'+FILES.map(f=>'  '+f[0]+'  — '+f[2]).join('\n'));
+  const out=await zip.generateAsync({type:'blob'});const u=URL.createObjectURL(out),a=document.createElement('a');a.href=u;a.download='hull_foundry_armor_set.zip';a.click();
+  setTimeout(()=>URL.revokeObjectURL(u),3000);setStatus('ZIP EXPORTED · 11 textures');}
+async function downloadEach(){setStatus('EXPORTING PNGs…','spin');for(const[name,key]of FILES){downloadCanvas(canvases[key].canvas,name);await new Promise(r=>setTimeout(r,180));}setStatus('11 PNGs EXPORTED');}
+function rulesSnippet(P){return `// HULL FOUNDRY — Graphics block (paste into your Part .rules)
+Components : ^/0/Components
+{
+  Graphics
+  {
+    Type = Graphics
+    Location = [${P.tilesX/2}, ${P.tilesY/2}]
+    Floor { Layer = "floors"
+      DamageLevels [
+        { File = "armor.png"    Size = [${P.tilesX}, ${P.tilesY}] }
+        { File = "armor_33.png" Size = [${P.tilesX}, ${P.tilesY}] }
+        { File = "armor_66.png" Size = [${P.tilesX}, ${P.tilesY}] }
+      ]
+    }
+    Walls { Layer = "walls"
+      DamageLevels [
+        { File = "armor.png"    Size = [${P.tilesX}, ${P.tilesY}] }
+        { File = "armor_33.png" Size = [${P.tilesX}, ${P.tilesY}] }
+        { File = "armor_66.png" Size = [${P.tilesX}, ${P.tilesY}] }
+      ]
+    }
+    Roof { Layer = "roofs"
+      DamageLevels [
+        { File = "roof.png"    NormalsFile = "roof_normals.png"    Size = [${P.tilesX}, ${P.tilesY}] }
+        { File = "roof_33.png" NormalsFile = "roof_normals_33.png" Size = [${P.tilesX}, ${P.tilesY}] }
+        { File = "roof_66.png" NormalsFile = "roof_normals_66.png" Size = [${P.tilesX}, ${P.tilesY}] }
+      ]
+    }
+  }
+  Blueprints { Type = BlueprintSprite  File = "blueprints.png"  Size = [${P.tilesX}, ${P.tilesY}] }
+}`;}
+const MATERIALS={
+  vanilla:{baseBright:29,grain:9,bevelBright:16,normalStrength:1.0},
+  nera:{baseBright:30,grain:5,bevelBright:16,normalStrength:0.85,weavePeriod:15},
+  compc:{baseBright:29,grain:9,bevelBright:16,normalStrength:1.1,ballSpacing:15,ballFill:0.94},
+  hardened:{baseBright:36,grain:6,bevelBright:22,normalStrength:1.3},
+  uranium:{baseBright:46,grain:5,bevelBright:26,normalStrength:1.6},
+};
+const PRESETS={'1x1':{tilesX:1,tilesY:1,wedge:false},'2x1':{tilesX:2,tilesY:1,wedge:false},'1x2':{tilesX:1,tilesY:2,wedge:false},'1x3':{tilesX:1,tilesY:3,wedge:false},
+  'wedge1':{tilesX:1,tilesY:1,wedge:true},'wedge2':{tilesX:1,tilesY:2,wedge:true},'wedge3':{tilesX:1,tilesY:3,wedge:true}};
+function setStatus(t,cls){document.getElementById('status').innerHTML=(cls?`<span class="${cls}">⟳</span> `:'')+t;}
+function syncLabels(){const m=[['tilesX','twv'],['tilesY','thv'],['baseBright','bbv'],['grain','grv'],['grainScale','gsv'],['weavePeriod','wpv'],['ballSpacing','bspv'],['ballFill','bfv'],['bevelBright','bvv'],['bevelWidth','bwv'],['normalStrength','nsv'],['dmg33','d33v'],['dmg66','d66v'],['craters','dcv'],['holeSize','hsv'],['edgeMargin','emv']];
+  for(const[i,l]of m)document.getElementById(l).textContent=document.getElementById(i).value;}
+let debounce=null;
+function regen(){clearTimeout(debounce);debounce=setTimeout(()=>{syncLabels();generateAll();},60);}
+function init(){
+  buildGrid();
+  document.querySelectorAll('#controls input, #controls select').forEach(el=>{el.addEventListener('input',regen);el.addEventListener('change',regen);});
+  document.getElementById('zoom').addEventListener('input',applyZoom);
+  document.getElementById('preset').addEventListener('change',e=>{const p=PRESETS[e.target.value];if(p){document.getElementById('tilesX').value=p.tilesX;document.getElementById('tilesY').value=p.tilesY;document.getElementById('wedge').checked=p.wedge;}regen();});
+  document.getElementById('material').addEventListener('change',e=>{const m=MATERIALS[e.target.value];if(m){for(const k in m)document.getElementById(k).value=m[k];}regen();});
+  document.getElementById('randSeed').addEventListener('click',()=>{document.getElementById('seed').value=Math.floor(Math.random()*1e6);regen();});
+  document.getElementById('dlZip').addEventListener('click',downloadZip);
+  document.getElementById('dlPng').addEventListener('click',downloadEach);
+  document.getElementById('copyRules').addEventListener('click',()=>navigator.clipboard.writeText(rulesSnippet(currentParams)).then(()=>setStatus('RULES SNIPPET COPIED')));
+  syncLabels();generateAll();
+}
+window.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
