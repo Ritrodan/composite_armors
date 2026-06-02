@@ -189,16 +189,22 @@ function buildDamage(P, F, level) {
 }
 
 function normalsFromHeight(P, F, height, hole) {
-  // The plate is physically flat, so its normal map is flat too: every solid
-  // pixel points straight up (128,128,255). The weave / spheres / grain are
-  // drawn entirely by the color + roof textures; baking them into the normal
-  // map produced surface relief that vanilla armor doesn't have. Holes and
-  // outside-the-part pixels stay transparent.
-  const { W, H } = F, out = newImage(W, H), d = out.data;
-  for (let i = 0; i < W * H; i++) {
-    const i4 = i * 4;
-    d[i4] = 128; d[i4 + 1] = 128; d[i4 + 2] = 255;
-    d[i4 + 3] = (!F.solid[i] || (hole && hole[i])) ? 0 : 255;
+  // `height` is the height field the normals are derived from. In renderSet the
+  // base surface is scaled down (surfaceNormalScale) so the weave / spheres /
+  // grain read as *subtle* normals like vanilla's rivets rather than tall 3D
+  // relief, while damage relief is kept at full strength. The edge fade flattens
+  // the bevel near the perimeter so plates don't get cyan/magenta walls.
+  const { W, H } = F, out = newImage(W, H), d = out.data, s = P.normalStrength, flip = P.normalFlipY ? -1 : 1;
+  const fade = P.normalEdgeFade || 0;
+  const at = (x, y) => height[Math.min(H - 1, Math.max(0, y)) * W + Math.min(W - 1, Math.max(0, x))];
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, i4 = i * 4;
+    if (!F.solid[i] || (hole && hole[i])) { d[i4] = 128; d[i4 + 1] = 128; d[i4 + 2] = 255; d[i4 + 3] = 0; continue; }
+    const gx = (at(x + 1, y) - at(x - 1, y)) * 0.5, gy = (at(x, y + 1) - at(x, y - 1)) * 0.5;
+    let nx = -gx * s, ny = -gy * s * flip, nz = 1.0;
+    if (fade > 0) { const ef = smooth(Math.min(1, F.edge[i] / fade)); nx *= ef; ny *= ef; }
+    const L = Math.hypot(nx, ny, nz); nx /= L; ny /= L; nz /= L;
+    d[i4] = Math.round((nx * 0.5 + 0.5) * 255); d[i4 + 1] = Math.round((ny * 0.5 + 0.5) * 255); d[i4 + 2] = Math.round((nz * 0.5 + 0.5) * 255); d[i4 + 3] = 255;
   }
   return out;
 }
@@ -250,7 +256,12 @@ export function renderSet(P) {
   const F = buildFields(P);
   const a0 = renderArmor(P, F, 0), a1 = renderArmor(P, F, 1), a2 = renderArmor(P, F, 2);
   const r0 = renderRoof(P, F, 0, null), r1 = renderRoof(P, F, 1, a1.dmg), r2 = renderRoof(P, F, 2, a2.dmg);
-  const n0 = normalsFromHeight(P, F, F.height, null), n1 = normalsFromHeight(P, F, a1.dmg.dmgHeight, a1.dmg.hole), n2 = normalsFromHeight(P, F, a2.dmg.dmgHeight, a2.dmg.hole);
+  // Normal-map height = (subtle) base surface + full-strength damage relief.
+  // Scaling only the base keeps weave/spheres/grain gentle like vanilla rivets
+  // while leaving crater dents at full depth.
+  const bs = P.surfaceNormalScale;
+  const nh = (dmg) => { const a = new Float32Array(F.N); for (let i = 0; i < F.N; i++) a[i] = bs * F.height[i] + (dmg ? dmg.dmgHeight[i] - F.height[i] : 0); return a; };
+  const n0 = normalsFromHeight(P, F, nh(null), null), n1 = normalsFromHeight(P, F, nh(a1.dmg), a1.dmg.hole), n2 = normalsFromHeight(P, F, nh(a2.dmg), a2.dmg.hole);
   const blue = renderBlue(P, F);
   const map = { armor: a0.img, armor33: a1.img, armor66: a2.img, roof: r0, roof33: r1, roof66: r2, rnorm: n0, rnorm33: n1, rnorm66: n2, blue: blue, icon: a0.img };
   const out = {};
