@@ -19,7 +19,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	DamageResistances
 	{
 		explosive = 40%
-		thermal = -10%
+		thermal = 5%
 	}
 	TypeCategories = [armor, non_flammable]
 	InitialPenetrationResistance = 7
