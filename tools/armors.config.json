@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "compatibleGameVersions": ["0.30.1"],
     "author": "Ritrodan",
-    "description": "Adds new armor types for testing: NERA, Face-Hardened Armor, Composite-C, and Depleted Uranium Armor, with multiple size variants.",
+    "description": "Adds new armor types for testing: NERA, Tri-Steel Compound Armor, Combination C Armor, and Depleted Uranium Armor, with multiple size variants.",
     "modifiesMultiplayer": true,
     "modifiesGameplay": true,
     "stringsFolder": "strings"
@@ -25,9 +25,9 @@
     "face_hardened": {
       "id": "face_hardened",
       "nameKey": "FaceHardened",
-      "displayName": "Face-Hardened Armor",
-      "variantNoun": "face-hardened armor",
-      "description": "Face-hardened armor consists of steel reinforced by tri-steel plating, which produces armor with more health and resistance to penetration and explosives. This comes at the cost of cost efficiency.",
+      "displayName": "Tri-Steel Compound Armor",
+      "variantNoun": "tri-steel compound armor",
+      "description": "Tri-steel compound armor offers high health and strong cost efficiency by reinforcing steel with tri-steel plating. Its durability and value come at the cost of significantly increased weight.",
       "texture": { "material": "hardened", "seed": 7220 },
       "perTile": { "resources": [["steel", 4], ["tristeel", 1]], "maxHealth": 6000, "empAbsorb": 1000 },
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 66, "thermalResist": 0, "penResist": 6, "density": 5.4 }
@@ -35,9 +35,9 @@
     "composite_c": {
       "id": "composite_c",
       "nameKey": "CompositeC",
-      "displayName": "Composite-C Armor",
-      "variantNoun": "Composite-C armor",
-      "description": "High-hardness boron carbide spheres suspended in a steel matrix. Composite-C resists penetration better than standard armor at the same HP, with mild thermal resistance.",
+      "displayName": "Combination C Armor",
+      "variantNoun": "Combination C armor",
+      "description": "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance.",
       "texture": { "material": "compc", "seed": 8801 },
       "perTile": { "resources": [["steel", 3], ["carbon", 1]], "maxHealth": 4000, "empAbsorb": 1000 },
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 50, "thermalResist": 10, "penResist": 8, "density": 2.6 }

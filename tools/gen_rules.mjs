@@ -35,13 +35,14 @@ function partRules(mat, W, H) {
 \tEditorReplacementPartID = Ritrodan.${mat.id}
 \tDescriptionKey = "Parts/${mat.nameKey}${suffix}Desc"`;
 
-  const rotateBlock = isBase
-    ? `\tIsRotateable = false`
-    : `\tFlipHRotate = [0, 1, 2, 3]
-\tFlipVRotate = [0, 1, 2, 3]`;
+  const isRotatable = W !== H;
+  const rotateBlock = isRotatable
+    ? `\tFlipHRotate = [0, 1, 2, 3]
+\tFlipVRotate = [0, 1, 2, 3]`
+    : `\tIsRotateable = false`;
 
   const flammableLine = isBase ? '' : '\tFlammable = false\n';
-  const isRotateableLine = isBase ? '' : '\tIsRotateable = true\n';
+  const isRotateableLine = isRotatable ? '\tIsRotateable = true\n' : '';
   const floorComment = isBase ? ' // This is needed so that armor shows up in ship ghosts.' : '';
 
   const damageLevels = (files) => files.map(([f, nf]) =>
@@ -171,11 +172,11 @@ function stringsFile(cfg) {
         lines.push(`\t${mat.nameKey}Icon = "${mat.displayName}"`);
         lines.push(`\t${mat.nameKey}Desc = "${mat.description}"`);
       } else {
-        const label = `${mat.displayName} (${v.suffix})`;
+        const label = `${mat.displayName} ${v.suffix}`;
         lines.push('');
         lines.push(`\t${mat.nameKey}${v.suffix} = "${label}"`);
         lines.push(`\t${mat.nameKey}${v.suffix}Icon = "${label}"`);
-        lines.push(`\t${mat.nameKey}${v.suffix}Desc = "A ${v.suffix} block of ${mat.variantNoun}."`);
+        lines.push(`\t${mat.nameKey}${v.suffix}Desc = "${mat.description}"`);
       }
     }
     blocks.push(lines.join('\n'));
