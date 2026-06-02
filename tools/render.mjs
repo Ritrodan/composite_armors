@@ -55,17 +55,17 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     if (pfr < gw) {
       if (tube > 0.15) {
         const cu = tube * inside;
-        return { h: bev * 3 + tube * 1.0 * inside - 0.3, r: 18 + cu * 40, g: 16 + cu * 16, b: 12, rg: 165 + cu * 30, warm: cu * 26 };
+        return { h: tube * 1.0 * inside - 0.3, r: 18 + cu * 40, g: 16 + cu * 16, b: 12, rg: 165 + cu * 30, warm: cu * 26 };
       }
       const dv = 14 + bev * P.bevelBright * 0.3;
-      return { h: bev * 3 - 0.6, r: dv, g: dv, b: dv, rg: 150, warm: 0 };
+      return { h: -0.6, r: dv, g: dv, b: dv, rg: 150, warm: 0 };
     }
     const shade = (pfr - gw) / (1 - gw);
     const pv = vBase + litedge * 36 * inside + (shade - 0.5) * 6;
-    return { h: bev * 3 + 1.3 * inside + litedge * 0.5, r: pv, g: pv, b: pv, rg: 210 + litedge * 20 * inside, warm: 0 };
+    return { h: 1.3 * inside + litedge * 0.5, r: pv, g: pv, b: pv, rg: 210 + litedge * 20 * inside, warm: 0 };
   }
   if (P.material === 'compc') {
-    let r = vBase, g = vBase, b = vBase, h = bev * 3 + gn * 0.8 + gf * 0.4, rg = 211 + bev * 14 + grainV * 0.66;
+    let r = vBase, g = vBase, b = vBase, h = gn * 0.8 + gf * 0.4, rg = 211 + bev * 14 + grainV * 0.66;
     const S = P.ballSpacing, R = S * 0.5 * P.ballFill;
     const Sy = S * 0.8660254;
     const edgeLimit = R * 0.5 + 2;
@@ -107,12 +107,12 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
       const edgeShade = smooth(Math.min(1, (R - best) / 3));
       bv *= 0.5 + 0.5 * edgeShade;
       r = g = b = bv;
-      h = bev * 3 + nz * P.ballNormalHeight;
+      h = nz * P.ballNormalHeight;
       rg = 170 + diff * 40 + spec * 60;
     }
     return { h, r, g, b, rg, warm: 0 };
   }
-  const h = bev * 3 + gn * 0.8 + gf * 0.4;
+  const h = gn * 0.8 + gf * 0.4;
   const rg = 211 + bev * 14 + grainV * 0.66;
   return { h, r: vBase, g: vBase, b: vBase, rg, warm: 0 };
 }
@@ -189,11 +189,12 @@ function buildDamage(P, F, level) {
 }
 
 function normalsFromHeight(P, F, height, hole) {
+  // `height` is the height field the normals are derived from. In renderSet the
+  // base surface is scaled down (surfaceNormalScale) so the weave / spheres /
+  // grain read as *subtle* normals like vanilla's rivets rather than tall 3D
+  // relief, while damage relief is kept at full strength. The edge fade flattens
+  // the bevel near the perimeter so plates don't get cyan/magenta walls.
   const { W, H } = F, out = newImage(W, H), d = out.data, s = P.normalStrength, flip = P.normalFlipY ? -1 : 1;
-  // Fade the slope to flat (straight-up) within `normalEdgeFade` px of the part
-  // perimeter. The bevel ridge that gives the diffuse texture its lit edge would
-  // otherwise bake a tall cyan/magenta "wall" into the normal map all the way
-  // around the plate; vanilla armor keeps its edges flat, so we match that.
   const fade = P.normalEdgeFade || 0;
   const at = (x, y) => height[Math.min(H - 1, Math.max(0, y)) * W + Math.min(W - 1, Math.max(0, x))];
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
@@ -255,7 +256,12 @@ export function renderSet(P) {
   const F = buildFields(P);
   const a0 = renderArmor(P, F, 0), a1 = renderArmor(P, F, 1), a2 = renderArmor(P, F, 2);
   const r0 = renderRoof(P, F, 0, null), r1 = renderRoof(P, F, 1, a1.dmg), r2 = renderRoof(P, F, 2, a2.dmg);
-  const n0 = normalsFromHeight(P, F, F.height, null), n1 = normalsFromHeight(P, F, a1.dmg.dmgHeight, a1.dmg.hole), n2 = normalsFromHeight(P, F, a2.dmg.dmgHeight, a2.dmg.hole);
+  // Normal-map height = (subtle) base surface + full-strength damage relief.
+  // Scaling only the base keeps weave/spheres/grain gentle like vanilla rivets
+  // while leaving crater dents at full depth.
+  const bs = P.surfaceNormalScale;
+  const nh = (dmg) => { const a = new Float32Array(F.N); for (let i = 0; i < F.N; i++) a[i] = bs * F.height[i] + (dmg ? dmg.dmgHeight[i] - F.height[i] : 0); return a; };
+  const n0 = normalsFromHeight(P, F, nh(null), null), n1 = normalsFromHeight(P, F, nh(a1.dmg), a1.dmg.hole), n2 = normalsFromHeight(P, F, nh(a2.dmg), a2.dmg.hole);
   const blue = renderBlue(P, F);
   const map = { armor: a0.img, armor33: a1.img, armor66: a2.img, roof: r0, roof33: r1, roof66: r2, rnorm: n0, rnorm33: n1, rnorm66: n2, blue: blue, icon: a0.img };
   const out = {};

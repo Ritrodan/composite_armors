@@ -21,7 +21,7 @@ const DEFAULTS = {
   baseBright: 29, grain: 9, grainScale: 9, weavePeriod: 13,
   ballSpacing: 15, ballFill: 0.94,
   bevelBright: 16, bevelWidth: 2, normalStrength: 1.0, normalFlipY: false,
-  normalEdgeFade: 6, ballNormalHeight: 2.4,
+  normalEdgeFade: 0, ballNormalHeight: 2.4, surfaceNormalScale: 1.0,
   dmg33: 1.0, dmg66: 1.9, cratersPerTile: 6, holeSize: 0.62, edgeMargin: 6,
   scorch: true, seed: 1234, tint: '#7d8a99', applyTint: false,
 };
