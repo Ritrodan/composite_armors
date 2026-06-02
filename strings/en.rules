@@ -36,6 +36,14 @@ Parts
 	CompositeC2x1Icon = "Combination C Armor 2x1"
 	CompositeC2x1Desc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
 
+	GoldShielding = "Gold Shielding"
+	GoldShieldingIcon = "Gold Shielding"
+	GoldShieldingDesc = "Dense gold plating offers extraordinary thermal insulation and acts as a near-perfect Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
+
+	GoldShielding2x1 = "Gold Shielding 2x1"
+	GoldShielding2x1Icon = "Gold Shielding 2x1"
+	GoldShielding2x1Desc = "Dense gold plating offers extraordinary thermal insulation and acts as a near-perfect Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
+
 	DepletedUranium = "Depleted Uranium Armor"
 	DepletedUraniumIcon = "Depleted Uranium Armor"
 	DepletedUraniumDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions."

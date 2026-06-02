@@ -33,6 +33,7 @@ const MATERIALS = {
   compc:    { baseBright: 29, grain: 9, bevelBright: 16, normalStrength: 1.1, ballSpacing: 15, ballFill: 0.94 },
   hardened: { baseBright: 36, grain: 6, bevelBright: 22, normalStrength: 1.3 },
   uranium:  { baseBright: 46, grain: 5, bevelBright: 26, normalStrength: 1.6 },
+  gold:     { baseBright: 52, grain: 4, bevelBright: 24, normalStrength: 1.2, applyTint: true, tint: '#c8a020' },
 };
 
 // Build a render-params object for a variant from armors.config.json.
