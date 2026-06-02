@@ -32,7 +32,12 @@ node tools/generate.mjs nera_4x1   # render only the named part(s)
 Each material lists its **1x1** stats. The generator scales them per variant:
 
 - **`perTile`** (extensive — scale with tile count `W*H`): `resources`, `maxHealth`, `empAbsorb`.
-- **`intensive`** (constant across sizes): `explosiveAbsorption`, `explosiveResist`, `thermalResist`, `penResist`, `density`.
+- **`intensive`** (constant across sizes): `explosiveAbsorption`, `explosiveResist`, `thermalResist`, `penResist`, `density`, `empRecovery`.
+
+Set `perTile.empAbsorb` to `null` to give a material no EMP sink at all — the
+generator then omits both the `EmpAbsorber` component and the `EMPResist` stat
+(e.g. depleted uranium). `intensive.empRecovery` (default `0.1`) is the fraction
+of absorbed EMP recovered per tick.
 
 So to retune NERA across every size, edit `materials.nera` once and run
 `node tools/gen_rules.mjs`.

@@ -190,6 +190,7 @@ function readParams(){const g=id=>document.getElementById(id);return{
   baseBright:+g('baseBright').value,grain:+g('grain').value,grainScale:+g('grainScale').value,weavePeriod:+g('weavePeriod').value,
   ballSpacing:+g('ballSpacing').value,ballFill:+g('ballFill').value,
   bevelBright:+g('bevelBright').value,bevelWidth:+g('bevelWidth').value,normalStrength:+g('normalStrength').value,normalFlipY:g('normalFlipY').checked,
+  normalEdgeFade:6,ballNormalHeight:2.4,
   dmg33:+g('dmg33').value,dmg66:+g('dmg66').value,craters:+g('craters').value,holeSize:+g('holeSize').value,edgeMargin:+g('edgeMargin').value,
   scorch:g('scorch').checked,seed:+g('seed').value|0,tint:g('tint').value,applyTint:g('applyTint').checked,
 };}
@@ -284,7 +285,7 @@ function surface(P,W,H,x,y,bev,gn,gf,inside){
       const edgeShade=smooth(Math.min(1,(R-best)/3));   // contact shadow at ball foot
       bv*=0.5+0.5*edgeShade;
       r=g=b=bv;
-      h=bev*3+nz*5.0;                                   // raised hemisphere
+      h=bev*3+nz*P.ballNormalHeight;                    // raised hemisphere
       rg=170 + diff*40 + spec*60;
     }
     return {h,r,g,b,rg,warm:0};
@@ -362,12 +363,15 @@ function buildDamage(P,F,level){
 
 function normalsFromHeight(P,F,height,hole){
   const {W,H}=F,out=new ImageData(W,H),d=out.data,s=P.normalStrength,flip=P.normalFlipY?-1:1;
+  const fade=P.normalEdgeFade||0;
   const at=(x,y)=>height[Math.min(H-1,Math.max(0,y))*W+Math.min(W-1,Math.max(0,x))];
   for(let y=0;y<H;y++)for(let x=0;x<W;x++){
     const i=y*W+x,i4=i*4;
     if(!F.solid[i]||(hole&&hole[i])){d[i4]=128;d[i4+1]=128;d[i4+2]=255;d[i4+3]=0;continue;}
     const gx=(at(x+1,y)-at(x-1,y))*0.5,gy=(at(x,y+1)-at(x,y-1))*0.5;
-    let nx=-gx*s,ny=-gy*s*flip,nz=1.0;const L=Math.hypot(nx,ny,nz);nx/=L;ny/=L;nz/=L;
+    let nx=-gx*s,ny=-gy*s*flip,nz=1.0;
+    if(fade>0){const ef=smooth(Math.min(1,F.edge[i]/fade));nx*=ef;ny*=ef;}
+    const L=Math.hypot(nx,ny,nz);nx/=L;ny/=L;nz/=L;
     d[i4]=Math.round((nx*0.5+0.5)*255);d[i4+1]=Math.round((ny*0.5+0.5)*255);d[i4+2]=Math.round((nz*0.5+0.5)*255);d[i4+3]=255;
   }
   return out;

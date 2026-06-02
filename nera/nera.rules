@@ -23,7 +23,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 		thermal = -25%
 	}
 	TypeCategories = [armor, non_flammable]
-	InitialPenetrationResistance = 6
+	InitialPenetrationResistance = 6.5
 	ContinuingPenetrationResistance = &InitialPenetrationResistance
 	CreatePartPerTileWhenGrabbed = ""
 	CrewSpeedFactor = 0
@@ -49,8 +49,8 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 		{
 			Type = ExplosiveResourceDrainSink
 			ResourceType = battery
-			AbsorbsResourceDrain = 1000
-			RecoveryRate = (&AbsorbsResourceDrain) * 0.1
+			AbsorbsResourceDrain = 500
+			RecoveryRate = (&AbsorbsResourceDrain) * 0.05
 		}
 
 		Graphics

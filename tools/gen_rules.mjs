@@ -35,6 +35,26 @@ function partRules(mat, W, H) {
 \tEditorReplacementPartID = Ritrodan.${mat.id}
 \tDescriptionKey = "Parts/${mat.nameKey}${suffix}Desc"`;
 
+  // EMP absorption is optional: a null empAbsorb means the material has no EMP
+  // sink at all (e.g. depleted uranium), so we omit both the component and the
+  // EMPResist stat that reads from it.
+  const hasEmp = pt.empAbsorb != null;
+  const empRecovery = iv.empRecovery != null ? iv.empRecovery : 0.1;
+  const empBlock = hasEmp
+    ? `\t\tEmpAbsorber
+\t\t{
+\t\t\tType = ExplosiveResourceDrainSink
+\t\t\tResourceType = battery
+\t\t\tAbsorbsResourceDrain = ${pt.empAbsorb * tiles}
+\t\t\tRecoveryRate = (&AbsorbsResourceDrain) * ${n(empRecovery)}
+\t\t}
+
+`
+    : '';
+  const empStat = hasEmp
+    ? `\t\tEMPResist = (&~/Part/Components/EmpAbsorber/AbsorbsResourceDrain) / 1000\n`
+    : '';
+
   const isRotatable = W !== H;
   const rotateBlock = isRotatable
     ? `\tFlipHRotate = [0, 1, 2, 3]
@@ -98,15 +118,7 @@ ${isRotateableLine}\tIsWalled = true
 \t}
 \tComponents : ^/0/Components
 \t{
-\t\tEmpAbsorber
-\t\t{
-\t\t\tType = ExplosiveResourceDrainSink
-\t\t\tResourceType = battery
-\t\t\tAbsorbsResourceDrain = ${pt.empAbsorb * tiles}
-\t\t\tRecoveryRate = (&AbsorbsResourceDrain) * 0.1
-\t\t}
-
-\t\tGraphics
+${empBlock}\t\tGraphics
 \t\t{
 \t\t\tType = Graphics
 \t\t\tLocation = [${cx}, ${cy}]
@@ -153,8 +165,7 @@ ${damageLevels(roof)}
 
 \tStats
 \t{
-\t\tEMPResist = (&~/Part/Components/EmpAbsorber/AbsorbsResourceDrain) / 1000
-\t\tAOEResist = (&~/Part/DamageResistances/explosive) * 100
+${empStat}\t\tAOEResist = (&~/Part/DamageResistances/explosive) * 100
 \t}
 }
 `;
