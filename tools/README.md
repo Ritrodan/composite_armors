@@ -46,7 +46,9 @@ So to retune NERA across every size, edit `materials.nera` once and run
 
 That writes the `.rules`, the string keys, the `mod.rules` entry, and the
 textures. (Folder naming: `1x1` is the bare material id; others get a `_WxH`
-suffix.)
+suffix. In-game labels use the material display name plus the bare size, such as
+`NERA 2x1`; all size variants reuse the material's base description. Square
+parts are generated as non-rotatable because rotation does not change them.)
 
 ## Add a new material
 
