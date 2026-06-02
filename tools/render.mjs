@@ -55,17 +55,17 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     if (pfr < gw) {
       if (tube > 0.15) {
         const cu = tube * inside;
-        return { h: bev * 3 + tube * 1.0 * inside - 0.3, r: 18 + cu * 40, g: 16 + cu * 16, b: 12, rg: 165 + cu * 30, warm: cu * 26 };
+        return { h: tube * 1.0 * inside - 0.3, r: 18 + cu * 40, g: 16 + cu * 16, b: 12, rg: 165 + cu * 30, warm: cu * 26 };
       }
       const dv = 14 + bev * P.bevelBright * 0.3;
-      return { h: bev * 3 - 0.6, r: dv, g: dv, b: dv, rg: 150, warm: 0 };
+      return { h: -0.6, r: dv, g: dv, b: dv, rg: 150, warm: 0 };
     }
     const shade = (pfr - gw) / (1 - gw);
     const pv = vBase + litedge * 36 * inside + (shade - 0.5) * 6;
-    return { h: bev * 3 + 1.3 * inside + litedge * 0.5, r: pv, g: pv, b: pv, rg: 210 + litedge * 20 * inside, warm: 0 };
+    return { h: 1.3 * inside + litedge * 0.5, r: pv, g: pv, b: pv, rg: 210 + litedge * 20 * inside, warm: 0 };
   }
   if (P.material === 'compc') {
-    let r = vBase, g = vBase, b = vBase, h = bev * 3 + gn * 0.8 + gf * 0.4, rg = 211 + bev * 14 + grainV * 0.66;
+    let r = vBase, g = vBase, b = vBase, h = gn * 0.8 + gf * 0.4, rg = 211 + bev * 14 + grainV * 0.66;
     const S = P.ballSpacing, R = S * 0.5 * P.ballFill;
     const Sy = S * 0.8660254;
     const edgeLimit = R * 0.5 + 2;
@@ -107,12 +107,12 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
       const edgeShade = smooth(Math.min(1, (R - best) / 3));
       bv *= 0.5 + 0.5 * edgeShade;
       r = g = b = bv;
-      h = bev * 3 + nz * P.ballNormalHeight;
+      h = nz * P.ballNormalHeight;
       rg = 170 + diff * 40 + spec * 60;
     }
     return { h, r, g, b, rg, warm: 0 };
   }
-  const h = bev * 3 + gn * 0.8 + gf * 0.4;
+  const h = gn * 0.8 + gf * 0.4;
   const rg = 211 + bev * 14 + grainV * 0.66;
   return { h, r: vBase, g: vBase, b: vBase, rg, warm: 0 };
 }
