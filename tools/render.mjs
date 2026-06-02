@@ -189,21 +189,16 @@ function buildDamage(P, F, level) {
 }
 
 function normalsFromHeight(P, F, height, hole) {
-  const { W, H } = F, out = newImage(W, H), d = out.data, s = P.normalStrength, flip = P.normalFlipY ? -1 : 1;
-  // Fade the slope to flat (straight-up) within `normalEdgeFade` px of the part
-  // perimeter. The bevel ridge that gives the diffuse texture its lit edge would
-  // otherwise bake a tall cyan/magenta "wall" into the normal map all the way
-  // around the plate; vanilla armor keeps its edges flat, so we match that.
-  const fade = P.normalEdgeFade || 0;
-  const at = (x, y) => height[Math.min(H - 1, Math.max(0, y)) * W + Math.min(W - 1, Math.max(0, x))];
-  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const i = y * W + x, i4 = i * 4;
-    if (!F.solid[i] || (hole && hole[i])) { d[i4] = 128; d[i4 + 1] = 128; d[i4 + 2] = 255; d[i4 + 3] = 0; continue; }
-    const gx = (at(x + 1, y) - at(x - 1, y)) * 0.5, gy = (at(x, y + 1) - at(x, y - 1)) * 0.5;
-    let nx = -gx * s, ny = -gy * s * flip, nz = 1.0;
-    if (fade > 0) { const ef = smooth(Math.min(1, F.edge[i] / fade)); nx *= ef; ny *= ef; }
-    const L = Math.hypot(nx, ny, nz); nx /= L; ny /= L; nz /= L;
-    d[i4] = Math.round((nx * 0.5 + 0.5) * 255); d[i4 + 1] = Math.round((ny * 0.5 + 0.5) * 255); d[i4 + 2] = Math.round((nz * 0.5 + 0.5) * 255); d[i4 + 3] = 255;
+  // The plate is physically flat, so its normal map is flat too: every solid
+  // pixel points straight up (128,128,255). The weave / spheres / grain are
+  // drawn entirely by the color + roof textures; baking them into the normal
+  // map produced surface relief that vanilla armor doesn't have. Holes and
+  // outside-the-part pixels stay transparent.
+  const { W, H } = F, out = newImage(W, H), d = out.data;
+  for (let i = 0; i < W * H; i++) {
+    const i4 = i * 4;
+    d[i4] = 128; d[i4 + 1] = 128; d[i4 + 2] = 255;
+    d[i4 + 3] = (!F.solid[i] || (hole && hole[i])) ? 0 : 255;
   }
   return out;
 }
