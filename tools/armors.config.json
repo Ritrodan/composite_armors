@@ -17,20 +17,20 @@
       "nameKey": "NERA",
       "displayName": "NERA",
       "variantNoun": "NERA",
-      "description": "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it.",
+      "description": "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it.",
       "texture": { "material": "nera", "seed": 4101 },
       "perTile": { "resources": [["steel", 2], ["coil", 1]], "maxHealth": 2400, "empAbsorb": null },
-      "intensive": { "explosiveAbsorption": 50, "explosiveResist": 50, "thermalResist": -1000, "penResist": 6, "density": 1.2 }
+      "intensive": { "explosiveAbsorption": 50, "explosiveResist": 50, "thermalResist": -1000, "penResist": 7, "density": 1.2 }
     },
     "tri_steel": {
       "id": "tri_steel",
       "nameKey": "TriSteel",
       "displayName": "Tri-Steel Armor",
       "variantNoun": "tri-steel armor",
-      "description": "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost.",
+      "description": "A very strong and weight efficient armor.",
       "texture": { "material": "hardened", "seed": 7220 },
-      "perTile": { "resources": [["tristeel", 2]], "maxHealth": 4200, "empAbsorb": 700 },
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 45, "thermalResist": 150, "penResist": 8, "density": 2.2, "empRecovery": 0.08 }
+      "perTile": { "resources": [["tristeel", 2]], "maxHealth": 6500, "empAbsorb": 700 },
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 45, "thermalResist": 150, "penResist": 8, "density": 3.4, "empRecovery": 0.08 }
     },
     "combination_c": {
       "id": "combination_c",
@@ -40,7 +40,7 @@
       "description": "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance.",
       "texture": { "material": "compc", "seed": 8801 },
       "perTile": { "resources": [["steel", 3], ["carbon", 1]], "maxHealth": 4000, "empAbsorb": 1100 },
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 50, "thermalResist": 10, "penResist": 7, "density": 2.6, "empRecovery": 0.8 }
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 50, "thermalResist": 10, "penResist": 8, "density": 2.6, "empRecovery": 0.8 }
     },
     "metal_foam": {
       "id": "metal_foam",
@@ -57,20 +57,20 @@
       "nameKey": "GoldShielding",
       "displayName": "Gold Shielding",
       "variantNoun": "gold shielding",
-      "description": "Dense gold plating offers extraordinary thermal insulation and acts as a near-perfect Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits.",
+      "description": "Dense gold plating offers extraordinary thermal insulation and acts as a superb Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits.",
       "texture": { "material": "gold", "seed": 3317 },
       "perTile": { "resources": [["gold", 1], ["steel", 2]], "maxHealth": 8000, "empAbsorb": 5000 },
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 33, "thermalResist": 75, "penResist": 1, "density": 7.0, "empRecovery": 0.5 }
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 33, "thermalResist": 75, "penResist": 1, "density": 7.0, "empRecovery": 2.0 }
     },
     "uranium": {
       "id": "uranium",
       "nameKey": "Uranium",
       "displayName": "Depleted Uranium Armor",
       "variantNoun": "depleted uranium armor",
-      "description": "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions.",
+      "description": "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions.",
       "texture": { "material": "uranium", "seed": 5500 },
-      "perTile": { "resources": [["uranium", 2]], "maxHealth": 12000, "empAbsorb": 300 },
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 40, "thermalResist": 75, "penResist": 7, "density": 7.5, "empRecovery": 0.45 }
+      "perTile": { "resources": [["uranium", 2]], "maxHealth": 9000, "empAbsorb": 300 },
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 40, "thermalResist": 75, "penResist": 13, "density": 7.2, "empRecovery": 0.45 }
     }
   },
   "variants": [
