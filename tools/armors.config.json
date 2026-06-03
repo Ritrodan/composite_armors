@@ -32,9 +32,9 @@
       "perTile": { "resources": [["tristeel", 2]], "maxHealth": 4200, "empAbsorb": 700 },
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 45, "thermalResist": 150, "penResist": 8, "density": 2.2, "empRecovery": 0.08 }
     },
-    "composite_c": {
-      "id": "composite_c",
-      "nameKey": "CompositeC",
+    "combination_c": {
+      "id": "combination_c",
+      "nameKey": "CombinationC",
       "displayName": "Combination C Armor",
       "variantNoun": "Combination C armor",
       "description": "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance.",
@@ -81,8 +81,8 @@
     { "material": "nera", "size": [2, 2] },
     { "material": "tri_steel", "size": [1, 1] },
     { "material": "tri_steel", "size": [2, 1] },
-    { "material": "composite_c", "size": [1, 1] },
-    { "material": "composite_c", "size": [2, 1] },
+    { "material": "combination_c", "size": [1, 1] },
+    { "material": "combination_c", "size": [2, 1] },
     { "material": "metal_foam", "size": [1, 1] },
     { "material": "metal_foam", "size": [2, 1] },
     { "material": "gold_shielding", "size": [1, 1] },

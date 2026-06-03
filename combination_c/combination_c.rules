@@ -1,11 +1,11 @@
 Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
-	NameKey = "Parts/CompositeC"
-	IconNameKey = "Parts/CompositeCIcon"
-	ID = Ritrodan.composite_c
+	NameKey = "Parts/CombinationC"
+	IconNameKey = "Parts/CombinationCIcon"
+	ID = Ritrodan.combination_c
 	EditorGroups = ["Defenses", "Structure"]
 	DontStackInEditorGroups = ["Structure"]
-	DescriptionKey = "Parts/CompositeCDesc"
+	DescriptionKey = "Parts/CombinationCDesc"
 	Resources
 	[
 		[steel, 3]
