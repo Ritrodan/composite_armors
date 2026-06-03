@@ -53,7 +53,7 @@
       "description": "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost.",
       "texture": { "material": "metalfoam_irregular", "seed": 2250 },
       "perTile": { "resources": [["steel", 1]], "maxHealth": 260, "empAbsorb": null },
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 99, "thermalResist": -9999, "penResist": 1.4, "density": 0.2 }
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 99, "thermalResist": -99999, "penResist": 1.4, "density": 0.2 }
     },
     "composite_metal_foam": {
       "id": "composite_metal_foam",
