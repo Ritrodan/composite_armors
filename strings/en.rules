@@ -2,31 +2,31 @@ Parts
 {
 	NERA = "NERA"
 	NERAIcon = "NERA"
-	NERADesc = "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+	NERADesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
 	NERA2x1 = "NERA 2x1"
 	NERA2x1Icon = "NERA 2x1"
-	NERA2x1Desc = "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+	NERA2x1Desc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
 	NERA3x1 = "NERA 3x1"
 	NERA3x1Icon = "NERA 3x1"
-	NERA3x1Desc = "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+	NERA3x1Desc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
 	NERA4x1 = "NERA 4x1"
 	NERA4x1Icon = "NERA 4x1"
-	NERA4x1Desc = "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+	NERA4x1Desc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
 	NERA2x2 = "NERA 2x2"
 	NERA2x2Icon = "NERA 2x2"
-	NERA2x2Desc = "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+	NERA2x2Desc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
 	TriSteel = "Tri-Steel Armor"
 	TriSteelIcon = "Tri-Steel Armor"
-	TriSteelDesc = "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost."
+	TriSteelDesc = "A very strong and weight efficient armor."
 
 	TriSteel2x1 = "Tri-Steel Armor 2x1"
 	TriSteel2x1Icon = "Tri-Steel Armor 2x1"
-	TriSteel2x1Desc = "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost."
+	TriSteel2x1Desc = "A very strong and weight efficient armor."
 
 	CombinationC = "Combination C Armor"
 	CombinationCIcon = "Combination C Armor"
@@ -46,17 +46,17 @@ Parts
 
 	GoldShielding = "Gold Shielding"
 	GoldShieldingIcon = "Gold Shielding"
-	GoldShieldingDesc = "Dense gold plating offers extraordinary thermal insulation and acts as a near-perfect Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
+	GoldShieldingDesc = "Dense gold plating offers extraordinary thermal insulation and acts as a superb Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
 
 	GoldShielding2x1 = "Gold Shielding 2x1"
 	GoldShielding2x1Icon = "Gold Shielding 2x1"
-	GoldShielding2x1Desc = "Dense gold plating offers extraordinary thermal insulation and acts as a near-perfect Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
+	GoldShielding2x1Desc = "Dense gold plating offers extraordinary thermal insulation and acts as a superb Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
 
 	Uranium = "Depleted Uranium Armor"
 	UraniumIcon = "Depleted Uranium Armor"
-	UraniumDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions."
+	UraniumDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions."
 
 	Uranium2x1 = "Depleted Uranium Armor 2x1"
 	Uranium2x1Icon = "Depleted Uranium Armor 2x1"
-	Uranium2x1Desc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions."
+	Uranium2x1Desc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions."
 }
