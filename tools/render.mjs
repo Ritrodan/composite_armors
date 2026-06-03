@@ -164,11 +164,12 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     return { h, r, g, b, rg, warm: 0 };
   }
   if (P.material === 'gold') {
-    // Gold Shielding: riveted bullion ingot grid
+    // Gold Shielding: dynamically scaled riveted bullion ingot grid
     let r = vBase * 1.35, g = vBase * 1.10, b = vBase * 0.60;
     let h = gn * 0.3 + gf * 0.15, rg = 230 + bev * 15, warm = 55 * inside;
-    const gridX = P.gridX || 2, gridY = P.gridY || 2;
-    const subX = W / gridX, subY = H / gridY;
+    const divX = Math.max(1, Math.round(W / (P.ingotTargetWidth || 32)));
+    const divY = Math.max(1, Math.round(H / (P.ingotTargetHeight || 32)));
+    const subX = W / divX, subY = H / divY;
     const lx = x % subX, ly = y % subY;
     const ingotEdge = Math.min(Math.min(lx, subX - lx), Math.min(ly, subY - ly));
     const grooveW = 2.5;
@@ -182,7 +183,8 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
         h += smooth(Math.min(1.0, (ingotEdge - grooveW) / 4.0)) * 0.6 * li;
         const flash = gauss(ingotEdge - subX * 0.2, 6.0) * 15 * li;
         r += flash * 1.2; g += flash;
-        const rdx = Math.min(lx - 6, subX - 6 - lx), rdy = Math.min(ly - 6, subY - 6 - ly);
+        const bp = Math.min(8, Math.max(4, Math.min(subX, subY) * 0.2));
+        const rdx = Math.min(lx - bp, subX - bp - lx), rdy = Math.min(ly - bp, subY - bp - ly);
         if (rdx >= 0 && rdy >= 0) {
           const cd = Math.hypot(rdx, rdy), rrad = 2.2;
           if (cd < rrad) {
@@ -191,6 +193,23 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
             rg = rg * (1 - rt * li) + 250 * rt * li;
           }
         }
+      }
+    }
+    return { h, r, g, b, rg, warm };
+  }
+  if (P.material === 'uranium') {
+    // Depleted Uranium: monolithic chevron-etched heavy plate
+    let r = vBase * 0.75, g = vBase * 0.85, b = vBase * 0.70;
+    let h = gn * 0.5 + gf * 0.3, rg = 190 + bev * 8, warm = -45 * inside;
+    if (inside > 0.05) {
+      const ci = smooth(inside);
+      const pv = Math.floor((x + y) / (P.chevronWidth || 16)) % 2;
+      if (pv === 0) {
+        const cf = 0.45 * ci;
+        h -= 0.65 * ci; r -= 24 * cf; g -= 20 * cf; b -= 26 * cf; rg -= 45 * ci;
+      } else {
+        const hf = 0.25 * ci;
+        h += 0.2 * ci; r += 12 * hf; g += 15 * hf; b += 10 * hf; rg += 15 * ci;
       }
     }
     return { h, r, g, b, rg, warm };

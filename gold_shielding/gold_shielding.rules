@@ -15,7 +15,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	Size = [1, 1]
 	IsRotateable = false
 	SelectionTypeID = "armor"
-	MaxHealth = 7000
+	MaxHealth = 8000
 	ExplosiveDamageAbsorption = 100%
 	DamageResistances
 	{
