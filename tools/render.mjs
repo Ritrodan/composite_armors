@@ -58,18 +58,20 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     let cuf = c / unit; cuf -= Math.floor(cuf);
     const gw = 0.16;
     const td = (cuf - 0.5) / 0.15; const tube = Math.abs(td) < 1 ? Math.sqrt(1 - td * td) : 0;
+    // `litedge` is used only as a HEIGHT ridge at the plate overlap, never baked
+    // into albedo — so the bevel is lit by the depth normal map and stays correct
+    // when the part is rotated.
     const litedge = gauss(pfr - 0.90, 0.06);
     if (pfr < gw) {
       if (tube > 0.15) {
-        const cu = tube * inside;
+        const cu = tube * inside;   // tube cross-section is radially symmetric
         return { h: tube * 1.0 * inside - 0.3, r: 18 + cu * 40, g: 16 + cu * 16, b: 12, rg: 165 + cu * 30, warm: cu * 26 };
       }
       const dv = 14 + bev * P.bevelBright * 0.3;
       return { h: -0.6, r: dv, g: dv, b: dv, rg: 150, warm: 0 };
     }
-    const shade = (pfr - gw) / (1 - gw);
-    const pv = vBase + litedge * 36 * inside + (shade - 0.5) * 6;
-    return { h: 1.3 * inside + litedge * 0.5, r: pv, g: pv, b: pv, rg: 210 + litedge * 20 * inside, warm: 0 };
+    const pv = vBase;   // flat plate albedo; relief lives in the height field
+    return { h: 1.3 * inside + litedge * 0.7, r: pv, g: pv, b: pv, rg: 210, warm: 0 };
   }
   if (P.material === 'compc') {
     let r = vBase, g = vBase, b = vBase, h = gn * 0.8 + gf * 0.4, rg = 211 + bev * 14 + grainV * 0.66;
@@ -105,17 +107,16 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     const cde = getCde(bcx, bcy);
     if (best < R && cde > R * 0.5 + 2) {
       const nx = (x - bcx) / R, ny = (y - bcy) / R, nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
-      const Lx = -0.4533, Ly = -0.4533, Lz = 0.7686;
-      const Hx = -0.3019, Hy = -0.3019, Hz = 0.9043;
-      const diff = Math.max(0, nx * Lx + ny * Ly + nz * Lz);
-      const spec = Math.pow(Math.max(0, nx * Hx + ny * Hy + nz * Hz), 22);
       const mo = gf * 8;
-      let bv = 13 + 9 + diff * 42 + spec * 120 + mo;
+      // Symmetric dome shading: brightest at the crown (nz=1), dimming radially
+      // to the rim. No fixed light direction — the sphere's 3D look is carried by
+      // the height field (h = nz * height) and relit by the normal map at runtime.
+      let bv = 13 + 9 + nz * 62 + mo;
       const edgeShade = smooth(Math.min(1, (R - best) / 3));
       bv *= 0.5 + 0.5 * edgeShade;
       r = g = b = bv;
       h = nz * P.ballNormalHeight;
-      rg = 170 + diff * 40 + spec * 60;
+      rg = 170 + nz * 55;
     }
     return { h, r, g, b, rg, warm: 0 };
   }
@@ -167,7 +168,7 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     // Gold Shielding: chamfered ingot grid with directional edge lighting
     const base = vBase;
     let r = base * 1.38, g = base * 1.08, b = base * 0.52;
-    let h = gn * 0.3 + gf * 0.15, rg = 228 + bev * 14;
+    let h = gn * 0.3 + gf * 0.15, rg = 200 + bev * 10;
     const warm = 58 * inside;
     const divX = Math.max(1, Math.round(W / (P.ingotTargetWidth || 32)));
     const divY = Math.max(1, Math.round(H / (P.ingotTargetHeight || 32)));
@@ -175,10 +176,6 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     const lx = ((x % subX) + subX) % subX, ly = ((y % subY) + subY) % subY;
     const ex = Math.min(lx, subX - lx), ey = Math.min(ly, subY - ly);
     const ingotEdge = Math.min(ex, ey);
-    const Lx = -0.7071, Ly = -0.7071;
-    const normX = ex < ey ? (lx < subX * 0.5 ? -1 : 1) : 0;
-    const normY = ex < ey ? 0 : (ly < subY * 0.5 ? -1 : 1);
-    const edgeLight = normX * Lx + normY * Ly;
     const grooveW = 2.2, chamferW = 3.5;
     const li = inside > 0.1 ? smooth(Math.min(1, (inside - 0.1) / 0.15)) : 0;
     if (li > 0) {
@@ -187,19 +184,21 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
         h -= (1 - t) * 2.0 * li; r *= sh; g *= sh; b *= sh;
         rg = rg * (1 - li) + (115 + t * 45) * li;
       } else if (ingotEdge < grooveW + chamferW) {
+        // chamfer slope: height only + mild symmetric AO toward the recessed seam
         const t = smooth((ingotEdge - grooveW) / chamferW);
-        const litAmt = edgeLight * 28 * (1 - t) * li, liftV = (1 - t) * 18 * li;
+        const m = 1 - (1 - (0.82 + 0.18 * t)) * li;
         h += 0.8 * t * li;
-        r += litAmt * 1.3 + liftV * 1.3; g += litAmt + liftV; b += litAmt * 0.4 + liftV * 0.4;
-        rg += litAmt * 0.6 + t * 10 * li;
+        r *= m; g *= m; b *= m;
+        rg += t * 6 * li;
       } else {
         const faceFr = Math.min(1, (ingotEdge - grooveW - chamferW) / Math.max(1, Math.min(subX, subY) * 0.35));
         const dome = faceFr * faceFr;
         h += 0.55 * dome * li;
         const fx = lx / subX - 0.5, fy = ly / subY - 0.5;
-        const sheen = gauss(Math.hypot(fx + 0.22, fy + 0.22), 0.18) * 32 * li;
+        // crown sheen centred on the ingot — radially symmetric, rotation-safe
+        const sheen = gauss(Math.hypot(fx, fy), 0.22) * 24 * li;
         r += sheen * 1.25; g += sheen * 0.95; b += sheen * 0.30;
-        rg += sheen * 0.5 + dome * 12 * li;
+        rg += sheen * 0.3 + dome * 6 * li;
         const bp = Math.min(7, Math.max(4, Math.min(subX, subY) * 0.18));
         const rdx = Math.min(lx - bp, subX - bp - lx), rdy = Math.min(ly - bp, subY - bp - ly);
         if (rdx >= 0 && rdy >= 0) {
@@ -207,7 +206,7 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
           if (cd < rrad) {
             const rt = smooth(1 - cd / rrad);
             h += rt * 1.5 * li; r += rt * 52 * li; g += rt * 40 * li; b += rt * 14 * li;
-            rg = rg * (1 - rt * li) + 252 * rt * li;
+            rg = rg * (1 - rt * li) + 224 * rt * li;
           }
         }
       }
@@ -226,18 +225,20 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     }
     let d0 = 1e9, cx0 = 0, cy0 = 0;
     for (const [cx, cy] of cells) { const d = Math.hypot(x - cx, y - cy); if (d < d0) { d0 = d; cx0 = cx; cy0 = cy; } }
-    let insideDist = 1e9, enX = 0, enY = 0;
+    // All hex shading below is symmetric (depth-based AO + radial dome); the
+    // groove/chamfer/face relief lives in the height field so lighting comes
+    // from the depth normal map and survives rotation.
+    let insideDist = 1e9;
     for (const [cx, cy] of cells) {
       const dx = cx - cx0, dy = cy - cy0, len = Math.hypot(dx, dy);
       if (len < 1e-6) continue;
       const dn = Math.hypot(x - cx, y - cy), ed = (dn * dn - d0 * d0) / (2 * len);
-      if (ed < insideDist) { insideDist = ed; enX = dx / len; enY = dy / len; }
+      if (ed < insideDist) insideDist = ed;
     }
     const lx2 = x - cx0, ly2 = y - cy0, dc = Math.hypot(lx2, ly2);
     const grainV2 = gn * P.grain + gf * P.grain * 0.4;
     const vBase2 = P.baseBright + bev * P.bevelBright + grainV2;
     const depth = P.hexGroove || 0.8;
-    const Lx = -0.7071, Ly = -0.7071;
     const grooveW2 = Math.max(1.0, S * 0.12), chamfer = Math.max(1.4, S * 0.24), faceStart = grooveW2 + chamfer;
     const apothem = colW * 0.5;
     const tint = (v) => ({ r: v * 0.80, g: v * 1.12, b: v * 0.70 });
@@ -246,24 +247,21 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
       const tc = tint(gv); return { h: -depth * 1.3 * (1 - smooth(t)), r: tc.r, g: tc.g, b: tc.b, rg: 160 + t * 30, warm: 0 };
     }
     if (insideDist < faceStart) {
-      const t = smooth((insideDist - grooveW2) / chamfer), lip = enX * Lx + enY * Ly;
-      const lum = vBase2 * (0.55 + 0.45 * t) + lip * 26 * t * inside;
-      const tc = tint(lum); return { h: 0.7 * t, r: tc.r, g: tc.g, b: tc.b, rg: 200 + lip * 22 * t + t * 12, warm: 0 };
+      const t = smooth((insideDist - grooveW2) / chamfer);   // symmetric: dark at groove → base at face
+      const lum = vBase2 * (0.55 + 0.45 * t);
+      const tc = tint(lum); return { h: 0.7 * t, r: tc.r, g: tc.g, b: tc.b, rg: 200 + t * 12, warm: 0 };
     }
     const studR = Math.max(1.6, S * 0.17);
     if (dc < studR) {
       const nx = lx2 / studR, ny = ly2 / studR, nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
-      const L3x = -0.4533, L3y = -0.4533, L3z = 0.7686, Hx = -0.3019, Hy = -0.3019, Hz = 0.9043;
-      const diff = Math.max(0, nx * L3x + ny * L3y + nz * L3z), spec = Math.pow(Math.max(0, nx * Hx + ny * Hy + nz * Hz), 20);
-      const lum = vBase2 * 0.72 + diff * 30 + spec * 90;
-      const tc = tint(lum); return { h: (1.2 + 1.0 * nz) * inside, r: tc.r, g: tc.g, b: tc.b, rg: 205 + diff * 30 + spec * 40, warm: 0 };
+      const lum = vBase2 * 0.72 + nz * 50;   // symmetric dome (crown brightest)
+      const tc = tint(lum); return { h: (1.2 + 1.0 * nz) * inside, r: tc.r, g: tc.g, b: tc.b, rg: 205 + nz * 38, warm: 0 };
     }
     const fr = Math.min(1, (insideDist - faceStart) / Math.max(1, apothem - faceStart));
-    const dome = 1 - (1 - fr) * (1 - fr), rad2 = Math.max(1e-3, dc);
-    const faceLight = -(lx2 / rad2 * Lx + ly2 / rad2 * Ly) * (1 - dome) * 0.6;
-    const fv = vBase2 + (4 + faceLight * 18) * inside + grainV2 * 0.3;
+    const dome = 1 - (1 - fr) * (1 - fr);
+    const fv = vBase2 + 4 * inside + grainV2 * 0.3;
     const fh = 0.7 + dome * 0.5 + (gn * 0.5 + gf * 0.3);
-    const tc = tint(fv); return { h: fh * inside + 0.2, r: tc.r, g: tc.g, b: tc.b, rg: 214 + bev * 10 + grainV2 * 0.6 + faceLight * 12, warm: 0 };
+    const tc = tint(fv); return { h: fh * inside + 0.2, r: tc.r, g: tc.g, b: tc.b, rg: 214 + bev * 10 + grainV2 * 0.6, warm: 0 };
   }
   const h = gn * 0.8 + gf * 0.4;
   const rg = 211 + bev * 14 + grainV * 0.66;
