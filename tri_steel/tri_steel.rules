@@ -8,7 +8,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	DescriptionKey = "Parts/TriSteelDesc"
 	Resources
 	[
-		[tristeel, 2]
+		[tristeel, 3]
 	]
 	AIValueFactor = 0
 	Size = [1, 1]

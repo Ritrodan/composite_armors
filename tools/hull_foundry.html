@@ -629,23 +629,120 @@ defineMaterial({
 });
 
 defineMaterial({
-  id:'hardened', label:'Tri-Steel Compound Armor',
-  defaults:{baseBright:32,grain:8,bevelBright:20,normalStrength:1.1,rivetGap:14},
-  controls:[{id:'rivetGap',label:'Rivet spacing (px)',min:8,max:24,step:1,value:14}],
+  id:'tristeel', label:'Tri-Steel Armor',
+  defaults:{ baseBright:38, grain:7, bevelBright:22, normalStrength:1.2, triSize:0.74, triGroove:1.0 },
+  controls:[
+    { id:'triSize',   label:'Emblem size',   min:0.4, max:0.92, step:0.01, value:0.74 },
+    { id:'triGroove', label:'Groove depth',  min:0.3, max:2.0,  step:0.05, value:1.0 },
+  ],
   surface(ctx){
-    const {P,x,y,vBase,gn,gf,bev,inside,smooth,fitPeriod}=ctx;
-    const g=fitPeriod(P.rivetGap);
-    const rcx=Math.round(x/g)*g, rcy=Math.round(y/g)*g;
-    const d=Math.hypot(x-rcx,y-rcy);
-    const rad=2.8;
-    let r=vBase,gr=vBase,b=vBase,h=gn*0.6+gf*0.3;
-    let rg=215+bev*14;
-    if(d<rad){
-      const t=smooth(1-d/rad);
-      const v=vBase+t*55;
-      r=gr=b=v; h+=t*1.8*inside; rg=228+t*18;
+    const { P, x, y, bev, gn, gf, inside, grainV, vBase, smooth, TILE } = ctx;
+    // Hardened blue-cyan plate with a recessed recursive-triangle emblem (three raised
+    // corner faces around a sunken central triangle). One emblem per 64px block, so it
+    // tiles natively. All relief lives in the height field; shading is symmetric
+    // (depth AO plus edge chamfers) so it survives rotation.
+
+    const teal = (v) => ({ r: v * 0.80, g: v * 1.00, b: v * 1.13 });
+
+    // emblem geometry, centred in this block
+    const cx = (Math.floor(x / TILE) + 0.5) * TILE, cy = (Math.floor(y / TILE) + 0.5) * TILE;
+    const px = x - cx, py = y - cy;
+    const Rad = TILE * 0.5 * P.triSize;             // circumradius of the big triangle
+    const s3 = 0.8660254;
+    const v0x = 0,        v0y = -Rad;               // apex (top)
+    const v1x = -Rad*s3,  v1y = Rad*0.5;            // bottom-left
+    const v2x =  Rad*s3,  v2y = Rad*0.5;            // bottom-right
+    const m0x = (v1x+v2x)/2, m0y = (v1y+v2y)/2;     // edge midpoints = inverted
+    const m1x = (v0x+v2x)/2, m1y = (v0y+v2y)/2;     //   central-triangle vertices
+    const m2x = (v0x+v1x)/2, m2y = (v0y+v1y)/2;
+
+    const segD = (ax,ay,bx,by) => {
+      const ex = bx-ax, ey = by-ay, wx = px-ax, wy = py-ay;
+      const tt = Math.max(0, Math.min(1, (wx*ex + wy*ey) / (ex*ex + ey*ey)));
+      return Math.hypot(px - (ax + ex*tt), py - (ay + ey*tt));
+    };
+    const side = (ax,ay,bx,by) => (px-bx)*(ay-by) - (ax-bx)*(py-by);
+    const inTri = (ax,ay,bx,by,ccx,ccy) => {
+      const d1 = side(ax,ay,bx,by), d2 = side(bx,by,ccx,ccy), d3 = side(ccx,ccy,ax,ay);
+      return !(((d1<0)||(d2<0)||(d3<0)) && ((d1>0)||(d2>0)||(d3>0)));
+    };
+
+    const inBig    = inTri(v0x,v0y, v1x,v1y, v2x,v2y);
+    const inCentre = inTri(m0x,m0y, m1x,m1y, m2x,m2y);
+    const dGroove = Math.min(
+      segD(v0x,v0y, v1x,v1y), segD(v1x,v1y, v2x,v2y), segD(v2x,v2y, v0x,v0y),
+      segD(m0x,m0y, m1x,m1y), segD(m1x,m1y, m2x,m2y), segD(m2x,m2y, m0x,m0y)
+    );
+
+    const depth = P.triGroove;
+    const grooveW = 2.0, chamfer = 2.4;
+    let v = vBase, h = gn*0.55 + gf*0.3, rg = 212 + bev*14 + grainV*0.6;
+
+    if(inBig){                                      // raised corners vs sunken centre
+      v += inCentre ? -7 : 5 * inside;
+      h += (inCentre ? -1.0 : 1.0) * 0.9 * inside;
+      rg += inCentre ? -16 : 10;
     }
-    return {h,r,g:gr,b,rg,warm:0};
+    if(dGroove < grooveW){                           // engraved groove network
+      const cut = 1 - smooth(dGroove / grooveW);
+      h  -= cut * 1.4 * depth * inside;
+      v  -= cut * 16  * depth * inside;
+      rg -= cut * 34  * depth;
+    } else if(dGroove < grooveW + chamfer){          // chamfered lip out of the groove
+      const ct = smooth((dGroove - grooveW) / chamfer);
+      h += 0.5 * ct * inside;
+      v += 3 * ct * inside;
+    }
+
+    const tc = teal(v);
+    return { h, r: tc.r, g: tc.g, b: tc.b, rg, warm: 0 };
+  }
+});
+
+defineMaterial({
+  id:'gold', label:'Gold Plating',
+  defaults:{ baseBright:66, grain:6, bevelBright:28, normalStrength:1.15, hammerScale:11, hammerDepth:1.0 },
+  controls:[
+    { id:'hammerScale', label:'Hammer scale (px)', min:6, max:20, step:1,    value:11 },
+    { id:'hammerDepth', label:'Hammer depth',      min:0,  max:2,  step:0.05, value:1.0 },
+  ],
+  surface(ctx){
+    const { P, x, y, bev, gn, gf, inside, grainV, vBase, smooth, fitPeriod } = ctx;
+    // Hand-beaten gold: offset lattice of shallow concave dimples. The bowls live
+    // in the height field (symmetric), so the hammer marks read from the normal map
+    // and stay correct under rotation. Colour is a warm gold tint of the luminance.
+
+    // dimple lattice, offset rows for organic hex-ish packing; both periods tile 64px
+    const colW = fitPeriod(P.hammerScale);
+    const rowH = fitPeriod(P.hammerScale * 0.866);
+    const r0 = Math.round(y / rowH);
+    let d0 = 1e9;
+    for(let r = r0 - 1; r <= r0 + 1; r++){
+      const cy = r * rowH, off = (r & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for(let c = c0 - 1; c <= c0 + 1; c++){
+        const cx = c * colW + off, d = Math.hypot(x - cx, y - cy);
+        if(d < d0) d0 = d;
+      }
+    }
+    const R = colW * 0.5;
+    const t = Math.min(1, d0 / R);                 // 0 at dimple centre, 1 at the rim
+    const bowl = 1 - t * t;                         // concave floor
+    const rim = smooth(Math.max(0, (t - 0.78) / 0.22)); // proud ridge where bowls meet
+    const depth = P.hammerDepth;
+
+    const h = (-bowl * 1.3 * depth + rim * 0.6 * depth) * inside + gn * 0.45 + gf * 0.25;
+
+    // luminance: bowl floors take a little ambient shadow, rims and grain sparkle
+    let v = vBase - bowl * 6 * depth * inside + rim * 10 * depth * inside + (gn * 0.5 + gf * 0.35) * 4;
+
+    // warm gold tint; the red/green offsets keep shadows golden rather than grey
+    const r = v * 1.08 + 40;
+    const g = v * 0.82 + 16;
+    const b = v * 0.30 + 2;
+
+    const rg   = 206 + bev * 16 + rim * 14 * depth - bowl * 8 * depth + grainV * 0.5;
+    const warm = 30 + rim * 6 - bowl * 4;           // strong warm cast, survives ship colour
+    return { h, r, g, b, rg, warm };
   }
 });
 
@@ -688,66 +785,6 @@ defineMaterial({
       }
     }
     return {h,r,g,b,rg,warm:0};
-  }
-});
-
-defineMaterial({
-  id:'gold', label:'Gold Shielding (scaled ingots)',
-  defaults:{baseBright:105,grain:3,bevelBright:22,normalStrength:1.2,ingotTargetWidth:32,ingotTargetHeight:32},
-  controls:[
-    {id:'ingotTargetWidth',label:'Target ingot W (px)',min:16,max:64,step:2,value:32},
-    {id:'ingotTargetHeight',label:'Target ingot H (px)',min:16,max:64,step:2,value:32},
-  ],
-  surface(ctx){
-    const {P,x,y,W,H,bev,gn,gf,inside,vBase,gauss,smooth,fitPeriod}=ctx;
-    const base=vBase;
-    let r=base*1.38, g=base*1.08, b=base*0.52;
-    let h=gn*0.3+gf*0.15, rg=200+bev*10;
-    const warm=58*inside;
-    const divX=Math.max(1,Math.round(W/P.ingotTargetWidth));
-    const divY=Math.max(1,Math.round(H/P.ingotTargetHeight));
-    const subX=fitPeriod(W/divX), subY=fitPeriod(H/divY);
-    const lx=((x%subX)+subX)%subX, ly=((y%subY)+subY)%subY;
-    const ex=Math.min(lx,subX-lx), ey=Math.min(ly,subY-ly);
-    const ingotEdge=Math.min(ex,ey);
-    const grooveW=2.2, chamferW=3.5;
-    const li=inside>0.1?smooth(Math.min(1,(inside-0.1)/0.15)):0;
-    if(li>0){
-      if(ingotEdge<grooveW){
-        const t=smooth(ingotEdge/grooveW), depth=(1-t)*2.0*li;
-        h-=depth;
-        const sh=0.35+0.65*t;
-        r*=sh; g*=sh; b*=sh;
-        rg=rg*(1-li)+(115+t*45)*li;
-      }else if(ingotEdge<grooveW+chamferW){
-        // chamfer slope: height only + mild symmetric AO toward the recessed seam
-        const t=smooth((ingotEdge-grooveW)/chamferW);
-        const m=1-(1-(0.82+0.18*t))*li;
-        h+=0.8*t*li;
-        r*=m; g*=m; b*=m;
-        rg+=t*6*li;
-      }else{
-        const faceFr=Math.min(1,(ingotEdge-grooveW-chamferW)/Math.max(1,Math.min(subX,subY)*0.35));
-        const dome=faceFr*faceFr;
-        h+=0.55*dome*li;
-        const fx=lx/subX-0.5, fy=ly/subY-0.5;
-        // crown sheen centred on the ingot — radially symmetric, rotation-safe
-        const sheen=gauss(Math.hypot(fx,fy),0.22)*24*li;
-        r+=sheen*1.25; g+=sheen*0.95; b+=sheen*0.30;
-        rg+=sheen*0.3+dome*6*li;
-        const bp=Math.min(7,Math.max(4,Math.min(subX,subY)*0.18));
-        const rdx=Math.min(lx-bp,subX-bp-lx), rdy=Math.min(ly-bp,subY-bp-ly);
-        if(rdx>=0&&rdy>=0){
-          const cd=Math.hypot(rdx,rdy), rrad=2.0;
-          if(cd<rrad){
-            const rt=smooth(1-cd/rrad);
-            h+=rt*1.5*li; r+=rt*52*li; g+=rt*40*li; b+=rt*14*li;
-            rg=rg*(1-rt*li)+224*rt*li;
-          }
-        }
-      }
-    }
-    return {h,r,g,b,rg,warm};
   }
 });
 

@@ -120,18 +120,86 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     }
     return { h, r, g, b, rg, warm: 0 };
   }
-  if (P.material === 'hardened') {
-    // Tri-Steel: heavy riveted steel plate
-    const g = fitPeriod(P.rivetGap || 14);
-    const rcx = Math.round(x / g) * g, rcy = Math.round(y / g) * g;
-    const d = Math.hypot(x - rcx, y - rcy), rad = 2.8;
-    let r = vBase, gr = vBase, b = vBase, h = gn * 0.6 + gf * 0.3;
-    let rg = 215 + bev * 14;
-    if (d < rad) {
-      const t = smooth(1 - d / rad), v = vBase + t * 55;
-      r = gr = b = v; h += t * 1.8 * inside; rg = 228 + t * 18;
+  if (P.material === 'tristeel') {
+    // Tri-Steel: hardened blue-cyan plate with a recessed recursive-triangle
+    // emblem (three raised corner faces around a sunken central triangle). One
+    // emblem per 64px block, so it tiles natively. All relief is in the height
+    // field; shading is symmetric (survives rotation).
+    const teal = (v) => ({ r: v * 0.80, g: v * 1.00, b: v * 1.13 });
+    const triSize = P.triSize ?? 0.74, triGroove = P.triGroove ?? 1.0;
+    const cx = (Math.floor(x / TILE) + 0.5) * TILE, cy = (Math.floor(y / TILE) + 0.5) * TILE;
+    const px = x - cx, py = y - cy;
+    const Rad = TILE * 0.5 * triSize, s3 = 0.8660254;
+    const v0x = 0, v0y = -Rad, v1x = -Rad * s3, v1y = Rad * 0.5, v2x = Rad * s3, v2y = Rad * 0.5;
+    const m0x = (v1x + v2x) / 2, m0y = (v1y + v2y) / 2, m1x = (v0x + v2x) / 2, m1y = (v0y + v2y) / 2, m2x = (v0x + v1x) / 2, m2y = (v0y + v1y) / 2;
+    const segD = (ax, ay, bx, by) => {
+      const ex = bx - ax, ey = by - ay, wx = px - ax, wy = py - ay;
+      const tt = Math.max(0, Math.min(1, (wx * ex + wy * ey) / (ex * ex + ey * ey)));
+      return Math.hypot(px - (ax + ex * tt), py - (ay + ey * tt));
+    };
+    const sideF = (ax, ay, bx, by) => (px - bx) * (ay - by) - (ax - bx) * (py - by);
+    const inTri = (ax, ay, bx, by, ccx, ccy) => {
+      const d1 = sideF(ax, ay, bx, by), d2 = sideF(bx, by, ccx, ccy), d3 = sideF(ccx, ccy, ax, ay);
+      return !(((d1 < 0) || (d2 < 0) || (d3 < 0)) && ((d1 > 0) || (d2 > 0) || (d3 > 0)));
+    };
+    const inBig = inTri(v0x, v0y, v1x, v1y, v2x, v2y);
+    const inCentre = inTri(m0x, m0y, m1x, m1y, m2x, m2y);
+    const dGroove = Math.min(
+      segD(v0x, v0y, v1x, v1y), segD(v1x, v1y, v2x, v2y), segD(v2x, v2y, v0x, v0y),
+      segD(m0x, m0y, m1x, m1y), segD(m1x, m1y, m2x, m2y), segD(m2x, m2y, m0x, m0y)
+    );
+    const depth = triGroove, grooveW = 2.0, chamfer = 2.4;
+    let v = vBase, h = gn * 0.55 + gf * 0.3, rg = 212 + bev * 14 + grainV * 0.6;
+    if (inBig) { v += inCentre ? -7 : 5 * inside; h += (inCentre ? -1.0 : 1.0) * 0.9 * inside; rg += inCentre ? -16 : 10; }
+    if (dGroove < grooveW) {
+      const cut = 1 - smooth(dGroove / grooveW);
+      h -= cut * 1.4 * depth * inside; v -= cut * 16 * depth * inside; rg -= cut * 34 * depth;
+    } else if (dGroove < grooveW + chamfer) {
+      const ct = smooth((dGroove - grooveW) / chamfer);
+      h += 0.5 * ct * inside; v += 3 * ct * inside;
     }
-    return { h, r, g: gr, b, rg, warm: 0 };
+    const tc = teal(v);
+    return { h, r: tc.r, g: tc.g, b: tc.b, rg, warm: 0 };
+  }
+  if (P.material === 'foam_tristeel') {
+    // Composite Metal Foam: open-cell metal foam with its cavities cast full of
+    // tri-steel — dark steel struts hold bright saturated teal slugs. Relief is in
+    // the height field; shading is symmetric (survives rotation).
+    const teal = (v) => ({ r: v * 0.66, g: v * 1.00, b: v * 1.32 });
+    const scale = P.poreScale ?? 7, nx = x / scale, ny = y / scale;
+    const ix = Math.floor(nx), iy = Math.floor(ny);
+    let d1 = 1e9, d2 = 1e9;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const cx = ix + dx, cy = iy + dy;
+      const hx = Math.sin(cx * 12.9898 + cy * 78.233) * 43758.5453;
+      const hy = Math.sin(cx * 37.103 + cy * 53.641) * 43758.5453;
+      const jx = hx - Math.floor(hx), jy = hy - Math.floor(hy);
+      const dist = Math.hypot(nx - (cx + jx + gn * 0.25), ny - (cy + jy + gf * 0.25));
+      if (dist < d1) { d2 = d1; d1 = dist; } else if (dist < d2) { d2 = dist; }
+    }
+    const cellWall = d2 - d1;
+    let h = gn * 0.4 + gf * 0.2, v = vBase, rg = 200 + bev * 10, tealMix = 0;
+    if (inside > 0.15) {
+      const li = Math.min(1.0, (inside - 0.15) / 0.25);
+      const poreLimit = (P.porosity ?? 0.5) * 0.55 + gf * 0.05;
+      if (d1 < poreLimit) {
+        const t = smooth(d1 / poreLimit), dome = 1 - t * t, seam = smooth(Math.max(0, (t - 0.70) / 0.30));
+        h += (-(P.fillDepth ?? 0.6) * 1.6 + dome * 0.8) * li;
+        const fillV = vBase * (0.95 + 0.75 * dome) + 30 * dome - seam * 14;
+        v = v * (1 - li) + fillV * li;
+        rg = rg * (1 - li) + (150 + dome * 60 - seam * 34) * li;
+        tealMix = li;
+      } else if (cellWall < 0.22) {
+        const bump = (1 - smooth(cellWall / 0.22)) * 0.5 * li;
+        h += bump; v += bump * 22; rg += bump * 6;
+      }
+    }
+    let r = v, g = v, b = v;
+    if (tealMix > 0) {
+      const tc = teal(v);
+      r = v * (1 - tealMix) + tc.r * tealMix; g = v * (1 - tealMix) + tc.g * tealMix; b = v * (1 - tealMix) + tc.b * tealMix;
+    }
+    return { h, r, g, b, rg, warm: 0 };
   }
   if (P.material === 'metalfoam_irregular') {
     // Metal Foam: Worley cellular noise pore matrix
@@ -165,52 +233,31 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     return { h, r, g, b, rg, warm: 0 };
   }
   if (P.material === 'gold') {
-    // Gold Shielding: chamfered ingot grid with directional edge lighting
-    const base = vBase;
-    let r = base * 1.38, g = base * 1.08, b = base * 0.52;
-    let h = gn * 0.3 + gf * 0.15, rg = 200 + bev * 10;
-    const warm = 58 * inside;
-    const divX = Math.max(1, Math.round(W / (P.ingotTargetWidth || 32)));
-    const divY = Math.max(1, Math.round(H / (P.ingotTargetHeight || 32)));
-    const subX = fitPeriod(W / divX), subY = fitPeriod(H / divY);
-    const lx = ((x % subX) + subX) % subX, ly = ((y % subY) + subY) % subY;
-    const ex = Math.min(lx, subX - lx), ey = Math.min(ly, subY - ly);
-    const ingotEdge = Math.min(ex, ey);
-    const grooveW = 2.2, chamferW = 3.5;
-    const li = inside > 0.1 ? smooth(Math.min(1, (inside - 0.1) / 0.15)) : 0;
-    if (li > 0) {
-      if (ingotEdge < grooveW) {
-        const t = smooth(ingotEdge / grooveW), sh = 0.35 + 0.65 * t;
-        h -= (1 - t) * 2.0 * li; r *= sh; g *= sh; b *= sh;
-        rg = rg * (1 - li) + (115 + t * 45) * li;
-      } else if (ingotEdge < grooveW + chamferW) {
-        // chamfer slope: height only + mild symmetric AO toward the recessed seam
-        const t = smooth((ingotEdge - grooveW) / chamferW);
-        const m = 1 - (1 - (0.82 + 0.18 * t)) * li;
-        h += 0.8 * t * li;
-        r *= m; g *= m; b *= m;
-        rg += t * 6 * li;
-      } else {
-        const faceFr = Math.min(1, (ingotEdge - grooveW - chamferW) / Math.max(1, Math.min(subX, subY) * 0.35));
-        const dome = faceFr * faceFr;
-        h += 0.55 * dome * li;
-        const fx = lx / subX - 0.5, fy = ly / subY - 0.5;
-        // crown sheen centred on the ingot — radially symmetric, rotation-safe
-        const sheen = gauss(Math.hypot(fx, fy), 0.22) * 24 * li;
-        r += sheen * 1.25; g += sheen * 0.95; b += sheen * 0.30;
-        rg += sheen * 0.3 + dome * 6 * li;
-        const bp = Math.min(7, Math.max(4, Math.min(subX, subY) * 0.18));
-        const rdx = Math.min(lx - bp, subX - bp - lx), rdy = Math.min(ly - bp, subY - bp - ly);
-        if (rdx >= 0 && rdy >= 0) {
-          const cd = Math.hypot(rdx, rdy), rrad = 2.0;
-          if (cd < rrad) {
-            const rt = smooth(1 - cd / rrad);
-            h += rt * 1.5 * li; r += rt * 52 * li; g += rt * 40 * li; b += rt * 14 * li;
-            rg = rg * (1 - rt * li) + 224 * rt * li;
-          }
-        }
+    // Gold Plating: hand-beaten gold — an offset lattice of shallow concave
+    // dimples. The bowls live in the height field (symmetric), so the hammer
+    // marks read from the normal map and stay correct under rotation. Colour is a
+    // warm gold tint of the luminance.
+    const hammerScale = P.hammerScale ?? 11, hammerDepth = P.hammerDepth ?? 1.0;
+    const colW = fitPeriod(hammerScale), rowH = fitPeriod(hammerScale * 0.866);
+    const r0 = Math.round(y / rowH);
+    let d0 = 1e9;
+    for (let r = r0 - 1; r <= r0 + 1; r++) {
+      const cy = r * rowH, off = (r & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for (let c = c0 - 1; c <= c0 + 1; c++) {
+        const cx = c * colW + off, d = Math.hypot(x - cx, y - cy);
+        if (d < d0) d0 = d;
       }
     }
+    const R = colW * 0.5;
+    const t = Math.min(1, d0 / R);                 // 0 at dimple centre, 1 at the rim
+    const bowl = 1 - t * t;                          // concave floor
+    const rim = smooth(Math.max(0, (t - 0.78) / 0.22)); // proud ridge where bowls meet
+    const depth = hammerDepth;
+    const h = (-bowl * 1.3 * depth + rim * 0.6 * depth) * inside + gn * 0.45 + gf * 0.25;
+    const v = vBase - bowl * 6 * depth * inside + rim * 10 * depth * inside + (gn * 0.5 + gf * 0.35) * 4;
+    const r = v * 1.08 + 40, g = v * 0.82 + 16, b = v * 0.30 + 2;
+    const rg = 206 + bev * 16 + rim * 14 * depth - bowl * 8 * depth + grainV * 0.5;
+    const warm = 30 + rim * 6 - bowl * 4;            // strong warm cast, survives ship colour
     return { h, r, g, b, rg, warm };
   }
   if (P.material === 'uranium') {

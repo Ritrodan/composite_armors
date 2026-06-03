@@ -20,7 +20,8 @@ const DEFAULTS = {
   tilesX: 1, tilesY: 1, wedge: false, material: 'vanilla',
   baseBright: 29, grain: 9, grainScale: 9, weavePeriod: 13,
   ballSpacing: 15, ballFill: 0.94,
-  rivetGap: 14, poreScale: 7, porosity: 0.5,
+  rivetGap: 14, poreScale: 7, porosity: 0.5, fillDepth: 0.6,
+  triSize: 0.74, triGroove: 1.0, hammerScale: 11, hammerDepth: 1.0,
   ingotTargetWidth: 32, ingotTargetHeight: 32, hexSize: 8, hexGroove: 0.8,
   bevelBright: 16, bevelWidth: 2, normalStrength: 1.0, normalFlipY: false,
   normalEdgeFade: 0, ballNormalHeight: 2.4, surfaceNormalScale: 1.0,
@@ -33,9 +34,10 @@ const MATERIALS = {
   vanilla:             { baseBright: 29, grain: 9,  bevelBright: 16, normalStrength: 1.0 },
   nera:                { baseBright: 30, grain: 5,  bevelBright: 16, normalStrength: 0.85, weavePeriod: 15 },
   compc:               { baseBright: 29, grain: 9,  bevelBright: 16, normalStrength: 1.1,  ballSpacing: 15, ballFill: 0.94 },
-  hardened:            { baseBright: 32, grain: 8,  bevelBright: 20, normalStrength: 1.1,  rivetGap: 14 },
+  tristeel:            { baseBright: 38, grain: 7,  bevelBright: 22, normalStrength: 1.2,  triSize: 0.74, triGroove: 1.0 },
   metalfoam_irregular: { baseBright: 24, grain: 4,  bevelBright: 12, normalStrength: 1.4,  poreScale: 7, porosity: 0.5 },
-  gold:                { baseBright: 105, grain: 3, bevelBright: 22, normalStrength: 1.2,  ingotTargetWidth: 32, ingotTargetHeight: 32 },
+  foam_tristeel:       { baseBright: 26, grain: 4,  bevelBright: 14, normalStrength: 1.35, poreScale: 7, porosity: 0.5, fillDepth: 0.6 },
+  gold:                { baseBright: 66, grain: 6,  bevelBright: 28, normalStrength: 1.15, hammerScale: 11, hammerDepth: 1.0 },
   uranium:             { baseBright: 72,  grain: 6, bevelBright: 14, normalStrength: 1.3,  hexSize: 8, hexGroove: 0.8 },
 };
 
@@ -43,7 +45,7 @@ const MATERIALS = {
 function resolveParams(v) {
   const tex = v.material.texture;          // { material, seed }
   const mat = MATERIALS[tex.material] || {};
-  return { ...DEFAULTS, ...mat, material: tex.material, seed: tex.seed, tilesX: v.W, tilesY: v.H, dir: v.dir };
+  return { ...DEFAULTS, ...mat, material: tex.material, seed: tex.seed, tilesX: v.W, tilesY: v.H, wedge: v.isWedge, dir: v.dir };
 }
 
 function main() {
