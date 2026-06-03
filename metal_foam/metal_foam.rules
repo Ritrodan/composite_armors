@@ -22,7 +22,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 		thermal = -9999%
 	}
 	TypeCategories = [armor, non_flammable]
-	InitialPenetrationResistance = 0.4
+	InitialPenetrationResistance = 1.4
 	ContinuingPenetrationResistance = &InitialPenetrationResistance
 	CreatePartPerTileWhenGrabbed = ""
 	CrewSpeedFactor = 0

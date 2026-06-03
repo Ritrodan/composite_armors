@@ -3,7 +3,7 @@ Name = "Composite Armors"
 Version = 1.0.0
 CompatibleGameVersions = ["0.30.1"]
 Author = "Ritrodan"
-Description = "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Gold Shielding, and Depleted Uranium, with multiple size variants."
+Description = "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Composite Metal Foam, Gold Plating, and Depleted Uranium, with multiple size and wedge variants."
 ModifiesMultiplayer = true
 ModifiesGameplay = true
 StringsFolder = "strings"
@@ -20,16 +20,30 @@ Actions
 			&<nera_3x1/nera_3x1.rules>/Part
 			&<nera_4x1/nera_4x1.rules>/Part
 			&<nera_2x2/nera_2x2.rules>/Part
+			&<nera_wedge/nera_wedge.rules>/Part
+			&<nera_1x2_wedge/nera_1x2_wedge.rules>/Part
+			&<nera_1x3_wedge/nera_1x3_wedge.rules>/Part
 			&<tri_steel/tri_steel.rules>/Part
 			&<tri_steel_2x1/tri_steel_2x1.rules>/Part
+			&<tri_steel_wedge/tri_steel_wedge.rules>/Part
+			&<tri_steel_1x2_wedge/tri_steel_1x2_wedge.rules>/Part
+			&<tri_steel_1x3_wedge/tri_steel_1x3_wedge.rules>/Part
 			&<combination_c/combination_c.rules>/Part
 			&<combination_c_2x1/combination_c_2x1.rules>/Part
+			&<combination_c_wedge/combination_c_wedge.rules>/Part
+			&<combination_c_1x2_wedge/combination_c_1x2_wedge.rules>/Part
+			&<combination_c_1x3_wedge/combination_c_1x3_wedge.rules>/Part
 			&<metal_foam/metal_foam.rules>/Part
 			&<metal_foam_2x1/metal_foam_2x1.rules>/Part
+			&<composite_metal_foam/composite_metal_foam.rules>/Part
+			&<composite_metal_foam_2x1/composite_metal_foam_2x1.rules>/Part
 			&<gold_shielding/gold_shielding.rules>/Part
 			&<gold_shielding_2x1/gold_shielding_2x1.rules>/Part
 			&<uranium/uranium.rules>/Part
 			&<uranium_2x1/uranium_2x1.rules>/Part
+			&<uranium_wedge/uranium_wedge.rules>/Part
+			&<uranium_1x2_wedge/uranium_1x2_wedge.rules>/Part
+			&<uranium_1x3_wedge/uranium_1x3_wedge.rules>/Part
 		]
 	}
 ]
