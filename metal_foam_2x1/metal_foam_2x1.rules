@@ -21,7 +21,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	DamageResistances
 	{
 		explosive = 99%
-		thermal = -9999%
+		thermal = -99999%
 	}
 	TypeCategories = [armor, non_flammable]
 	Flammable = false
