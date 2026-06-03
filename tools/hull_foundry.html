@@ -696,7 +696,7 @@ defineMaterial({
 
 defineMaterial({
   id:'gold', label:'Gold Shielding (scaled ingots)',
-  defaults:{baseBright:45,grain:3,bevelBright:22,normalStrength:1.2,ingotTargetWidth:32,ingotTargetHeight:32},
+  defaults:{baseBright:54,grain:3,bevelBright:22,normalStrength:1.2,ingotTargetWidth:32,ingotTargetHeight:32},
   controls:[
     {id:'ingotTargetWidth',label:'Target Ingot W (px)',min:16,max:64,step:2,value:32},
     {id:'ingotTargetHeight',label:'Target Ingot H (px)',min:16,max:64,step:2,value:32},
@@ -743,7 +743,7 @@ defineMaterial({
 
 defineMaterial({
   id:'uranium', label:'Depleted Uranium (monolithic chevrons)',
-  defaults:{baseBright:22,grain:6,bevelBright:10,normalStrength:1.5,chevronWidth:16},
+  defaults:{baseBright:38,grain:6,bevelBright:10,normalStrength:1.5,chevronWidth:16},
   controls:[{id:'chevronWidth',label:'Chevron width (px)',min:8,max:32,step:1,value:16}],
   surface(ctx){
     const {P,x,y,bev,gn,gf,inside,vBase,smooth}=ctx;

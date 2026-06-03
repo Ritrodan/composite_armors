@@ -20,13 +20,13 @@ Parts
 	NERA2x2Icon = "NERA 2x2"
 	NERA2x2Desc = "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
-	FaceHardened = "Tri-Steel Armor"
-	FaceHardenedIcon = "Tri-Steel Armor"
-	FaceHardenedDesc = "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost."
+	TriSteel = "Tri-Steel Armor"
+	TriSteelIcon = "Tri-Steel Armor"
+	TriSteelDesc = "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost."
 
-	FaceHardened2x1 = "Tri-Steel Armor 2x1"
-	FaceHardened2x1Icon = "Tri-Steel Armor 2x1"
-	FaceHardened2x1Desc = "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost."
+	TriSteel2x1 = "Tri-Steel Armor 2x1"
+	TriSteel2x1Icon = "Tri-Steel Armor 2x1"
+	TriSteel2x1Desc = "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost."
 
 	CompositeC = "Combination C Armor"
 	CompositeCIcon = "Combination C Armor"

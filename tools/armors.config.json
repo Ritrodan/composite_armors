@@ -22,9 +22,9 @@
       "perTile": { "resources": [["steel", 2], ["coil", 1]], "maxHealth": 2400, "empAbsorb": null },
       "intensive": { "explosiveAbsorption": 50, "explosiveResist": 50, "thermalResist": -1000, "penResist": 6, "density": 1.2 }
     },
-    "face_hardened": {
-      "id": "face_hardened",
-      "nameKey": "FaceHardened",
+    "tri_steel": {
+      "id": "tri_steel",
+      "nameKey": "TriSteel",
       "displayName": "Tri-Steel Armor",
       "variantNoun": "tri-steel armor",
       "description": "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost.",
@@ -79,8 +79,8 @@
     { "material": "nera", "size": [3, 1] },
     { "material": "nera", "size": [4, 1] },
     { "material": "nera", "size": [2, 2] },
-    { "material": "face_hardened", "size": [1, 1] },
-    { "material": "face_hardened", "size": [2, 1] },
+    { "material": "tri_steel", "size": [1, 1] },
+    { "material": "tri_steel", "size": [2, 1] },
     { "material": "composite_c", "size": [1, 1] },
     { "material": "composite_c", "size": [2, 1] },
     { "material": "metal_foam", "size": [1, 1] },

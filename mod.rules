@@ -20,8 +20,8 @@ Actions
 			&<nera_3x1/nera_3x1.rules>/Part
 			&<nera_4x1/nera_4x1.rules>/Part
 			&<nera_2x2/nera_2x2.rules>/Part
-			&<face_hardened/face_hardened.rules>/Part
-			&<face_hardened_2x1/face_hardened_2x1.rules>/Part
+			&<tri_steel/tri_steel.rules>/Part
+			&<tri_steel_2x1/tri_steel_2x1.rules>/Part
 			&<composite_c/composite_c.rules>/Part
 			&<composite_c_2x1/composite_c_2x1.rules>/Part
 			&<metal_foam/metal_foam.rules>/Part
