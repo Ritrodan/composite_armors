@@ -352,7 +352,7 @@ function normalsFromHeight(P, F, height, hole) {
     const i = y * W + x, i4 = i * 4;
     if (!F.solid[i] || (hole && hole[i])) { d[i4] = 128; d[i4 + 1] = 128; d[i4 + 2] = 255; d[i4 + 3] = 0; continue; }
     const gx = (at(x + 1, y) - at(x - 1, y)) * 0.5, gy = (at(x, y + 1) - at(x, y - 1)) * 0.5;
-    let nx = -gx * s, ny = -gy * s * flip, nz = 1.0;
+    let nx = gx * s, ny = gy * s * flip, nz = 1.0;
     if (fade > 0) { const ef = smooth(Math.min(1, F.edge[i] / fade)); nx *= ef; ny *= ef; }
     const L = Math.hypot(nx, ny, nz); nx /= L; ny /= L; nz /= L;
     d[i4] = Math.round((nx * 0.5 + 0.5) * 255); d[i4 + 1] = Math.round((ny * 0.5 + 0.5) * 255); d[i4 + 2] = Math.round((nz * 0.5 + 0.5) * 255); d[i4 + 3] = 255;
