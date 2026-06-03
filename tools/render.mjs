@@ -164,33 +164,50 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     return { h, r, g, b, rg, warm: 0 };
   }
   if (P.material === 'gold') {
-    // Gold Shielding: dynamically scaled riveted bullion ingot grid
-    let r = vBase * 1.35, g = vBase * 1.10, b = vBase * 0.60;
-    let h = gn * 0.3 + gf * 0.15, rg = 230 + bev * 15, warm = 55 * inside;
+    // Gold Shielding: chamfered ingot grid with directional edge lighting
+    const base = vBase;
+    let r = base * 1.38, g = base * 1.08, b = base * 0.52;
+    let h = gn * 0.3 + gf * 0.15, rg = 228 + bev * 14;
+    const warm = 58 * inside;
     const divX = Math.max(1, Math.round(W / (P.ingotTargetWidth || 32)));
     const divY = Math.max(1, Math.round(H / (P.ingotTargetHeight || 32)));
-    const subX = W / divX, subY = H / divY;
-    const lx = x % subX, ly = y % subY;
-    const ingotEdge = Math.min(Math.min(lx, subX - lx), Math.min(ly, subY - ly));
-    const grooveW = 2.5;
-    if (inside > 0.1) {
-      const li = Math.min(1.0, (inside - 0.1) / 0.15);
+    const subX = fitPeriod(W / divX), subY = fitPeriod(H / divY);
+    const lx = ((x % subX) + subX) % subX, ly = ((y % subY) + subY) % subY;
+    const ex = Math.min(lx, subX - lx), ey = Math.min(ly, subY - ly);
+    const ingotEdge = Math.min(ex, ey);
+    const Lx = -0.7071, Ly = -0.7071;
+    const normX = ex < ey ? (lx < subX * 0.5 ? -1 : 1) : 0;
+    const normY = ex < ey ? 0 : (ly < subY * 0.5 ? -1 : 1);
+    const edgeLight = normX * Lx + normY * Ly;
+    const grooveW = 2.2, chamferW = 3.5;
+    const li = inside > 0.1 ? smooth(Math.min(1, (inside - 0.1) / 0.15)) : 0;
+    if (li > 0) {
       if (ingotEdge < grooveW) {
-        const t = smooth(ingotEdge / grooveW), sh = 0.4 + 0.6 * t;
-        h -= (1 - t) * 1.8 * li; r *= sh; g *= sh; b *= sh;
-        rg = rg * (1 - li) + (120 + t * 40) * li;
+        const t = smooth(ingotEdge / grooveW), sh = 0.35 + 0.65 * t;
+        h -= (1 - t) * 2.0 * li; r *= sh; g *= sh; b *= sh;
+        rg = rg * (1 - li) + (115 + t * 45) * li;
+      } else if (ingotEdge < grooveW + chamferW) {
+        const t = smooth((ingotEdge - grooveW) / chamferW);
+        const litAmt = edgeLight * 28 * (1 - t) * li, liftV = (1 - t) * 18 * li;
+        h += 0.8 * t * li;
+        r += litAmt * 1.3 + liftV * 1.3; g += litAmt + liftV; b += litAmt * 0.4 + liftV * 0.4;
+        rg += litAmt * 0.6 + t * 10 * li;
       } else {
-        h += smooth(Math.min(1.0, (ingotEdge - grooveW) / 4.0)) * 0.6 * li;
-        const flash = gauss(ingotEdge - subX * 0.2, 6.0) * 15 * li;
-        r += flash * 1.2; g += flash;
-        const bp = Math.min(8, Math.max(4, Math.min(subX, subY) * 0.2));
+        const faceFr = Math.min(1, (ingotEdge - grooveW - chamferW) / Math.max(1, Math.min(subX, subY) * 0.35));
+        const dome = faceFr * faceFr;
+        h += 0.55 * dome * li;
+        const fx = lx / subX - 0.5, fy = ly / subY - 0.5;
+        const sheen = gauss(Math.hypot(fx + 0.22, fy + 0.22), 0.18) * 32 * li;
+        r += sheen * 1.25; g += sheen * 0.95; b += sheen * 0.30;
+        rg += sheen * 0.5 + dome * 12 * li;
+        const bp = Math.min(7, Math.max(4, Math.min(subX, subY) * 0.18));
         const rdx = Math.min(lx - bp, subX - bp - lx), rdy = Math.min(ly - bp, subY - bp - ly);
         if (rdx >= 0 && rdy >= 0) {
-          const cd = Math.hypot(rdx, rdy), rrad = 2.2;
+          const cd = Math.hypot(rdx, rdy), rrad = 2.0;
           if (cd < rrad) {
             const rt = smooth(1 - cd / rrad);
-            h += rt * 1.4 * li; r += rt * 45 * li; g += rt * 35 * li; b += rt * 15 * li;
-            rg = rg * (1 - rt * li) + 250 * rt * li;
+            h += rt * 1.5 * li; r += rt * 52 * li; g += rt * 40 * li; b += rt * 14 * li;
+            rg = rg * (1 - rt * li) + 252 * rt * li;
           }
         }
       }
@@ -198,21 +215,55 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     return { h, r, g, b, rg, warm };
   }
   if (P.material === 'uranium') {
-    // Depleted Uranium: monolithic chevron-etched heavy plate
-    let r = vBase * 0.75, g = vBase * 0.85, b = vBase * 0.70;
-    let h = gn * 0.5 + gf * 0.3, rg = 190 + bev * 8, warm = -45 * inside;
-    if (inside > 0.05) {
-      const ci = smooth(inside);
-      const pv = Math.floor((x + y) / (P.chevronWidth || 16)) % 2;
-      if (pv === 0) {
-        const cf = 0.45 * ci;
-        h -= 0.65 * ci; r -= 24 * cf; g -= 20 * cf; b -= 26 * cf; rg -= 45 * ci;
-      } else {
-        const hf = 0.25 * ci;
-        h += 0.2 * ci; r += 12 * hf; g += 15 * hf; b += 10 * hf; rg += 15 * ci;
-      }
+    // Depleted Uranium: hex plate geometry with green-olive tint
+    const S = P.hexSize || 8;
+    const colW = fitPeriod(S * 1.7320508), rowH = fitPeriod(S * 3.0) / 2;
+    const r0 = Math.round(y / rowH);
+    const cells = [];
+    for (let rr = r0 - 1; rr <= r0 + 1; rr++) {
+      const cy = rr * rowH, off = (rr & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for (let cc = c0 - 1; cc <= c0 + 1; cc++) cells.push([cc * colW + off, cy]);
     }
-    return { h, r, g, b, rg, warm };
+    let d0 = 1e9, cx0 = 0, cy0 = 0;
+    for (const [cx, cy] of cells) { const d = Math.hypot(x - cx, y - cy); if (d < d0) { d0 = d; cx0 = cx; cy0 = cy; } }
+    let insideDist = 1e9, enX = 0, enY = 0;
+    for (const [cx, cy] of cells) {
+      const dx = cx - cx0, dy = cy - cy0, len = Math.hypot(dx, dy);
+      if (len < 1e-6) continue;
+      const dn = Math.hypot(x - cx, y - cy), ed = (dn * dn - d0 * d0) / (2 * len);
+      if (ed < insideDist) { insideDist = ed; enX = dx / len; enY = dy / len; }
+    }
+    const lx2 = x - cx0, ly2 = y - cy0, dc = Math.hypot(lx2, ly2);
+    const grainV2 = gn * P.grain + gf * P.grain * 0.4;
+    const vBase2 = P.baseBright + bev * P.bevelBright + grainV2;
+    const depth = P.hexGroove || 0.8;
+    const Lx = -0.7071, Ly = -0.7071;
+    const grooveW2 = Math.max(1.0, S * 0.12), chamfer = Math.max(1.4, S * 0.24), faceStart = grooveW2 + chamfer;
+    const apothem = colW * 0.5;
+    const tint = (v) => ({ r: v * 0.80, g: v * 1.12, b: v * 0.70 });
+    if (insideDist < grooveW2) {
+      const t = Math.max(0, insideDist / grooveW2), gv = vBase2 * 0.40 - depth * 8 * (1 - smooth(t));
+      const tc = tint(gv); return { h: -depth * 1.3 * (1 - smooth(t)), r: tc.r, g: tc.g, b: tc.b, rg: 160 + t * 30, warm: 0 };
+    }
+    if (insideDist < faceStart) {
+      const t = smooth((insideDist - grooveW2) / chamfer), lip = enX * Lx + enY * Ly;
+      const lum = vBase2 * (0.55 + 0.45 * t) + lip * 26 * t * inside;
+      const tc = tint(lum); return { h: 0.7 * t, r: tc.r, g: tc.g, b: tc.b, rg: 200 + lip * 22 * t + t * 12, warm: 0 };
+    }
+    const studR = Math.max(1.6, S * 0.17);
+    if (dc < studR) {
+      const nx = lx2 / studR, ny = ly2 / studR, nz = Math.sqrt(Math.max(0, 1 - nx * nx - ny * ny));
+      const L3x = -0.4533, L3y = -0.4533, L3z = 0.7686, Hx = -0.3019, Hy = -0.3019, Hz = 0.9043;
+      const diff = Math.max(0, nx * L3x + ny * L3y + nz * L3z), spec = Math.pow(Math.max(0, nx * Hx + ny * Hy + nz * Hz), 20);
+      const lum = vBase2 * 0.72 + diff * 30 + spec * 90;
+      const tc = tint(lum); return { h: (1.2 + 1.0 * nz) * inside, r: tc.r, g: tc.g, b: tc.b, rg: 205 + diff * 30 + spec * 40, warm: 0 };
+    }
+    const fr = Math.min(1, (insideDist - faceStart) / Math.max(1, apothem - faceStart));
+    const dome = 1 - (1 - fr) * (1 - fr), rad2 = Math.max(1e-3, dc);
+    const faceLight = -(lx2 / rad2 * Lx + ly2 / rad2 * Ly) * (1 - dome) * 0.6;
+    const fv = vBase2 + (4 + faceLight * 18) * inside + grainV2 * 0.3;
+    const fh = 0.7 + dome * 0.5 + (gn * 0.5 + gf * 0.3);
+    const tc = tint(fv); return { h: fh * inside + 0.2, r: tc.r, g: tc.g, b: tc.b, rg: 214 + bev * 10 + grainV2 * 0.6 + faceLight * 12, warm: 0 };
   }
   const h = gn * 0.8 + gf * 0.4;
   const rg = 211 + bev * 14 + grainV * 0.66;

@@ -28,8 +28,8 @@ Actions
 			&<metal_foam_2x1/metal_foam_2x1.rules>/Part
 			&<gold_shielding/gold_shielding.rules>/Part
 			&<gold_shielding_2x1/gold_shielding_2x1.rules>/Part
-			&<depleted_uranium/depleted_uranium.rules>/Part
-			&<depleted_uranium_2x1/depleted_uranium_2x1.rules>/Part
+			&<uranium/uranium.rules>/Part
+			&<uranium_2x1/uranium_2x1.rules>/Part
 		]
 	}
 ]

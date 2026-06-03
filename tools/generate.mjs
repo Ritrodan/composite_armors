@@ -21,7 +21,7 @@ const DEFAULTS = {
   baseBright: 29, grain: 9, grainScale: 9, weavePeriod: 13,
   ballSpacing: 15, ballFill: 0.94,
   rivetGap: 14, poreScale: 7, porosity: 0.5,
-  ingotTargetWidth: 32, ingotTargetHeight: 32, chevronWidth: 16,
+  ingotTargetWidth: 32, ingotTargetHeight: 32, hexSize: 8, hexGroove: 0.8,
   bevelBright: 16, bevelWidth: 2, normalStrength: 1.0, normalFlipY: false,
   normalEdgeFade: 0, ballNormalHeight: 2.4, surfaceNormalScale: 1.0,
   dmg33: 1.0, dmg66: 1.9, cratersPerTile: 6, holeSize: 0.62, edgeMargin: 6,
@@ -35,8 +35,8 @@ const MATERIALS = {
   compc:               { baseBright: 29, grain: 9,  bevelBright: 16, normalStrength: 1.1,  ballSpacing: 15, ballFill: 0.94 },
   hardened:            { baseBright: 32, grain: 8,  bevelBright: 20, normalStrength: 1.1,  rivetGap: 14 },
   metalfoam_irregular: { baseBright: 24, grain: 4,  bevelBright: 12, normalStrength: 1.4,  poreScale: 7, porosity: 0.5 },
-  gold:                { baseBright: 54, grain: 3,  bevelBright: 22, normalStrength: 1.2,  ingotTargetWidth: 32, ingotTargetHeight: 32 },
-  uranium:             { baseBright: 38, grain: 6,  bevelBright: 10, normalStrength: 1.5,  chevronWidth: 16 },
+  gold:                { baseBright: 105, grain: 3, bevelBright: 22, normalStrength: 1.2,  ingotTargetWidth: 32, ingotTargetHeight: 32 },
+  uranium:             { baseBright: 72,  grain: 6, bevelBright: 14, normalStrength: 1.3,  hexSize: 8, hexGroove: 0.8 },
 };
 
 // Build a render-params object for a variant from armors.config.json.

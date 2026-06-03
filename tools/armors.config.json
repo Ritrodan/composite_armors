@@ -62,9 +62,9 @@
       "perTile": { "resources": [["gold", 1], ["steel", 2]], "maxHealth": 8000, "empAbsorb": 5000 },
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 33, "thermalResist": 75, "penResist": 1, "density": 7.0, "empRecovery": 0.5 }
     },
-    "depleted_uranium": {
-      "id": "depleted_uranium",
-      "nameKey": "DepletedUranium",
+    "uranium": {
+      "id": "uranium",
+      "nameKey": "Uranium",
       "displayName": "Depleted Uranium Armor",
       "variantNoun": "depleted uranium armor",
       "description": "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions.",
@@ -87,7 +87,7 @@
     { "material": "metal_foam", "size": [2, 1] },
     { "material": "gold_shielding", "size": [1, 1] },
     { "material": "gold_shielding", "size": [2, 1] },
-    { "material": "depleted_uranium", "size": [1, 1] },
-    { "material": "depleted_uranium", "size": [2, 1] }
+    { "material": "uranium", "size": [1, 1] },
+    { "material": "uranium", "size": [2, 1] }
   ]
 }
