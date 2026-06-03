@@ -20,13 +20,13 @@ Parts
 	NERA2x2Icon = "NERA 2x2"
 	NERA2x2Desc = "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
-	FaceHardened = "Tri-Steel Compound Armor"
-	FaceHardenedIcon = "Tri-Steel Compound Armor"
-	FaceHardenedDesc = "Tri-steel compound armor offers high health and strong cost efficiency by reinforcing steel with tri-steel plating. Its durability and value come at the cost of significantly increased weight."
+	TriSteel = "Tri-Steel Armor"
+	TriSteelIcon = "Tri-Steel Armor"
+	TriSteelDesc = "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost."
 
-	FaceHardened2x1 = "Tri-Steel Compound Armor 2x1"
-	FaceHardened2x1Icon = "Tri-Steel Compound Armor 2x1"
-	FaceHardened2x1Desc = "Tri-steel compound armor offers high health and strong cost efficiency by reinforcing steel with tri-steel plating. Its durability and value come at the cost of significantly increased weight."
+	TriSteel2x1 = "Tri-Steel Armor 2x1"
+	TriSteel2x1Icon = "Tri-Steel Armor 2x1"
+	TriSteel2x1Desc = "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost."
 
 	CompositeC = "Combination C Armor"
 	CompositeCIcon = "Combination C Armor"
@@ -36,6 +36,14 @@ Parts
 	CompositeC2x1Icon = "Combination C Armor 2x1"
 	CompositeC2x1Desc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
 
+	MetalFoam = "Metal Foam"
+	MetalFoamIcon = "Metal Foam"
+	MetalFoamDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+
+	MetalFoam2x1 = "Metal Foam 2x1"
+	MetalFoam2x1Icon = "Metal Foam 2x1"
+	MetalFoam2x1Desc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+
 	GoldShielding = "Gold Shielding"
 	GoldShieldingIcon = "Gold Shielding"
 	GoldShieldingDesc = "Dense gold plating offers extraordinary thermal insulation and acts as a near-perfect Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
@@ -44,11 +52,11 @@ Parts
 	GoldShielding2x1Icon = "Gold Shielding 2x1"
 	GoldShielding2x1Desc = "Dense gold plating offers extraordinary thermal insulation and acts as a near-perfect Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
 
-	DepletedUranium = "Depleted Uranium Armor"
-	DepletedUraniumIcon = "Depleted Uranium Armor"
-	DepletedUraniumDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions."
+	Uranium = "Depleted Uranium Armor"
+	UraniumIcon = "Depleted Uranium Armor"
+	UraniumDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions."
 
-	DepletedUranium2x1 = "Depleted Uranium Armor 2x1"
-	DepletedUranium2x1Icon = "Depleted Uranium Armor 2x1"
-	DepletedUranium2x1Desc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions."
+	Uranium2x1 = "Depleted Uranium Armor 2x1"
+	Uranium2x1Icon = "Depleted Uranium Armor 2x1"
+	Uranium2x1Desc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions."
 }

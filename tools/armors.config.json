@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "compatibleGameVersions": ["0.30.1"],
     "author": "Ritrodan",
-    "description": "Adds new armor types for testing: NERA, Tri-Steel Compound Armor, Combination C Armor, and Depleted Uranium Armor, with multiple size variants.",
+    "description": "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Gold Shielding, and Depleted Uranium, with multiple size variants.",
     "modifiesMultiplayer": true,
     "modifiesGameplay": true,
     "stringsFolder": "strings"
@@ -19,18 +19,18 @@
       "variantNoun": "NERA",
       "description": "Non-explosive reactive armor is a lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it.",
       "texture": { "material": "nera", "seed": 4101 },
-      "perTile": { "resources": [["steel", 2], ["coil", 1]], "maxHealth": 2400, "empAbsorb": 500 },
-      "intensive": { "explosiveAbsorption": 50, "explosiveResist": 50, "thermalResist": -100, "penResist": 6, "density": 1.2, "empRecovery": 0.05 }
+      "perTile": { "resources": [["steel", 2], ["coil", 1]], "maxHealth": 2400, "empAbsorb": null },
+      "intensive": { "explosiveAbsorption": 50, "explosiveResist": 50, "thermalResist": -1000, "penResist": 6, "density": 1.2 }
     },
-    "face_hardened": {
-      "id": "face_hardened",
-      "nameKey": "FaceHardened",
-      "displayName": "Tri-Steel Compound Armor",
-      "variantNoun": "tri-steel compound armor",
-      "description": "Tri-steel compound armor offers high health and strong cost efficiency by reinforcing steel with tri-steel plating. Its durability and value come at the cost of significantly increased weight.",
+    "tri_steel": {
+      "id": "tri_steel",
+      "nameKey": "TriSteel",
+      "displayName": "Tri-Steel Armor",
+      "variantNoun": "tri-steel armor",
+      "description": "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost.",
       "texture": { "material": "hardened", "seed": 7220 },
-      "perTile": { "resources": [["steel", 4], ["tristeel", 1]], "maxHealth": 6000, "empAbsorb": 1500 },
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 66, "thermalResist": 50, "penResist": 6, "density": 5.4, "empRecovery": 0.1 }
+      "perTile": { "resources": [["tristeel", 2]], "maxHealth": 4200, "empAbsorb": 700 },
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 45, "thermalResist": 150, "penResist": 8, "density": 2.2, "empRecovery": 0.08 }
     },
     "composite_c": {
       "id": "composite_c",
@@ -39,8 +39,18 @@
       "variantNoun": "Combination C armor",
       "description": "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance.",
       "texture": { "material": "compc", "seed": 8801 },
-      "perTile": { "resources": [["steel", 3], ["carbon", 1]], "maxHealth": 4000, "empAbsorb": 1000 },
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 50, "thermalResist": 10, "penResist": 7, "density": 2.6, "empRecovery": 0.11 }
+      "perTile": { "resources": [["steel", 3], ["carbon", 1]], "maxHealth": 4000, "empAbsorb": 1100 },
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 50, "thermalResist": 10, "penResist": 7, "density": 2.6, "empRecovery": 0.8 }
+    },
+    "metal_foam": {
+      "id": "metal_foam",
+      "nameKey": "MetalFoam",
+      "displayName": "Metal Foam",
+      "variantNoun": "metal foam",
+      "description": "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost.",
+      "texture": { "material": "metalfoam_irregular", "seed": 2250 },
+      "perTile": { "resources": [["steel", 1]], "maxHealth": 260, "empAbsorb": null },
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 99, "thermalResist": -9999, "penResist": 0.4, "density": 0.2 }
     },
     "gold_shielding": {
       "id": "gold_shielding",
@@ -49,18 +59,18 @@
       "variantNoun": "gold shielding",
       "description": "Dense gold plating offers extraordinary thermal insulation and acts as a near-perfect Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits.",
       "texture": { "material": "gold", "seed": 3317 },
-      "perTile": { "resources": [["gold", 1], ["steel", 2]], "maxHealth": 7000, "empAbsorb": 5000 },
+      "perTile": { "resources": [["gold", 1], ["steel", 2]], "maxHealth": 8000, "empAbsorb": 5000 },
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 33, "thermalResist": 75, "penResist": 1, "density": 7.0, "empRecovery": 0.5 }
     },
-    "depleted_uranium": {
-      "id": "depleted_uranium",
-      "nameKey": "DepletedUranium",
+    "uranium": {
+      "id": "uranium",
+      "nameKey": "Uranium",
       "displayName": "Depleted Uranium Armor",
       "variantNoun": "depleted uranium armor",
       "description": "Extremely dense uranium plating packs enormous raw HP into a single block, but is very heavy and has additional vulnerability to penetration and explosions.",
       "texture": { "material": "uranium", "seed": 5500 },
-      "perTile": { "resources": [["uranium", 2]], "maxHealth": 12000, "empAbsorb": null },
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 40, "thermalResist": 50, "penResist": 7, "density": 7.5 }
+      "perTile": { "resources": [["uranium", 2]], "maxHealth": 12000, "empAbsorb": 300 },
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 40, "thermalResist": 75, "penResist": 7, "density": 7.5, "empRecovery": 0.45 }
     }
   },
   "variants": [
@@ -69,13 +79,15 @@
     { "material": "nera", "size": [3, 1] },
     { "material": "nera", "size": [4, 1] },
     { "material": "nera", "size": [2, 2] },
-    { "material": "face_hardened", "size": [1, 1] },
-    { "material": "face_hardened", "size": [2, 1] },
+    { "material": "tri_steel", "size": [1, 1] },
+    { "material": "tri_steel", "size": [2, 1] },
     { "material": "composite_c", "size": [1, 1] },
     { "material": "composite_c", "size": [2, 1] },
+    { "material": "metal_foam", "size": [1, 1] },
+    { "material": "metal_foam", "size": [2, 1] },
     { "material": "gold_shielding", "size": [1, 1] },
     { "material": "gold_shielding", "size": [2, 1] },
-    { "material": "depleted_uranium", "size": [1, 1] },
-    { "material": "depleted_uranium", "size": [2, 1] }
+    { "material": "uranium", "size": [1, 1] },
+    { "material": "uranium", "size": [2, 1] }
   ]
 }
