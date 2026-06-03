@@ -28,13 +28,13 @@ Parts
 	TriSteel2x1Icon = "Tri-Steel Armor 2x1"
 	TriSteel2x1Desc = "Tri-steel armor is a weight-efficient composite that reinforces a steel core with tri-steel plating. It offers superior penetration resistance and good blast absorption, at a premium cost."
 
-	CompositeC = "Combination C Armor"
-	CompositeCIcon = "Combination C Armor"
-	CompositeCDesc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
+	CombinationC = "Combination C Armor"
+	CombinationCIcon = "Combination C Armor"
+	CombinationCDesc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
 
-	CompositeC2x1 = "Combination C Armor 2x1"
-	CompositeC2x1Icon = "Combination C Armor 2x1"
-	CompositeC2x1Desc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
+	CombinationC2x1 = "Combination C Armor 2x1"
+	CombinationC2x1Icon = "Combination C Armor 2x1"
+	CombinationC2x1Desc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
 
 	MetalFoam = "Metal Foam"
 	MetalFoamIcon = "Metal Foam"

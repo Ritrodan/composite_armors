@@ -1,12 +1,12 @@
 Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
-	NameKey = "Parts/CompositeC2x1"
-	IconNameKey = "Parts/CompositeC2x1Icon"
-	ID = Ritrodan.composite_c_2x1
+	NameKey = "Parts/CombinationC2x1"
+	IconNameKey = "Parts/CombinationC2x1Icon"
+	ID = Ritrodan.combination_c_2x1
 	EditorGroup = "Structure"
-	EditorParentParts = [ "Ritrodan.composite_c" ]
-	EditorReplacementPartID = Ritrodan.composite_c
-	DescriptionKey = "Parts/CompositeC2x1Desc"
+	EditorParentParts = [ "Ritrodan.combination_c" ]
+	EditorReplacementPartID = Ritrodan.combination_c
+	DescriptionKey = "Parts/CombinationC2x1Desc"
 	Resources
 	[
 		[steel, 6]

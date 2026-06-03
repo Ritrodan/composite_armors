@@ -22,8 +22,8 @@ Actions
 			&<nera_2x2/nera_2x2.rules>/Part
 			&<tri_steel/tri_steel.rules>/Part
 			&<tri_steel_2x1/tri_steel_2x1.rules>/Part
-			&<composite_c/composite_c.rules>/Part
-			&<composite_c_2x1/composite_c_2x1.rules>/Part
+			&<combination_c/combination_c.rules>/Part
+			&<combination_c_2x1/combination_c_2x1.rules>/Part
 			&<metal_foam/metal_foam.rules>/Part
 			&<metal_foam_2x1/metal_foam_2x1.rules>/Part
 			&<gold_shielding/gold_shielding.rules>/Part
