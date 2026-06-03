@@ -42,15 +42,22 @@ function makeFBM(seed, oc, bp) {
 function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 function gauss(d, w) { return Math.exp(-(d * d) / (2 * w * w)); }
 
+// Snap `desired` to the nearest period that divides TILE (64) evenly.
+// Matches fitPeriod() in hull_foundry.html (seamless is always on for the generator).
+function fitPeriod(desired) { return TILE / Math.max(1, Math.round(TILE / desired)); }
+
 function surface(P, W, H, x, y, bev, gn, gf, inside) {
   const grainV = gn * P.grain + gf * P.grain * 0.4;
   const vBase = P.baseBright + bev * P.bevelBright + grainV;
   if (P.material === 'nera') {
-    const per = P.weavePeriod, p = x - y, c = x + y;
+    // Synced with hull_foundry.html v2: fitPeriod-based copper unit
+    const unit = fitPeriod(P.weavePeriod * 2);
+    const per = unit / 2;
+    const p = x - y, c = x + y;
     let pfr = p / per; pfr -= Math.floor(pfr);
-    let cfr = c / per; cfr -= Math.floor(cfr);
+    let cuf = c / unit; cuf -= Math.floor(cuf);
     const gw = 0.16;
-    const td = (cfr - 0.5) / 0.30; const tube = Math.abs(td) < 1 ? Math.sqrt(1 - td * td) : 0;
+    const td = (cuf - 0.5) / 0.15; const tube = Math.abs(td) < 1 ? Math.sqrt(1 - td * td) : 0;
     const litedge = gauss(pfr - 0.90, 0.06);
     if (pfr < gw) {
       if (tube > 0.15) {
@@ -111,6 +118,82 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
       rg = 170 + diff * 40 + spec * 60;
     }
     return { h, r, g, b, rg, warm: 0 };
+  }
+  if (P.material === 'hardened') {
+    // Tri-Steel: heavy riveted steel plate
+    const g = fitPeriod(P.rivetGap || 14);
+    const rcx = Math.round(x / g) * g, rcy = Math.round(y / g) * g;
+    const d = Math.hypot(x - rcx, y - rcy), rad = 2.8;
+    let r = vBase, gr = vBase, b = vBase, h = gn * 0.6 + gf * 0.3;
+    let rg = 215 + bev * 14;
+    if (d < rad) {
+      const t = smooth(1 - d / rad), v = vBase + t * 55;
+      r = gr = b = v; h += t * 1.8 * inside; rg = 228 + t * 18;
+    }
+    return { h, r, g: gr, b, rg, warm: 0 };
+  }
+  if (P.material === 'metalfoam_irregular') {
+    // Metal Foam: Worley cellular noise pore matrix
+    let h = gn * 0.4 + gf * 0.2, r = vBase, g = vBase, b = vBase, rg = 205 + bev * 10;
+    const scale = P.poreScale || 7, nx = x / scale, ny = y / scale;
+    const ix = Math.floor(nx), iy = Math.floor(ny);
+    let minDist1 = 1e9, minDist2 = 1e9;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const cx = ix + dx, cy = iy + dy;
+      const hx = Math.sin(cx * 12.9898 + cy * 78.233) * 43758.5453;
+      const hy = Math.sin(cx * 37.103 + cy * 53.641) * 43758.5453;
+      const jx = hx - Math.floor(hx), jy = hy - Math.floor(hy);
+      const dist = Math.hypot(nx - (cx + jx + gn * 0.25), ny - (cy + jy + gf * 0.25));
+      if (dist < minDist1) { minDist2 = minDist1; minDist1 = dist; } else if (dist < minDist2) { minDist2 = dist; }
+    }
+    const cellWall = minDist2 - minDist1;
+    if (inside > 0.15) {
+      const li = Math.min(1.0, (inside - 0.15) / 0.25);
+      const poreLimit = (P.porosity || 0.5) * 0.55 + gf * 0.05;
+      if (minDist1 < poreLimit) {
+        const t = smooth(minDist1 / poreLimit), df = 1.0 - t;
+        h -= df * 2.8 * li;
+        const tb = vBase * (0.15 + 0.85 * t);
+        r = r * (1 - li) + tb * li; g = g * (1 - li) + tb * li; b = b * (1 - li) + tb * li;
+        rg = rg * (1 - li) + (135 + t * 45) * li;
+      } else if (cellWall < 0.22) {
+        const bump = (1 - smooth(cellWall / 0.22)) * 0.5 * li;
+        h += bump; r += bump * 20; g += bump * 20; b += bump * 20;
+      }
+    }
+    return { h, r, g, b, rg, warm: 0 };
+  }
+  if (P.material === 'gold') {
+    // Gold Shielding: riveted bullion ingot grid
+    let r = vBase * 1.35, g = vBase * 1.10, b = vBase * 0.60;
+    let h = gn * 0.3 + gf * 0.15, rg = 230 + bev * 15, warm = 55 * inside;
+    const gridX = P.gridX || 2, gridY = P.gridY || 2;
+    const subX = W / gridX, subY = H / gridY;
+    const lx = x % subX, ly = y % subY;
+    const ingotEdge = Math.min(Math.min(lx, subX - lx), Math.min(ly, subY - ly));
+    const grooveW = 2.5;
+    if (inside > 0.1) {
+      const li = Math.min(1.0, (inside - 0.1) / 0.15);
+      if (ingotEdge < grooveW) {
+        const t = smooth(ingotEdge / grooveW), sh = 0.4 + 0.6 * t;
+        h -= (1 - t) * 1.8 * li; r *= sh; g *= sh; b *= sh;
+        rg = rg * (1 - li) + (120 + t * 40) * li;
+      } else {
+        h += smooth(Math.min(1.0, (ingotEdge - grooveW) / 4.0)) * 0.6 * li;
+        const flash = gauss(ingotEdge - subX * 0.2, 6.0) * 15 * li;
+        r += flash * 1.2; g += flash;
+        const rdx = Math.min(lx - 6, subX - 6 - lx), rdy = Math.min(ly - 6, subY - 6 - ly);
+        if (rdx >= 0 && rdy >= 0) {
+          const cd = Math.hypot(rdx, rdy), rrad = 2.2;
+          if (cd < rrad) {
+            const rt = smooth(1 - cd / rrad);
+            h += rt * 1.4 * li; r += rt * 45 * li; g += rt * 35 * li; b += rt * 15 * li;
+            rg = rg * (1 - rt * li) + 250 * rt * li;
+          }
+        }
+      }
+    }
+    return { h, r, g, b, rg, warm };
   }
   const h = gn * 0.8 + gf * 0.4;
   const rg = 211 + bev * 14 + grainV * 0.66;

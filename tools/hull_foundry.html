@@ -78,19 +78,13 @@ footer{border-top:1px solid var(--line);padding:12px 22px;font-size:10px;color:v
 <header>
   <div class="brand"><div class="logo"></div>
     <div><h1>HULL <b>FOUNDRY</b></h1><div class="sub">Procedural Armor Texture Fabricator · Cosmoteer 0.30.x</div></div></div>
-  <div class="head-meta">OUTPUT · <b>64px / tile</b> · RGBA<br>NORMALS · <b>OpenGL</b> Y-up tangent space</div>
+
 </header>
 <main>
   <aside class="controls" id="controls">
     <div class="section"><div class="section-head">Part Geometry <span class="tag">SIZE</span></div>
       <div class="section-body">
-        <div class="ctrl"><label>Preset</label>
-          <select id="preset">
-            <option value="1x1">1×1 Armor (square)</option><option value="2x1">2×1 Armor</option>
-            <option value="1x2">1×2 Armor</option><option value="1x3">1×3 Armor</option>
-            <option value="wedge1">1×1 Wedge (triangular)</option><option value="wedge2">1×2 Wedge</option>
-            <option value="wedge3">1×3 Wedge</option><option value="custom">Custom…</option>
-          </select></div>
+
         <div class="row">
           <div class="ctrl"><label>Tiles W <span class="val" id="twv">1</span></label><input type="range" id="tilesX" min="1" max="4" step="1" value="1"></div>
           <div class="ctrl"><label>Tiles H <span class="val" id="thv">1</span></label><input type="range" id="tilesY" min="1" max="4" step="1" value="1"></div></div>
@@ -99,20 +93,13 @@ footer{border-top:1px solid var(--line);padding:12px 22px;font-size:10px;color:v
     <div class="section"><div class="section-head">Material Profile <span class="tag">LOOK</span></div>
       <div class="section-body">
         <div class="ctrl"><label>Material library</label>
-          <select id="material">
-            <option value="vanilla">Vanilla Steel Armor</option>
-            <option value="nera">NERA (plates + copper tubes)</option>
-            <option value="compc">Combination C (embedded spheres)</option>
-            <option value="hardened">Tri-Steel Compound (dense plate)</option>
-            <option value="uranium">Depleted Uranium (heavy)</option>
-            <option value="custom">— custom —</option>
-          </select></div>
+          <select id="material"><!-- options injected from MATERIAL_REGISTRY --></select></div>
         <div class="ctrl"><label>Base brightness <span class="val" id="bbv">29</span></label><input type="range" id="baseBright" min="10" max="120" step="1" value="29"></div>
         <div class="ctrl"><label>Surface grain <span class="val" id="grv">9.0</span></label><input type="range" id="grain" min="0" max="22" step="0.5" value="9"></div>
         <div class="ctrl"><label>Grain scale <span class="val" id="gsv">9</span></label><input type="range" id="grainScale" min="3" max="20" step="1" value="9"></div>
-        <div class="ctrl" id="weaveCtrl" style="display:none"><label>Weave period (px) <span class="val" id="wpv">13</span></label><input type="range" id="weavePeriod" min="7" max="22" step="0.5" value="13"></div>
-        <div class="ctrl" id="ballSpaceCtrl" style="display:none"><label>Sphere spacing (px) <span class="val" id="bspv">15</span></label><input type="range" id="ballSpacing" min="8" max="28" step="1" value="15"></div>
-        <div class="ctrl" id="ballFillCtrl" style="display:none"><label>Sphere fill <span class="val" id="bfv">0.94</span></label><input type="range" id="ballFill" min="0.5" max="1" step="0.02" value="0.94"></div>
+        <div class="ctrl"><label class="toggle"><input type="checkbox" id="seamless" checked><span class="box"></span>Seamless tiling (snap pattern to 64px)</label></div>
+        <!-- Per-material sliders are generated here from each material's `controls` array -->
+        <div id="matControls"></div>
       </div></div>
     <div class="section"><div class="section-head">Edges &amp; Relief <span class="tag">FORM</span></div>
       <div class="section-body">
@@ -140,24 +127,24 @@ footer{border-top:1px solid var(--line);padding:12px 22px;font-size:10px;color:v
       <div class="section-body"><div class="row">
         <div class="ctrl" style="margin:0"><input type="number" id="seed" value="1234"></div>
         <div class="ctrl" style="margin:0;flex:0 0 70px"><button class="btn" id="randSeed">⟳ ROLL</button></div></div></div></div>
-    <div class="section"><div class="section-body export-row">
-      <button class="btn btn-primary" id="dlZip">⬇ EXPORT FULL SET (.ZIP)</button>
-      <button class="btn" id="dlPng">⬇ EXPORT INDIVIDUAL PNGs</button>
-      <button class="btn" id="copyRules">⧉ COPY .RULES SNIPPET</button>
-    </div></div>
+    <div class="section"><div class="section-head">Material Lab <span class="tag">+ADD</span></div>
+      <div class="section-body">
+        <p style="font-size:10px;color:var(--ink-faint);line-height:1.6;margin-bottom:9px">Paste a <code style="color:var(--amber)">defineMaterial({…})</code> block and load it live — no file editing. New materials appear in the library dropdown above.</p>
+        <div class="ctrl"><textarea id="matLabCode" spellcheck="false" placeholder="defineMaterial({ id:'mything', label:'My Thing', defaults:{}, controls:[], surface(ctx){ const {vBase}=ctx; return {h:0,r:vBase,g:vBase,b:vBase,rg:211,warm:0}; } })" style="width:100%;min-height:120px;background:#0d1217;border:1px solid var(--line-bright);color:var(--ink);font-family:'IBM Plex Mono';font-size:11px;padding:8px;outline:none;resize:vertical;line-height:1.5"></textarea></div>
+        <div class="row"><button class="btn btn-primary" id="matLabLoad">▸ LOAD MATERIAL</button><button class="btn" id="matLabTemplate" style="flex:0 0 90px">TEMPLATE</button></div>
+        <p id="matLabMsg" style="font-size:10px;line-height:1.5;margin-top:8px;min-height:14px"></p>
+      </div></div>
+
   </aside>
   <section class="stage">
     <div class="stage-head"><span class="title">Fabrication Preview</span>
       <span id="dims" class="dims-meta"></span>
       <div class="zoomctl">ZOOM <input type="range" id="zoom" min="1" max="6" step="1" value="3"> <span id="zoomv">3×</span></div></div>
     <div class="grid" id="grid"></div>
-    <div class="placement-note"><h4>Output Manifest</h4>
-      Drop these into your part folder (e.g. <code>mymod/my_armor/</code>). Transparent pixels (checkerboard in preview) are real alpha — wedge cut-outs and blast holes punch all the way through floor, roof and normals. Holes are kept clear of the block edge by the edge-margin so the border stays intact.
-      <div class="files" id="manifest"></div></div>
+
   </section>
 </main>
 <footer>
-  <span>HULL FOUNDRY · plate calibrated to vanilla <b>cosmoteer.armor</b> (mean≈30 · bevel≈43 · roof G 199–250 · normal n<sub>z</sub>≈0.89)</span>
   <span id="status">READY</span>
 </footer>
 <script>
@@ -185,114 +172,37 @@ function makeFBM(seed,oc,bp){const L=[];let amp=0.5,tot=0;for(let o=0;o<oc;o++){
 function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
 function gauss(d,w){return Math.exp(-(d*d)/(2*w*w));}
 
-function readParams(){const g=id=>document.getElementById(id);return{
+function readParams(){const g=id=>document.getElementById(id);const P={
   tilesX:+g('tilesX').value,tilesY:+g('tilesY').value,wedge:g('wedge').checked,material:g('material').value,
-  baseBright:+g('baseBright').value,grain:+g('grain').value,grainScale:+g('grainScale').value,weavePeriod:+g('weavePeriod').value,
-  ballSpacing:+g('ballSpacing').value,ballFill:+g('ballFill').value,
+  baseBright:+g('baseBright').value,grain:+g('grain').value,grainScale:+g('grainScale').value,
   bevelBright:+g('bevelBright').value,bevelWidth:+g('bevelWidth').value,normalStrength:+g('normalStrength').value,normalFlipY:g('normalFlipY').checked,
   normalEdgeFade:0,ballNormalHeight:2.4,surfaceNormalScale:1.0,
   dmg33:+g('dmg33').value,dmg66:+g('dmg66').value,craters:+g('craters').value,holeSize:+g('holeSize').value,edgeMargin:+g('edgeMargin').value,
   scorch:g('scorch').checked,seed:+g('seed').value|0,tint:g('tint').value,applyTint:g('applyTint').checked,
-};}
+  seamless:g('seamless').checked,
+  };
+  // every registered material's controls are read generically — adding a material
+  // never requires editing this function
+  for(const def of MATERIAL_REGISTRY)for(const c of def.controls){const el=g(c.id);if(el)P[c.id]=+el.value;}
+  return P;
+}
 
-/* per-pixel material surface: returns height + albedo RGB + roof green + copper warmth */
+/* ============================================================================
+   PER-PIXEL MATERIAL SURFACE — dispatcher only.
+   The actual look of each material lives in MATERIAL_REGISTRY (search "MATERIALS"
+   below). To add a material you DO NOT touch this function or any render code —
+   you add one defineMaterial({...}) block. See the contract there.
+   ========================================================================== */
 function surface(P,W,H,x,y,bev,gn,gf,inside){
-  const grainV=gn*P.grain+gf*P.grain*0.4;
-  const vBase=P.baseBright + bev*P.bevelBright + grainV;
-  if(P.material==='nera'){
-    // Flat overlapping diagonal armor plates ("\"), copper binding hidden beneath,
-    // revealed only in the seam gaps where the perpendicular "/" tubes cross under.
-    const per=P.weavePeriod, p=x-y, c=x+y;
-    let pfr=p/per; pfr-=Math.floor(pfr);
-    let cfr=c/per; cfr-=Math.floor(cfr);
-    const gw=0.16;                                   // seam width (low-pfr side, tucked under next plate)
-    const td=(cfr-0.5)/0.30; const tube=Math.abs(td)<1?Math.sqrt(1-td*td):0;
-    const litedge=gauss(pfr-0.90,0.06);
-    if(pfr<gw){
-      if(tube>0.15){                                 // copper peeks through seam
-        const cu=tube*inside;
-        return {h:tube*1.0*inside-0.3, r:18+cu*40, g:16+cu*16, b:12, rg:165+cu*30, warm:cu*26};
-      }
-      const dv=14+bev*P.bevelBright*0.3;             // dark shadow seam
-      return {h:-0.6, r:dv, g:dv, b:dv, rg:150, warm:0};
-    }
-    const shade=(pfr-gw)/(1-gw);                      // flat plate top, lit leading edge
-    const pv=vBase + litedge*36*inside + (shade-0.5)*6;
-    return {h:1.3*inside+litedge*0.5, r:pv, g:pv, b:pv, rg:210+litedge*20*inside, warm:0};
-  }
-  if(P.material==='compc'){
-    // Steel plate with perfectly centered dark spheres embedded in offset hexagonal rows.
-    let r=vBase,g=vBase,b=vBase,h=gn*0.8+gf*0.4,rg=211+bev*14+grainV*0.66;
-    const S=P.ballSpacing, R=S*0.5*P.ballFill;
-    const Sy = S * 0.8660254; // Hexagonal vertical row spacing
-    
-    // Bounds limit to prevent spheres from overflowing edges
-    const edgeLimit = R * 0.5 + 2;
-    const W_active = W - 1 - 2 * edgeLimit;
-    const H_active = H - 1 - 2 * edgeLimit;
-    
-    // Calculate columns and rows that fit the active area
-    const Nx = Math.max(1, Math.floor(W_active / S) + 1);
-    const Ny = Math.max(1, Math.floor(H_active / Sy) + 1);
-    
-    // Globally center the grid system
-    const x_start = W / 2 - ((Nx - 1) * S) / 2;
-    const y_start = H / 2 - ((Ny - 1) * Sy) / 2;
-    
-    // Find the closest ball coordinate to the current pixel (x, y)
-    const approx_row = Math.round((y - y_start) / Sy);
-    let best = 1e9, bcx = 0, bcy = 0;
-    
-    for(let rr = approx_row - 1; rr <= approx_row + 1; rr++){
-      if(rr < 0 || rr >= Ny) continue;
-      const cyc = y_start + rr * Sy;
-      const off = (rr & 1) * S * 0.5; // Offset alternate rows
-      
-      const approx_col = Math.round((x - x_start - off) / S);
-      const col_count = (rr & 1) ? Nx - 1 : Nx; // Odd rows have one less ball to maintain centering
-      
-      for(let cc = approx_col - 1; cc <= approx_col + 1; cc++){
-        if(cc < 0 || cc >= col_count) continue;
-        const cxc = x_start + off + cc * S;
-        const d = Math.hypot(x - cxc, y - cyc);
-        if(d < best){
-          best = d;
-          bcx = cxc;
-          bcy = cyc;
-        }
-      }
-    }
-    
-    // Respect triangular wedge diagonal cutting parameters for proper rendering
-    const diagLen = Math.hypot(W, H);
-    const getCde = (cx, cy) => {
-      if(P.wedge){
-        const dHyp = (H * cx + W * cy - W * H) / diagLen;
-        return Math.min(W - 1 - cx, H - 1 - cy, dHyp);
-      }
-      return Math.min(cx, cy, W - 1 - cx, H - 1 - cy);
-    };
-    
-    const cde = getCde(bcx, bcy);
-    if(best<R && cde>R*0.5+2){
-      const nx=(x-bcx)/R, ny=(y-bcy)/R, nz=Math.sqrt(Math.max(0,1-nx*nx-ny*ny));
-      const Lx=-0.4533,Ly=-0.4533,Lz=0.7686;          // light upper-left
-      const Hx=-0.3019,Hy=-0.3019,Hz=0.9043;          // half-vector (view +Z)
-      const diff=Math.max(0,nx*Lx+ny*Ly+nz*Lz);
-      const spec=Math.pow(Math.max(0,nx*Hx+ny*Hy+nz*Hz),22);
-      const mo=gf*8;
-      let bv=13 + 9 + diff*42 + spec*120 + mo;         // dark ball + bright spec spot
-      const edgeShade=smooth(Math.min(1,(R-best)/3));   // contact shadow at ball foot
-      bv*=0.5+0.5*edgeShade;
-      r=g=b=bv;
-      h=nz*P.ballNormalHeight;                    // raised hemisphere
-      rg=170 + diff*40 + spec*60;
-    }
-    return {h,r,g,b,rg,warm:0};
-  }
-  const h=gn*0.8 + gf*0.4;
-  const rg=211 + bev*14 + grainV*0.66;
-  return {h,r:vBase,g:vBase,b:vBase,rg,warm:0};
+  // common precomputed values every material may use
+  const grainV = gn*P.grain + gf*P.grain*0.4;
+  const vBase  = P.baseBright + bev*P.bevelBright + grainV;
+  const def = MAT_BY_ID[P.material] || MAT_BY_ID['vanilla'];
+  // fitPeriod(desired): snap a pattern period so a whole number of repeats fits
+  // in one 64px block — the condition for a pattern to tile across block borders.
+  // Returns `desired` unchanged when the Seamless tiling toggle is off.
+  const fitPeriod = (desired)=> (P.seamless ? TILE/Math.max(1,Math.round(TILE/desired)) : desired);
+  return def.surface({P,W,H,x,y,bev,gn,gf,inside,grainV,vBase,gauss,smooth,TILE,seamless:P.seamless,fitPeriod});
 }
 
 function edgeDistAt(P,W,H,diagLen,x,y){
@@ -420,10 +330,10 @@ function hexToRgb(h){const n=parseInt(h.slice(1),16);return{r:(n>>16)&255,g:(n>>
 const canvases={};let currentParams=null;
 function generateAll(){
   const P=readParams();currentParams=P;
-  document.getElementById('weaveCtrl').style.display=(P.material==='nera')?'block':'none';
-  const showBall=(P.material==='compc')?'block':'none';
-  document.getElementById('ballSpaceCtrl').style.display=showBall;
-  document.getElementById('ballFillCtrl').style.display=showBall;
+  // show only the active material's controls (data-mat tags set at build time)
+  document.querySelectorAll('#matControls .ctrl[data-mat]').forEach(c=>{
+    c.style.display=(c.dataset.mat===P.material)?'block':'none';
+  });
   const F=buildFields(P);
   const a0=renderArmor(P,F,0),a1=renderArmor(P,F,1),a2=renderArmor(P,F,2);
   const r0=renderRoof(P,F,0,null),r1=renderRoof(P,F,1,a1.dmg),r2=renderRoof(P,F,2,a2.dmg);
@@ -440,14 +350,13 @@ function generateAll(){
 function applyZoom(){const z=+document.getElementById('zoom').value;document.getElementById('zoomv').textContent=z+'×';
   for(const k in canvases){const cv=canvases[k].canvas;cv.style.width=(cv.width*z)+'px';cv.style.height=(cv.height*z)+'px';}}
 function buildGrid(){
-  const grid=document.getElementById('grid');grid.innerHTML='';const manifest=document.getElementById('manifest');manifest.innerHTML='';
+  const grid=document.getElementById('grid');grid.innerHTML='';
   for(const[name,key,desc]of FILES){
     const card=document.createElement('div');card.className='tex';
-    card.innerHTML=`<div class="tex-head"><span class="name">${name.replace('.png','')}<b>.png</b></span><span class="dl">SAVE</span></div><div class="tex-canvas-wrap"></div><div class="tex-foot">${desc}</div>`;
+    card.innerHTML=`<div class="tex-head"><span class="name">${name.replace('.png','')}<b>.png</b></span><span class="dl">SAVE</span></div><div class="tex-canvas-wrap"></div>`;
     const cv=document.createElement('canvas');card.querySelector('.tex-canvas-wrap').appendChild(cv);grid.appendChild(card);
     canvases[key]={canvas:cv,imgData:null};
     card.querySelector('.dl').addEventListener('click',()=>downloadCanvas(canvases[key].canvas,name));
-    const m=document.createElement('span');m.textContent=name;manifest.appendChild(m);
   }
 }
 function downloadCanvas(cv,name){cv.toBlob(b=>{const u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),2000);});}
@@ -489,30 +398,425 @@ Components : ^/0/Components
   }
   Blueprints { Type = BlueprintSprite  File = "blueprints.png"  Size = [${P.tilesX}, ${P.tilesY}] }
 }`;}
-const MATERIALS={
-  vanilla:{baseBright:29,grain:9,bevelBright:16,normalStrength:1.0},
-  nera:{baseBright:30,grain:5,bevelBright:16,normalStrength:0.85,weavePeriod:15},
-  compc:{baseBright:29,grain:9,bevelBright:16,normalStrength:1.1,ballSpacing:15,ballFill:0.94},
-  hardened:{baseBright:36,grain:6,bevelBright:22,normalStrength:1.3},
-  uranium:{baseBright:46,grain:5,bevelBright:26,normalStrength:1.6},
-};
+/* ============================================================================
+   MATERIALS  ·  the registry — THIS IS THE ONLY PLACE YOU ADD MATERIALS
+   ----------------------------------------------------------------------------
+   Each material is one self-contained object. Adding one is purely additive:
+   append a defineMaterial({...}) call. You never edit surface(), buildFields,
+   damage, normals, roof, the dropdown, the sliders, or readParams.
+
+   defineMaterial({
+     id:       'unique_id',                 // dropdown value
+     label:    'Human Name',                // dropdown text
+     defaults: { baseBright:29, grain:9, bevelBright:16, normalStrength:1.0,
+                 ...anyControlId:value },   // applied to sliders when selected
+     controls: [                            // extra sliders, auto-built + auto-read
+       { id:'myParam', label:'My Param (px)', min:1, max:30, step:1, value:12 },
+     ],
+     surface(ctx){ ... return {h,r,g,b,rg,warm}; }   // see CONTRACT below
+   })
+
+   surface CONTRACT — called once per pixel.
+   ctx = {
+     P,            // all params incl. your control values, e.g. P.myParam
+     x, y,         // pixel coords (top-left origin)
+     W, H,         // texture size in px (tilesX*64, tilesY*64)
+     bev,          // bevel factor ~0..1, peaks near the plate border
+     gn, gf,       // coarse / fine grain noise, each in [-1, 1]
+     inside,       // 0 at the very edge → 1 in the interior (fade patterns in)
+     grainV,       // = gn*P.grain + gf*P.grain*0.4   (precomputed convenience)
+     vBase,        // = P.baseBright + bev*P.bevelBright + grainV  (base luminance)
+     gauss, smooth, // helpers: gauss(d,w), smooth(t)
+     TILE,         // = 64, the block size in px (the period patterns must divide)
+     seamless,     // true when the "Seamless tiling" toggle is on
+     fitPeriod     // fitPeriod(desired): snap a period so a whole number of repeats
+                   // fits in 64px → continuous across block borders. Returns the
+                   // input unchanged when seamless is off. Run every structural
+                   // period through it (e.g. const per = fitPeriod(P.myPeriod)).
+   }
+   RETURN { h, r, g, b, rg, warm }
+     h   — surface height (relief). + = raised, - = recessed. ~[-2 .. 3] typical.
+     r,g,b — albedo 0..255-ish (clamped downstream). Grey r=g=b for steel looks.
+     rg  — roof luminance mask (green channel), ~150..250. Higher = brighter roof.
+     warm — copper/warm offset baked into roof so it survives ship-color tint (0 = none).
+   Keep it a pure function of ctx: same input → same output (no global state, no RNG).
+   ========================================================================== */
+const MATERIAL_REGISTRY=[];
+const MAT_BY_ID={};
+function defineMaterial(def){
+  def.controls=def.controls||[]; def.defaults=def.defaults||{};
+  const existing=MAT_BY_ID[def.id];
+  if(existing){const i=MATERIAL_REGISTRY.indexOf(existing);MATERIAL_REGISTRY.splice(i,1,def);} // allow live re-load
+  else MATERIAL_REGISTRY.push(def);
+  MAT_BY_ID[def.id]=def;
+}
+
+defineMaterial({
+  id:'vanilla', label:'Steel Armor',
+  defaults:{baseBright:29,grain:9,bevelBright:16,normalStrength:1.0},
+  controls:[],
+  surface(ctx){
+    const {gn,gf,bev,grainV,vBase}=ctx;
+    const h=gn*0.8 + gf*0.4;
+    const rg=211 + bev*14 + grainV*0.66;
+    return {h,r:vBase,g:vBase,b:vBase,rg,warm:0};
+  }
+});
+
+defineMaterial({
+  id:'nera', label:'NERA (plates + copper tubes)',
+  defaults:{baseBright:30,grain:5,bevelBright:16,normalStrength:0.85,weavePeriod:15},
+  controls:[{id:'weavePeriod',label:'Weave period (px)',min:7,max:22,step:0.5,value:13}],
+  surface(ctx){
+    const {P,x,y,bev,inside,vBase,gauss,fitPeriod}=ctx;
+    // Flat overlapping diagonal armor plates, copper binding revealed in seam gaps.
+    // Copper repeats over `unit` (= 2 plate widths) so it appears on every OTHER
+    // seam crossing — half as often as the plates. Both `unit` and the plate width
+    // are snapped to divide 64px so the weave is continuous across block borders.
+    const unit=fitPeriod(P.weavePeriod*2);   // copper repeat unit (divides 64)
+    const per=unit/2;                         // plate band width (also divides 64)
+    const p=x-y, c=x+y;
+    let pfr=p/per; pfr-=Math.floor(pfr);
+    let cuf=c/unit; cuf-=Math.floor(cuf);     // position within the copper unit
+    const gw=0.16;
+    const td=(cuf-0.5)/0.15; const tube=Math.abs(td)<1?Math.sqrt(1-td*td):0; // same physical width as before
+    const litedge=gauss(pfr-0.90,0.06);
+    if(pfr<gw){
+      if(tube>0.15){
+        const cu=tube*inside;
+        return {h:tube*1.0*inside-0.3, r:18+cu*40, g:16+cu*16, b:12, rg:165+cu*30, warm:cu*26};
+      }
+      const dv=14+bev*P.bevelBright*0.3;
+      return {h:-0.6, r:dv, g:dv, b:dv, rg:150, warm:0};
+    }
+    const shade=(pfr-gw)/(1-gw);
+    const pv=vBase + litedge*36*inside + (shade-0.5)*6;
+    return {h:1.3*inside+litedge*0.5, r:pv, g:pv, b:pv, rg:210+litedge*20*inside, warm:0};
+  }
+});
+
+defineMaterial({
+  id:'compc', label:'Combination C (embedded spheres)',
+  defaults:{baseBright:29,grain:9,bevelBright:16,normalStrength:1.1,ballSpacing:15,ballFill:0.94},
+  controls:[
+    {id:'ballSpacing',label:'Sphere spacing (px)',min:8,max:28,step:1,value:15},
+    {id:'ballFill',label:'Sphere fill',min:0.5,max:1,step:0.02,value:0.94},
+  ],
+  surface(ctx){
+    const {P,W,H,x,y,bev,gn,gf,grainV,vBase,smooth}=ctx;
+    // Steel plate with centered dark spheres in offset hexagonal rows.
+    let r=vBase,g=vBase,b=vBase,h=gn*0.8+gf*0.4,rg=211+bev*14+grainV*0.66;
+    const S=P.ballSpacing, R=S*0.5*P.ballFill;
+    const Sy = S * 0.8660254;
+    const edgeLimit = R * 0.5 + 2;
+    const W_active = W - 1 - 2 * edgeLimit;
+    const H_active = H - 1 - 2 * edgeLimit;
+    const Nx = Math.max(1, Math.floor(W_active / S) + 1);
+    const Ny = Math.max(1, Math.floor(H_active / Sy) + 1);
+    const x_start = W / 2 - ((Nx - 1) * S) / 2;
+    const y_start = H / 2 - ((Ny - 1) * Sy) / 2;
+    const approx_row = Math.round((y - y_start) / Sy);
+    let best = 1e9, bcx = 0, bcy = 0;
+    for(let rr = approx_row - 1; rr <= approx_row + 1; rr++){
+      if(rr < 0 || rr >= Ny) continue;
+      const cyc = y_start + rr * Sy;
+      const off = (rr & 1) * S * 0.5;
+      const approx_col = Math.round((x - x_start - off) / S);
+      const col_count = (rr & 1) ? Nx - 1 : Nx;
+      for(let cc = approx_col - 1; cc <= approx_col + 1; cc++){
+        if(cc < 0 || cc >= col_count) continue;
+        const cxc = x_start + off + cc * S;
+        const d = Math.hypot(x - cxc, y - cyc);
+        if(d < best){ best = d; bcx = cxc; bcy = cyc; }
+      }
+    }
+    const diagLen = Math.hypot(W, H);
+    const getCde = (cx, cy) => {
+      if(P.wedge){
+        const dHyp = (H * cx + W * cy - W * H) / diagLen;
+        return Math.min(W - 1 - cx, H - 1 - cy, dHyp);
+      }
+      return Math.min(cx, cy, W - 1 - cx, H - 1 - cy);
+    };
+    const cde = getCde(bcx, bcy);
+    if(best<R && cde>R*0.5+2){
+      const nx=(x-bcx)/R, ny=(y-bcy)/R, nz=Math.sqrt(Math.max(0,1-nx*nx-ny*ny));
+      const Lx=-0.4533,Ly=-0.4533,Lz=0.7686;
+      const Hx=-0.3019,Hy=-0.3019,Hz=0.9043;
+      const diff=Math.max(0,nx*Lx+ny*Ly+nz*Lz);
+      const spec=Math.pow(Math.max(0,nx*Hx+ny*Hy+nz*Hz),22);
+      const mo=gf*8;
+      let bv=13 + 9 + diff*42 + spec*120 + mo;
+      const edgeShade=smooth(Math.min(1,(R-best)/3));
+      bv*=0.5+0.5*edgeShade;
+      r=g=b=bv;
+      h=nz*P.ballNormalHeight;
+      rg=170 + diff*40 + spec*60;
+    }
+    return {h,r,g,b,rg,warm:0};
+  }
+});
+
+defineMaterial({
+  id:'hexplate', label:'Hex Plate (hexagonal cells)',
+  defaults:{baseBright:31,grain:6,bevelBright:18,normalStrength:1.2,hexSize:18,hexGroove:0.8},
+  controls:[
+    {id:'hexSize',label:'Hex cell size (px)',min:8,max:36,step:1,value:18},
+    {id:'hexGroove',label:'Groove depth',min:0.2,max:2.0,step:0.05,value:0.8},
+  ],
+  surface(ctx){
+    const {P,x,y,bev,gn,gf,inside,smooth,fitPeriod}=ctx;
+    // Pointy-top hex caps: recessed grooves, a directionally-lit chamfered lip
+    // (upper-left edges catch light, lower-right fall into shadow), a gently domed
+    // face, and a small raised stud at each cell centre.
+    // Column/row spacing snap to divide 64px (lattice may stretch a hair) so the
+    // grid runs unbroken across block borders. A Voronoi distance field handles
+    // the possibly-stretched cells cleanly.
+    const S=P.hexSize;
+    const colW=fitPeriod(S*1.7320508);   // horizontal centre spacing  (√3·S)
+    const rowH=fitPeriod(S*3.0)/2;        // vertical row spacing       (1.5·S)
+    const r0=Math.round(y/rowH);
+    const cells=[];
+    for(let r=r0-1;r<=r0+1;r++){
+      const cy=r*rowH, off=(r&1)?colW*0.5:0, c0=Math.round((x-off)/colW);
+      for(let c=c0-1;c<=c0+1;c++) cells.push([c*colW+off, cy]);
+    }
+    let d0=1e9, cx0=0, cy0=0;
+    for(const[cx,cy]of cells){const d=Math.hypot(x-cx,y-cy);if(d<d0){d0=d;cx0=cx;cy0=cy;}}
+    // distance to nearest cell edge + that edge's outward normal (Voronoi bisector)
+    let insideDist=1e9, enX=0, enY=0;
+    for(const[cx,cy]of cells){
+      const dx=cx-cx0, dy=cy-cy0, len=Math.hypot(dx,dy);
+      if(len<1e-6) continue;
+      const dn=Math.hypot(x-cx,y-cy);
+      const ed=(dn*dn-d0*d0)/(2*len);
+      if(ed<insideDist){insideDist=ed;enX=dx/len;enY=dy/len;}
+    }
+    const lx=x-cx0, ly=y-cy0, dc=Math.hypot(lx,ly);
+    const grainV2=gn*P.grain + gf*P.grain*0.4;
+    const vBase2=P.baseBright + bev*P.bevelBright + grainV2;
+    const depth=P.hexGroove;
+    const Lx=-0.7071, Ly=-0.7071;                 // surface light: upper-left
+    const grooveW=Math.max(1.0,S*0.12), chamfer=Math.max(1.4,S*0.24), faceStart=grooveW+chamfer;
+    const apothem=colW*0.5;
+
+    if(insideDist<grooveW){                        // recessed channel between cells
+      const t=Math.max(0,insideDist/grooveW);
+      const gv=vBase2*0.40 - depth*8*(1-smooth(t));
+      return {h:-depth*1.3*(1-smooth(t)), r:gv, g:gv, b:gv, rg:160+t*30, warm:0};
+    }
+    if(insideDist<faceStart){                       // chamfered lip, lit by orientation
+      const t=smooth((insideDist-grooveW)/chamfer); // 0 at groove edge → 1 at face
+      const lip=enX*Lx + enY*Ly;                    // +1 facing up-left, −1 down-right
+      const v=vBase2*(0.55+0.45*t) + lip*26*t*inside;
+      return {h:0.7*t, r:v, g:v, b:v, rg:200 + lip*22*t + t*12, warm:0};
+    }
+    const studR=Math.max(1.6,S*0.17);
+    if(dc<studR){                                   // raised stud at cell centre
+      const nx=lx/studR, ny=ly/studR, nz=Math.sqrt(Math.max(0,1-nx*nx-ny*ny));
+      const L3x=-0.4533,L3y=-0.4533,L3z=0.7686, Hx=-0.3019,Hy=-0.3019,Hz=0.9043;
+      const diff=Math.max(0,nx*L3x+ny*L3y+nz*L3z);
+      const spec=Math.pow(Math.max(0,nx*Hx+ny*Hy+nz*Hz),20);
+      const sv=vBase2*0.72 + diff*30 + spec*90;
+      return {h:(1.2+1.0*nz)*inside, r:sv, g:sv, b:sv, rg:205+diff*30+spec*40, warm:0};
+    }
+    // gently domed face between lip and stud
+    const fr=Math.min(1,(insideDist-faceStart)/Math.max(1,apothem-faceStart));
+    const dome=1-(1-fr)*(1-fr);
+    const rad=Math.max(1e-3,dc);
+    const faceLight=-(lx/rad*Lx + ly/rad*Ly)*(1-dome)*0.6; // rim sheen toward light
+    const fv=vBase2 + (4+faceLight*18)*inside + grainV2*0.3;
+    const fh=0.7 + dome*0.5 + (gn*0.5+gf*0.3);
+    return {h:fh*inside+0.2, r:fv, g:fv, b:fv, rg:214+bev*10+grainV2*0.6+faceLight*12, warm:0};
+  }
+});
+
+defineMaterial({
+  id:'hardened', label:'Tri-Steel Compound Armor',
+  defaults:{baseBright:32,grain:8,bevelBright:20,normalStrength:1.1,rivetGap:14},
+  controls:[{id:'rivetGap',label:'Rivet spacing (px)',min:8,max:24,step:1,value:14}],
+  surface(ctx){
+    const {P,x,y,vBase,gn,gf,bev,inside,smooth,fitPeriod}=ctx;
+    const g=fitPeriod(P.rivetGap);
+    const rcx=Math.round(x/g)*g, rcy=Math.round(y/g)*g;
+    const d=Math.hypot(x-rcx,y-rcy);
+    const rad=2.8;
+    let r=vBase,gr=vBase,b=vBase,h=gn*0.6+gf*0.3;
+    let rg=215+bev*14;
+    if(d<rad){
+      const t=smooth(1-d/rad);
+      const v=vBase+t*55;
+      r=gr=b=v; h+=t*1.8*inside; rg=228+t*18;
+    }
+    return {h,r,g:gr,b,rg,warm:0};
+  }
+});
+
+defineMaterial({
+  id:'metalfoam_irregular', label:'Metal Foam (irregular matrix)',
+  defaults:{baseBright:24,grain:4,bevelBright:12,normalStrength:1.4,poreScale:7,porosity:0.5},
+  controls:[
+    {id:'poreScale',label:'Pore Scale (px)',min:4,max:14,step:0.5,value:7},
+    {id:'porosity',label:'Porosity factor',min:0.2,max:0.8,step:0.05,value:0.5},
+  ],
+  surface(ctx){
+    const {P,x,y,bev,gn,gf,inside,vBase,smooth}=ctx;
+    let h=gn*0.4+gf*0.2, r=vBase, g=vBase, b=vBase, rg=205+bev*10;
+    const scale=P.poreScale, nx=x/scale, ny=y/scale;
+    const ix=Math.floor(nx), iy=Math.floor(ny);
+    let minDist1=1e9, minDist2=1e9;
+    for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){
+      const cx=ix+dx, cy=iy+dy;
+      const hx=Math.sin(cx*12.9898+cy*78.233)*43758.5453;
+      const hy=Math.sin(cx*37.103+cy*53.641)*43758.5453;
+      const jx=hx-Math.floor(hx), jy=hy-Math.floor(hy);
+      const tx=cx+jx+gn*0.25, ty=cy+jy+gf*0.25;
+      const dist=Math.hypot(nx-tx,ny-ty);
+      if(dist<minDist1){minDist2=minDist1;minDist1=dist;}else if(dist<minDist2){minDist2=dist;}
+    }
+    const cellWall=minDist2-minDist1;
+    if(inside>0.15){
+      const li=Math.min(1.0,(inside-0.15)/0.25);
+      const poreLimit=P.porosity*0.55+gf*0.05;
+      if(minDist1<poreLimit){
+        const t=smooth(minDist1/poreLimit), df=1.0-t;
+        h-=df*2.8*li;
+        const shadow=0.15+0.85*t;
+        const tb=vBase*shadow;
+        r=r*(1-li)+tb*li; g=g*(1-li)+tb*li; b=b*(1-li)+tb*li;
+        rg=rg*(1-li)+(135+t*45)*li;
+      }else if(cellWall<0.22){
+        const wt=smooth(cellWall/0.22), bump=(1-wt)*0.5*li;
+        h+=bump; r+=bump*20; g+=bump*20; b+=bump*20;
+      }
+    }
+    return {h,r,g,b,rg,warm:0};
+  }
+});
+
+defineMaterial({
+  id:'gold', label:'Gold Shielding (riveted ingots)',
+  defaults:{baseBright:45,grain:3,bevelBright:22,normalStrength:1.2,gridX:2,gridY:2},
+  controls:[
+    {id:'gridX',label:'Ingot divisions X',min:1,max:4,step:1,value:2},
+    {id:'gridY',label:'Ingot divisions Y',min:1,max:4,step:1,value:2},
+  ],
+  surface(ctx){
+    const {P,x,y,W,H,bev,gn,gf,inside,vBase,gauss,smooth}=ctx;
+    let r=vBase*1.35, g=vBase*1.10, b=vBase*0.60;
+    let h=gn*0.3+gf*0.15, rg=230+bev*15, warm=55*inside;
+    const subX=W/P.gridX, subY=H/P.gridY;
+    const lx=x%subX, ly=y%subY;
+    const edgeX=Math.min(lx,subX-lx), edgeY=Math.min(ly,subY-ly);
+    const ingotEdge=Math.min(edgeX,edgeY);
+    const grooveW=2.5;
+    if(inside>0.1){
+      const li=Math.min(1.0,(inside-0.1)/0.15);
+      if(ingotEdge<grooveW){
+        const t=smooth(ingotEdge/grooveW), depth=(1-t)*1.8*li;
+        h-=depth;
+        const sh=0.4+0.6*t;
+        r*=sh; g*=sh; b*=sh;
+        rg=rg*(1-li)+(120+t*40)*li;
+      }else{
+        const fs=smooth(Math.min(1.0,(ingotEdge-grooveW)/4.0));
+        h+=fs*0.6*li;
+        const flash=gauss(ingotEdge-subX*0.2,6.0)*15*li;
+        r+=flash*1.2; g+=flash;
+        const rdx=Math.min(lx-6,subX-6-lx), rdy=Math.min(ly-6,subY-6-ly);
+        if(rdx>=0&&rdy>=0){
+          const cd=Math.hypot(rdx,rdy), rrad=2.2;
+          if(cd<rrad){
+            const rt=smooth(1-cd/rrad);
+            h+=rt*1.4*li;
+            r+=rt*45*li; g+=rt*35*li; b+=rt*15*li;
+            rg=rg*(1-rt*li)+250*rt*li;
+          }
+        }
+      }
+    }
+    return {h,r,g,b,rg,warm};
+  }
+});
+
+// MATERIALS / dropdown / sliders are all derived from the registry at init().
 const PRESETS={'1x1':{tilesX:1,tilesY:1,wedge:false},'2x1':{tilesX:2,tilesY:1,wedge:false},'1x2':{tilesX:1,tilesY:2,wedge:false},'1x3':{tilesX:1,tilesY:3,wedge:false},
   'wedge1':{tilesX:1,tilesY:1,wedge:true},'wedge2':{tilesX:1,tilesY:2,wedge:true},'wedge3':{tilesX:1,tilesY:3,wedge:true}};
 function setStatus(t,cls){document.getElementById('status').innerHTML=(cls?`<span class="${cls}">⟳</span> `:'')+t;}
-function syncLabels(){const m=[['tilesX','twv'],['tilesY','thv'],['baseBright','bbv'],['grain','grv'],['grainScale','gsv'],['weavePeriod','wpv'],['ballSpacing','bspv'],['ballFill','bfv'],['bevelBright','bvv'],['bevelWidth','bwv'],['normalStrength','nsv'],['dmg33','d33v'],['dmg66','d66v'],['craters','dcv'],['holeSize','hsv'],['edgeMargin','emv']];
-  for(const[i,l]of m)document.getElementById(l).textContent=document.getElementById(i).value;}
+function syncLabels(){const m=[['tilesX','twv'],['tilesY','thv'],['baseBright','bbv'],['grain','grv'],['grainScale','gsv'],['bevelBright','bvv'],['bevelWidth','bwv'],['normalStrength','nsv'],['dmg33','d33v'],['dmg66','d66v'],['craters','dcv'],['holeSize','hsv'],['edgeMargin','emv']];
+  for(const[i,l]of m){const el=document.getElementById(l);if(el)el.textContent=document.getElementById(i).value;}
+  // material-control value labels are synced generically
+  document.querySelectorAll('#matControls .ctrl').forEach(c=>{const inp=c.querySelector('input'),v=c.querySelector('.val');if(inp&&v)v.textContent=inp.value;});}
+
+// ---- build dropdown + per-material sliders from the registry ----
+function buildMaterialUI(){
+  const sel=document.getElementById('material');
+  const prev=sel.value;
+  sel.innerHTML=MATERIAL_REGISTRY.map(d=>`<option value="${d.id}">${d.label}</option>`).join('')+`<option value="custom">— custom —</option>`;
+  if(prev&&[...sel.options].some(o=>o.value===prev))sel.value=prev;
+  const box=document.getElementById('matControls');
+  box.innerHTML=MATERIAL_REGISTRY.flatMap(d=>d.controls.map(c=>
+    `<div class="ctrl" data-mat="${d.id}" style="display:none"><label>${c.label} <span class="val">${c.value}</span></label>`+
+    `<input type="range" id="${c.id}" min="${c.min}" max="${c.max}" step="${c.step}" value="${c.value}"></div>`
+  )).join('');
+  // newly added sliders need the same live-regen listeners
+  box.querySelectorAll('input').forEach(el=>{el.addEventListener('input',regen);el.addEventListener('change',regen);});
+}
+function applyMaterialDefaults(id){const d=MAT_BY_ID[id];if(!d)return;for(const k in d.defaults){const el=document.getElementById(k);if(el)el.value=d.defaults[k];}}
+
 let debounce=null;
 function regen(){clearTimeout(debounce);debounce=setTimeout(()=>{syncLabels();generateAll();},60);}
+
+// ---- Material Lab: load a defineMaterial({...}) block live, no file edit ----
+const MATLAB_TEMPLATE=`defineMaterial({
+  id:'rivetgrid',
+  label:'Riveted Plate',
+  defaults:{ baseBright:30, grain:7, bevelBright:16, normalStrength:1.1, rivetGap:16 },
+  controls:[
+    { id:'rivetGap', label:'Rivet spacing (px)', min:8, max:30, step:1, value:16 },
+  ],
+  surface(ctx){
+    const { P, x, y, vBase, smooth, fitPeriod } = ctx;
+    const g = fitPeriod(P.rivetGap);       // snap spacing so rivets tile across 64px blocks
+    const cx = Math.round(x/g)*g, cy = Math.round(y/g)*g;
+    const d = Math.hypot(x-cx, y-cy);
+    const r = 2.2;                         // rivet radius
+    if(d < r){                             // raised dome rivet
+      const t = smooth(1 - d/r);
+      const v = vBase + t*55;
+      return { h: t*1.6, r:v, g:v, b:v, rg: 220 + t*20, warm:0 };
+    }
+    return { h:0, r:vBase, g:vBase, b:vBase, rg:211, warm:0 };
+  }
+})`;
+function matLabLoad(){
+  const code=document.getElementById('matLabCode').value.trim();
+  const msg=document.getElementById('matLabMsg');
+  if(!code){msg.style.color='var(--ink-faint)';msg.textContent='Paste a defineMaterial({…}) block first.';return;}
+  const before=MATERIAL_REGISTRY.length;
+  try{
+    // expose the registry API to the pasted snippet
+    new Function('defineMaterial','MAT_BY_ID','MATERIAL_REGISTRY','gauss','smooth',code)
+      (defineMaterial,MAT_BY_ID,MATERIAL_REGISTRY,gauss,smooth);
+  }catch(err){msg.style.color='var(--hot)';msg.textContent='✕ '+err.message;return;}
+  const added=MATERIAL_REGISTRY[MATERIAL_REGISTRY.length-1];
+  buildMaterialUI();
+  document.getElementById('material').value=added.id;
+  applyMaterialDefaults(added.id);
+  syncLabels();generateAll();
+  msg.style.color='var(--cyan)';
+  msg.textContent=(MATERIAL_REGISTRY.length>before?'✓ Loaded & selected: ':'✓ Reloaded: ')+added.label;
+}
+
 function init(){
   buildGrid();
+  buildMaterialUI();
   document.querySelectorAll('#controls input, #controls select').forEach(el=>{el.addEventListener('input',regen);el.addEventListener('change',regen);});
   document.getElementById('zoom').addEventListener('input',applyZoom);
-  document.getElementById('preset').addEventListener('change',e=>{const p=PRESETS[e.target.value];if(p){document.getElementById('tilesX').value=p.tilesX;document.getElementById('tilesY').value=p.tilesY;document.getElementById('wedge').checked=p.wedge;}regen();});
-  document.getElementById('material').addEventListener('change',e=>{const m=MATERIALS[e.target.value];if(m){for(const k in m)document.getElementById(k).value=m[k];}regen();});
+  document.getElementById('material').addEventListener('change',e=>{applyMaterialDefaults(e.target.value);regen();});
   document.getElementById('randSeed').addEventListener('click',()=>{document.getElementById('seed').value=Math.floor(Math.random()*1e6);regen();});
-  document.getElementById('dlZip').addEventListener('click',downloadZip);
-  document.getElementById('dlPng').addEventListener('click',downloadEach);
-  document.getElementById('copyRules').addEventListener('click',()=>navigator.clipboard.writeText(rulesSnippet(currentParams)).then(()=>setStatus('RULES SNIPPET COPIED')));
+  document.getElementById('matLabLoad').addEventListener('click',matLabLoad);
+  document.getElementById('matLabTemplate').addEventListener('click',()=>{document.getElementById('matLabCode').value=MATLAB_TEMPLATE;});
   syncLabels();generateAll();
 }
 window.addEventListener('DOMContentLoaded',init);
