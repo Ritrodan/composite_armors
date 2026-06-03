@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "compatibleGameVersions": ["0.30.1"],
     "author": "Ritrodan",
-    "description": "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, and Depleted Uranium, with multiple size variants.",
+    "description": "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Gold Plating, and Depleted Uranium, with multiple size variants.",
     "modifiesMultiplayer": true,
     "modifiesGameplay": true,
     "stringsFolder": "strings"
@@ -28,7 +28,7 @@
       "displayName": "Tri-Steel Armor",
       "variantNoun": "tri-steel armor",
       "description": "A very strong and weight efficient armor.",
-      "texture": { "material": "hardened", "seed": 7220 },
+      "texture": { "material": "tristeel", "seed": 7220 },
       "perTile": { "resources": [["tristeel", 2]], "maxHealth": 6500, "empAbsorb": 700 },
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 45, "thermalResist": 150, "penResist": 8, "density": 3.4, "empRecovery": 0.08 }
     },
@@ -51,6 +51,16 @@
       "texture": { "material": "metalfoam_irregular", "seed": 2250 },
       "perTile": { "resources": [["steel", 1]], "maxHealth": 260, "empAbsorb": null },
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 99, "thermalResist": -9999, "penResist": 0.4, "density": 0.2 }
+    },
+    "gold_shielding": {
+      "id": "gold_shielding",
+      "nameKey": "GoldShielding",
+      "displayName": "Gold Plating",
+      "variantNoun": "gold plating",
+      "description": "Hand-beaten gold plating offers extraordinary thermal insulation and acts as a superb Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits.",
+      "texture": { "material": "gold", "seed": 3317 },
+      "perTile": { "resources": [["gold", 1], ["steel", 2]], "maxHealth": 8000, "empAbsorb": 5000 },
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 33, "thermalResist": 75, "penResist": 1, "density": 7.0, "empRecovery": 2.0 }
     },
     "uranium": {
       "id": "uranium",
@@ -75,6 +85,8 @@
     { "material": "combination_c", "size": [2, 1] },
     { "material": "metal_foam", "size": [1, 1] },
     { "material": "metal_foam", "size": [2, 1] },
+    { "material": "gold_shielding", "size": [1, 1] },
+    { "material": "gold_shielding", "size": [2, 1] },
     { "material": "uranium", "size": [1, 1] },
     { "material": "uranium", "size": [2, 1] }
   ]
