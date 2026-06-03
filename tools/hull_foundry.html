@@ -692,66 +692,6 @@ defineMaterial({
 });
 
 defineMaterial({
-  id:'gold', label:'Gold Shielding (scaled ingots)',
-  defaults:{baseBright:105,grain:3,bevelBright:22,normalStrength:1.2,ingotTargetWidth:32,ingotTargetHeight:32},
-  controls:[
-    {id:'ingotTargetWidth',label:'Target ingot W (px)',min:16,max:64,step:2,value:32},
-    {id:'ingotTargetHeight',label:'Target ingot H (px)',min:16,max:64,step:2,value:32},
-  ],
-  surface(ctx){
-    const {P,x,y,W,H,bev,gn,gf,inside,vBase,gauss,smooth,fitPeriod}=ctx;
-    const base=vBase;
-    let r=base*1.38, g=base*1.08, b=base*0.52;
-    let h=gn*0.3+gf*0.15, rg=200+bev*10;
-    const warm=58*inside;
-    const divX=Math.max(1,Math.round(W/P.ingotTargetWidth));
-    const divY=Math.max(1,Math.round(H/P.ingotTargetHeight));
-    const subX=fitPeriod(W/divX), subY=fitPeriod(H/divY);
-    const lx=((x%subX)+subX)%subX, ly=((y%subY)+subY)%subY;
-    const ex=Math.min(lx,subX-lx), ey=Math.min(ly,subY-ly);
-    const ingotEdge=Math.min(ex,ey);
-    const grooveW=2.2, chamferW=3.5;
-    const li=inside>0.1?smooth(Math.min(1,(inside-0.1)/0.15)):0;
-    if(li>0){
-      if(ingotEdge<grooveW){
-        const t=smooth(ingotEdge/grooveW), depth=(1-t)*2.0*li;
-        h-=depth;
-        const sh=0.35+0.65*t;
-        r*=sh; g*=sh; b*=sh;
-        rg=rg*(1-li)+(115+t*45)*li;
-      }else if(ingotEdge<grooveW+chamferW){
-        // chamfer slope: height only + mild symmetric AO toward the recessed seam
-        const t=smooth((ingotEdge-grooveW)/chamferW);
-        const m=1-(1-(0.82+0.18*t))*li;
-        h+=0.8*t*li;
-        r*=m; g*=m; b*=m;
-        rg+=t*6*li;
-      }else{
-        const faceFr=Math.min(1,(ingotEdge-grooveW-chamferW)/Math.max(1,Math.min(subX,subY)*0.35));
-        const dome=faceFr*faceFr;
-        h+=0.55*dome*li;
-        const fx=lx/subX-0.5, fy=ly/subY-0.5;
-        // crown sheen centred on the ingot — radially symmetric, rotation-safe
-        const sheen=gauss(Math.hypot(fx,fy),0.22)*24*li;
-        r+=sheen*1.25; g+=sheen*0.95; b+=sheen*0.30;
-        rg+=sheen*0.3+dome*6*li;
-        const bp=Math.min(7,Math.max(4,Math.min(subX,subY)*0.18));
-        const rdx=Math.min(lx-bp,subX-bp-lx), rdy=Math.min(ly-bp,subY-bp-ly);
-        if(rdx>=0&&rdy>=0){
-          const cd=Math.hypot(rdx,rdy), rrad=2.0;
-          if(cd<rrad){
-            const rt=smooth(1-cd/rrad);
-            h+=rt*1.5*li; r+=rt*52*li; g+=rt*40*li; b+=rt*14*li;
-            rg=rg*(1-rt*li)+224*rt*li;
-          }
-        }
-      }
-    }
-    return {h,r,g,b,rg,warm};
-  }
-});
-
-defineMaterial({
   id:'uranium', label:'Depleted Uranium (hex matrix)',
   defaults:{baseBright:72,grain:6,bevelBright:14,normalStrength:1.3,hexSize:8,hexGroove:0.8},
   controls:[
