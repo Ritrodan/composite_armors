@@ -92,7 +92,7 @@
       "displayName": "Ceramic Armor",
       "variantNoun": "ceramic armor",
       "description": "Dense ceramic composite offering exceptional penetration and thermal resistance, but brittle under blast damage.",
-      "texture": { "material": "ceramic", "seed": 9901 },
+      "texture": { "material": "ceram_honeycomb", "seed": 9901 },
       "perTile": { "resources": [["carbon", 1], ["steel", 1]], "maxHealth": 2400, "empAbsorb": null },
       "wedgeRecipe": [["carbon", 1], ["steel", 1]],
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 0, "thermalResist": 75, "penResist": 12, "density": 1.6 }
@@ -103,7 +103,7 @@
       "displayName": "Shear-Thickening Fluid Armor",
       "variantNoun": "shear-thickening fluid armor",
       "description": "A non-Newtonian fluid suspended in a porous matrix that hardens upon projectile impact, providing excellent penetration resistance. Blast waves transmit freely through the fluid.",
-      "texture": { "material": "shear_thickening", "seed": 1155 },
+      "texture": { "material": "stf_hex_colloid", "seed": 1155 },
       "perTile": { "resources": [["carbon", 1], ["sulfur", 1], ["steel", 1]], "maxHealth": 2800, "empAbsorb": null },
       "wedgeRecipe": [["sulfur", 5], ["steel", 4]],
       "intensive": { "explosiveAbsorption": 35, "explosiveResist": 20, "thermalResist": -1000, "penResist": 8, "density": 1.2 }

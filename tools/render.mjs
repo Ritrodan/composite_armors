@@ -310,40 +310,93 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     const fh = 0.7 + dome * 0.5 + (gn * 0.5 + gf * 0.3);
     const tc = tint(fv); return { h: fh * inside + 0.2, r: tc.r, g: tc.g, b: tc.b, rg: 214 + bev * 10 + grainV2 * 0.6, warm: 0 };
   }
-  if (P.material === 'ceramic') {
-    // Ceramic Armor: smooth light-grey crystalline surface with faint warm-neutral tint
-    const h = gn * 0.65 + gf * 0.32;
-    const v = vBase * 1.6;
-    const rg = 225 + bev * 12 + grainV * 0.4;
-    return { h, r: Math.min(255, v + 3), g: Math.min(255, v), b: Math.min(255, v - 3), rg, warm: 3 };
-  }
-  if (P.material === 'shear_thickening') {
-    // Shear-Thickening Fluid: dark cool-blue porous matrix housing non-Newtonian fluid
-    let h = gn * 0.4 + gf * 0.2, r = vBase * 0.75, g = vBase * 0.75, b = vBase * 0.75, rg = 188 + bev * 12;
-    const scale = P.poreScale || 6, nx = x / scale, ny = y / scale;
-    const ix = Math.floor(nx), iy = Math.floor(ny);
-    let minDist1 = 1e9;
-    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
-      const cx = ix + dx, cy = iy + dy;
-      const hx = Math.sin(cx * 19.731 + cy * 61.453) * 43758.5453;
-      const hy = Math.sin(cx * 43.219 + cy * 27.897) * 43758.5453;
-      const jx = hx - Math.floor(hx), jy = hy - Math.floor(hy);
-      const dist = Math.hypot(nx - (cx + jx), ny - (cy + jy));
-      if (dist < minDist1) { minDist1 = dist; }
+  if (P.material === 'ceram_honeycomb') {
+    // Ceramic Honeycomb Matrix: rigid hex-cell walls with recessed amber colloidal fluid pockets
+    const S = P.cellScale;
+    const colW = fitPeriod(S * 1.732);
+    const rowH = fitPeriod(S * 3.0) / 2;
+    const r0 = Math.round(y / rowH);
+    const cells = [];
+    for (let r = r0 - 1; r <= r0 + 1; r++) {
+      const cy = r * rowH, off = (r & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for (let c = c0 - 1; c <= c0 + 1; c++) cells.push([c * colW + off, cy]);
     }
-    if (inside > 0.15) {
-      const li = Math.min(1.0, (inside - 0.15) / 0.25);
-      const poreLimit = (P.porosity || 0.4) * 0.5;
-      if (minDist1 < poreLimit) {
-        const t = smooth(minDist1 / poreLimit);
-        h -= (1 - t) * 2.2 * li;
-        const tb = vBase * (0.08 + 0.92 * t) * 0.75;
-        r = r * (1 - li) + tb * 0.86 * li;
-        g = g * (1 - li) + tb * 0.93 * li;
-        b = b * (1 - li) + Math.min(255, tb * 1.15) * li;
+    let d0 = 1e9, cx0 = 0, cy0 = 0;
+    for (const [cx, cy] of cells) { const d = Math.hypot(x - cx, y - cy); if (d < d0) { d0 = d; cx0 = cx; cy0 = cy; } }
+    let insideDist = 1e9;
+    for (const [cx, cy] of cells) {
+      const dx = cx - cx0, dy = cy - cy0, len = Math.hypot(dx, dy);
+      if (len < 1e-6) continue;
+      const dn = Math.hypot(x - cx, y - cy);
+      const ed = (dn * dn - d0 * d0) / (2 * len);
+      if (ed < insideDist) insideDist = ed;
+    }
+    const wall = P.wallThick;
+    let h = gn * 0.5 + gf * 0.25;
+    let r = vBase, g = vBase, b = vBase, rg = 210;
+    if (insideDist < wall) {
+      const t = smooth(insideDist / wall);
+      h += 1.1 * inside;
+      const frameV = vBase * 0.85 + t * 15;
+      r = frameV * 0.95; g = frameV * 0.95; b = frameV * 1.0; rg = 220;
+    } else {
+      const t = Math.min(1, (insideDist - wall) / 6);
+      const fluidDome = Math.sin(t * Math.PI * 0.5);
+      h -= (0.6 - fluidDome * 0.3) * inside;
+      const fluidV = vBase * 1.25 + (gn * 3);
+      r = fluidV * 1.25 + 20; g = fluidV * 0.88 + 8; b = fluidV * 0.35;
+      rg = 170 + Math.round(fluidDome * 35);
+    }
+    return { h, r, g, b, rg, warm: 0 };
+  }
+  if (P.material === 'stf_hex_colloid') {
+    // STF Hex-Colloid Matrix: pointy-top hex chambers housing pearlescent cyan-grey non-Newtonian fluid
+    const S = P.chamberSize;
+    const colW = fitPeriod(S * 1.7320508);
+    const rowH = fitPeriod(S * 3.0) / 2;
+    const r0 = Math.round(y / rowH);
+    let d0 = 1e9, cx0 = 0, cy0 = 0;
+    for (let r = r0 - 1; r <= r0 + 1; r++) {
+      const cy = r * rowH, off = (r & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for (let c = c0 - 1; c <= c0 + 1; c++) {
+        const cx = c * colW + off, d = Math.hypot(x - cx, y - cy);
+        if (d < d0) { d0 = d; cx0 = cx; cy0 = cy; }
       }
     }
-    return { h, r: r * 0.86, g: g * 0.93, b: Math.min(255, b * 1.15), rg, warm: -14 };
+    let insideDist = 1e9;
+    for (let r = r0 - 1; r <= r0 + 1; r++) {
+      const cy = r * rowH, off = (r & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for (let c = c0 - 1; c <= c0 + 1; c++) {
+        const cx = c * colW + off, dx = cx - cx0, dy = cy - cy0;
+        if (Math.hypot(dx, dy) < 1e-6) continue;
+        const dn = Math.hypot(x - cx, y - cy);
+        const ed = (dn * dn - d0 * d0) / (2 * Math.hypot(dx, dy));
+        if (ed < insideDist) insideDist = ed;
+      }
+    }
+    const wallW = 2.0, rimW = 1.5;
+    if (insideDist < wallW) {
+      const microWeave = Math.sin(x * 1.5) * Math.cos(y * 1.5) * 0.08;
+      const frameV = vBase * 0.60 * (1.0 + microWeave);
+      return { h: (0.5 + microWeave) * inside, r: frameV, g: frameV, b: frameV, rg: 175, warm: 0 };
+    }
+    if (insideDist < wallW + rimW) {
+      const tRim = (insideDist - wallW) / rimW;
+      const rimProfile = Math.sin(tRim * Math.PI);
+      const rimV = vBase * (1.0 + rimProfile * 0.15);
+      return { h: (0.8 + rimProfile * 0.5) * inside, r: rimV, g: rimV, b: rimV, rg: 225, warm: 0 };
+    }
+    const fMax = S - wallW - rimW;
+    const fDist = Math.max(0, insideDist - (wallW + rimW));
+    const meniscus = Math.sin((fDist / fMax) * Math.PI * 0.5);
+    const colloidLockup = Math.max(0, gf * 0.6 + gn * 0.4) * P.fluidGlow;
+    const waveX = Math.sin(x * P.fluidVisc + gn * 1.5);
+    const waveY = Math.cos(y * P.fluidVisc + gf * 1.5);
+    const fluidRipple = waveX * waveY * 0.28;
+    const hFluid = (-1.3 * (1.0 - meniscus) + fluidRipple * 0.25 + colloidLockup * 0.05) * inside;
+    const fluidGlowBase = vBase + meniscus * 26 + fluidRipple * 12 + colloidLockup * 20;
+    const rgFluid = 180 + Math.round(meniscus * 52) + Math.round(fluidRipple * 10);
+    return { h: hFluid, r: fluidGlowBase * 0.78, g: fluidGlowBase * 1.06, b: fluidGlowBase * 1.02, rg: rgFluid, warm: 0 };
   }
   const h = gn * 0.8 + gf * 0.4;
   const rg = 211 + bev * 14 + grainV * 0.66;
