@@ -1,0 +1,138 @@
+Part : <./Data/ships/terran/base_part_terran.rules>/Part
+{
+	NameKey = "Parts/ShearThickening2x1"
+	IconNameKey = "Parts/ShearThickening2x1Icon"
+	ID = Ritrodan.shear_thickening_2x1
+	EditorGroup = "Structure"
+	EditorParentParts = [ "Ritrodan.shear_thickening" ]
+	EditorReplacementPartID = Ritrodan.shear_thickening
+	DescriptionKey = "Parts/ShearThickening2x1Desc"
+	Resources
+	[
+		[carbon, 2]
+		[sulfur, 2]
+		[steel, 2]
+	]
+	AIValueFactor = 0
+	Size = [2, 1]
+	FlipHRotate = [0, 1, 2, 3]
+	FlipVRotate = [0, 1, 2, 3]
+	SelectionTypeID = "armor"
+	MaxHealth = 5600
+	ExplosiveDamageAbsorption = 35%
+	DamageResistances
+	{
+		explosive = 20%
+		thermal = -1000%
+	}
+	TypeCategories = [armor, non_flammable]
+	Flammable = false
+	InitialPenetrationResistance = 8
+	ContinuingPenetrationResistance = &InitialPenetrationResistance
+	CreatePartPerTileWhenGrabbed = ""
+	CrewSpeedFactor = 0
+	Density = 1.2
+	IsRotateable = true
+	IsWalled = true
+	IsSelfDestructible = false
+	AllowedDoorLocations = []
+	GeneratorRequiresDoor = false
+	IgnoreRotationForMirroredSelection = true
+	ReceivableBuffs : ^/0/ReceivableBuffs []
+	EditorIcon
+	{
+		Texture
+		{
+			File = "icon.png"
+			SampleMode = Linear
+		}
+		Size = [64, 32]
+	}
+	Components : ^/0/Components
+	{
+		Graphics
+		{
+			Type = Graphics
+			Location = [1, 0.5]
+			Floor
+			{
+				Layer = "floors"
+				DamageLevels
+				[
+					{
+						File = "armor.png"
+						Size = [2, 1]
+					}
+					{
+						File = "armor_33.png"
+						Size = [2, 1]
+					}
+					{
+						File = "armor_66.png"
+						Size = [2, 1]
+					}
+				]
+			}
+			Walls
+			{
+				Layer = "walls"
+				DamageLevels
+				[
+					{
+						File = "armor.png"
+						Size = [2, 1]
+					}
+					{
+						File = "armor_33.png"
+						Size = [2, 1]
+					}
+					{
+						File = "armor_66.png"
+						Size = [2, 1]
+					}
+				]
+			}
+			Roof
+			{
+				Layer = "roofs"
+				DamageLevels
+				[
+					{
+						File = "roof.png"
+						NormalsFile = "roof_normals.png"
+						Size = [2, 1]
+					}
+					{
+						File = "roof_33.png"
+						NormalsFile = "roof_normals_33.png"
+						Size = [2, 1]
+					}
+					{
+						File = "roof_66.png"
+						NormalsFile = "roof_normals_66.png"
+						Size = [2, 1]
+					}
+				]
+			}
+		}
+
+		DestroyedEffects
+		{
+			Type = DeathEffects
+			MediaEffects = &/COMMON_EFFECTS/SmallPartDestroyedDry
+			Location = [1, 0.5]
+		}
+
+		Blueprints
+		{
+			Type = BlueprintSprite
+			File = "blueprints.png"
+			Size = [2, 1]
+		}
+	}
+
+	Stats
+	{
+		AOEResist = (&~/Part/DamageResistances/explosive) * 100
+	}
+}

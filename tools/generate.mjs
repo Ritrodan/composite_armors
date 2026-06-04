@@ -39,6 +39,8 @@ const MATERIALS = {
   foam_tristeel:       { baseBright: 26, grain: 4,  bevelBright: 14, normalStrength: 1.35, poreScale: 7, porosity: 0.5, fillDepth: 0.6 },
   gold:                { baseBright: 66, grain: 6,  bevelBright: 28, normalStrength: 1.15, hammerScale: 11, hammerDepth: 1.0 },
   uranium:             { baseBright: 72,  grain: 6, bevelBright: 14, normalStrength: 1.3,  hexSize: 8, hexGroove: 0.8 },
+  ceram_honeycomb:     { baseBright: 35, grain: 5,  bevelBright: 16, normalStrength: 1.3, cellScale: 14, wallThick: 1.8 },
+  stf_hex_colloid:     { baseBright: 32, grain: 4,  bevelBright: 14, normalStrength: 1.3, chamberSize: 16, fluidGlow: 1.2, fluidVisc: 0.8 },
 };
 
 // Build a render-params object for a variant from armors.config.json.
