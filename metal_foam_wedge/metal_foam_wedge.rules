@@ -26,7 +26,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	Flammable = false
 	ReceivableBuffs : ^/0/ReceivableBuffs []
 	UnderlyingPartPerTile = ""
-	UnderlyingPart = cosmoteer.structure_wedge
+	UnderlyingPart = ""
 	CreatePartPerTileWhenGrabbed = ""
 	InitialPenetrationResistance = 1.8
 	ContinuingPenetrationResistance = &InitialPenetrationResistance

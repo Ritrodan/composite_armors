@@ -333,7 +333,7 @@ ${resources}
 \tFlammable = false
 \tReceivableBuffs : ^/0/ReceivableBuffs []
 \tUnderlyingPartPerTile = ""
-\tUnderlyingPart = ${g.underlying}
+\tUnderlyingPart = ${mat.noUnderlyingStructure ? '""' : g.underlying}
 \tCreatePartPerTileWhenGrabbed = ""
 \tInitialPenetrationResistance = ${n(penResist)}
 \tContinuingPenetrationResistance = &InitialPenetrationResistance

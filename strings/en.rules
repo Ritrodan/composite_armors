@@ -74,43 +74,43 @@ Parts
 
 	MetalFoam = "Metal Foam"
 	MetalFoamIcon = "Metal Foam"
-	MetalFoamDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+	MetalFoamDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique — it has no underlying structure supporting it."
 
 	MetalFoam2x1 = "Metal Foam 2x1"
 	MetalFoam2x1Icon = "Metal Foam 2x1"
-	MetalFoam2x1Desc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+	MetalFoam2x1Desc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique — it has no underlying structure supporting it."
 
 	MetalFoamWedge = "Metal Foam Wedge"
 	MetalFoamWedgeIcon = "Metal Foam Wedge"
-	MetalFoamWedgeDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+	MetalFoamWedgeDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique — it has no underlying structure supporting it."
 
 	MetalFoam1x2Wedge = "Metal Foam 1x2 Wedge"
 	MetalFoam1x2WedgeIcon = "Metal Foam 1x2 Wedge"
-	MetalFoam1x2WedgeDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+	MetalFoam1x2WedgeDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique — it has no underlying structure supporting it."
 
 	MetalFoam1x3Wedge = "Metal Foam 1x3 Wedge"
 	MetalFoam1x3WedgeIcon = "Metal Foam 1x3 Wedge"
-	MetalFoam1x3WedgeDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+	MetalFoam1x3WedgeDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique — it has no underlying structure supporting it."
 
 	CompositeMetalFoam = "Composite Metal Foam"
 	CompositeMetalFoamIcon = "Composite Metal Foam"
-	CompositeMetalFoamDesc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance."
+	CompositeMetalFoamDesc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance. Unlike normal metal foam, it includes an underlying structure."
 
 	CompositeMetalFoam2x1 = "Composite Metal Foam 2x1"
 	CompositeMetalFoam2x1Icon = "Composite Metal Foam 2x1"
-	CompositeMetalFoam2x1Desc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance."
+	CompositeMetalFoam2x1Desc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance. Unlike normal metal foam, it includes an underlying structure."
 
 	CompositeMetalFoamWedge = "Composite Metal Foam Wedge"
 	CompositeMetalFoamWedgeIcon = "Composite Metal Foam Wedge"
-	CompositeMetalFoamWedgeDesc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance."
+	CompositeMetalFoamWedgeDesc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance. Unlike normal metal foam, it includes an underlying structure."
 
 	CompositeMetalFoam1x2Wedge = "Composite Metal Foam 1x2 Wedge"
 	CompositeMetalFoam1x2WedgeIcon = "Composite Metal Foam 1x2 Wedge"
-	CompositeMetalFoam1x2WedgeDesc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance."
+	CompositeMetalFoam1x2WedgeDesc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance. Unlike normal metal foam, it includes an underlying structure."
 
 	CompositeMetalFoam1x3Wedge = "Composite Metal Foam 1x3 Wedge"
 	CompositeMetalFoam1x3WedgeIcon = "Composite Metal Foam 1x3 Wedge"
-	CompositeMetalFoam1x3WedgeDesc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance."
+	CompositeMetalFoam1x3WedgeDesc = "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance. Unlike normal metal foam, it includes an underlying structure."
 
 	GoldShielding = "Gold Plating"
 	GoldShieldingIcon = "Gold Plating"
