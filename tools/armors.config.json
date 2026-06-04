@@ -50,7 +50,7 @@
       "nameKey": "CompositeMetalFoam",
       "displayName": "Composite Metal Foam",
       "variantNoun": "composite metal foam",
-      "description": "Closed-pore hollow steel spheres cast full of lightweight tritanium, creating a resilient armor with exceptional blast resistance and structural support. Balances weight efficiency with penetration and thermal resistance.",
+      "description": "Lightweight tritanium hollow spheres, producing a very light and blast resistant armor that is weak against kinetic and energy weapons.",
       "texture": { "material": "foam_tristeel", "seed": 6610 },
       "perTile": { "resources": [["steel", 2], ["tritanium", 1]], "maxHealth": 2500, "empAbsorb": null },
       "wedgeRecipe": [["steel", 4]],
