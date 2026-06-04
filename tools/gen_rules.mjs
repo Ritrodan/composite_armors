@@ -155,7 +155,7 @@ ${rotateBlock}
 ${flammableLine}\tInitialPenetrationResistance = ${iv.penResist}
 \tContinuingPenetrationResistance = &InitialPenetrationResistance
 \tCreatePartPerTileWhenGrabbed = ""
-\tCrewSpeedFactor = 0
+${mat.noUnderlyingStructure ? '\tUnderlyingPart = ""\n' : ''}	\tCrewSpeedFactor = 0
 \tDensity = ${n(iv.density)}
 ${isRotateableLine}\tIsWalled = true
 \tIsSelfDestructible = false
