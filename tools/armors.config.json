@@ -50,7 +50,7 @@
       "nameKey": "MetalFoam",
       "displayName": "Metal Foam",
       "variantNoun": "metal foam",
-      "description": "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique - it has no underlying structure supporting it.",
+      "description": "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost.",
       "texture": { "material": "metalfoam_irregular", "seed": 2250 },
       "perTile": { "resources": [["steel", 2]], "maxHealth": 800, "empAbsorb": null },
       "wedgeRecipe": [["steel", 1]],

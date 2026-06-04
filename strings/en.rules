@@ -74,23 +74,23 @@ Parts
 
 	MetalFoam = "Metal Foam"
 	MetalFoamIcon = "Metal Foam"
-	MetalFoamDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique - it has no underlying structure supporting it."
+	MetalFoamDesc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
 
 	MetalFoam2x1 = "Metal Foam 2x1"
 	MetalFoam2x1Icon = "Metal Foam 2x1"
-	MetalFoam2x1Desc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique - it has no underlying structure supporting it."
+	MetalFoam2x1Desc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
 
 	MetalFoamWedge = "Metal Foam Wedge"
 	MetalFoamWedgeIcon = "Metal Foam Wedge"
-	MetalFoamWedgeDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique - it has no underlying structure supporting it."
+	MetalFoamWedgeDesc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
 
 	MetalFoam1x2Wedge = "Metal Foam 1x2 Wedge"
 	MetalFoam1x2WedgeIcon = "Metal Foam 1x2 Wedge"
-	MetalFoam1x2WedgeDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique - it has no underlying structure supporting it."
+	MetalFoam1x2WedgeDesc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
 
 	MetalFoam1x3Wedge = "Metal Foam 1x3 Wedge"
 	MetalFoam1x3WedgeIcon = "Metal Foam 1x3 Wedge"
-	MetalFoam1x3WedgeDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost. Purely applique - it has no underlying structure supporting it."
+	MetalFoam1x3WedgeDesc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
 
 	CompositeMetalFoam = "Composite Metal Foam"
 	CompositeMetalFoamIcon = "Composite Metal Foam"
