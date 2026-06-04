@@ -50,10 +50,11 @@
       "nameKey": "MetalFoam",
       "displayName": "Metal Foam",
       "variantNoun": "metal foam",
-      "description": "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost.",
+      "description": "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost.",
       "texture": { "material": "metalfoam_irregular", "seed": 2250 },
       "perTile": { "resources": [["steel", 2]], "maxHealth": 800, "empAbsorb": null },
       "wedgeRecipe": [["steel", 1]],
+      "noUnderlyingStructure": true,
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 99, "thermalResist": -99999, "penResist": 2.5, "density": 0.75 }
     },
     "composite_metal_foam": {
@@ -61,7 +62,7 @@
       "nameKey": "CompositeMetalFoam",
       "displayName": "Composite Metal Foam",
       "variantNoun": "composite metal foam",
-      "description": "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance.",
+      "description": "Like metal foam, but the hollow spheres are cast full of lightweight tritanium, producing a far more resilient armor that keeps the excellent blast resistance while shoring up its structure and penetration resistance. Unlike normal metal foam, it includes an underlying structure supporting it.",
       "texture": { "material": "foam_tristeel", "seed": 6610 },
       "perTile": { "resources": [["steel", 2], ["tritanium", 1]], "maxHealth": 2500, "empAbsorb": null },
       "wedgeRecipe": [["steel", 4]],

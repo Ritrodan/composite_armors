@@ -28,7 +28,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	InitialPenetrationResistance = 13
 	ContinuingPenetrationResistance = &InitialPenetrationResistance
 	CreatePartPerTileWhenGrabbed = ""
-	CrewSpeedFactor = 0
+		CrewSpeedFactor = 0
 	Density = 7.2
 	IsRotateable = true
 	IsWalled = true
