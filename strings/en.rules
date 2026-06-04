@@ -115,4 +115,36 @@ Parts
 	Uranium1x3Wedge = "Depleted Uranium Armor 1x3 Wedge"
 	Uranium1x3WedgeIcon = "Depleted Uranium Armor 1x3 Wedge"
 	Uranium1x3WedgeDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions."
+
+	Ceramic = "Ceramic Armor"
+	CeramicIcon = "Ceramic Armor"
+	CeramicDesc = "Dense ceramic composite offering exceptional penetration and thermal resistance, but brittle under blast damage."
+
+	Ceramic2x1 = "Ceramic Armor 2x1"
+	Ceramic2x1Icon = "Ceramic Armor 2x1"
+	Ceramic2x1Desc = "Dense ceramic composite offering exceptional penetration and thermal resistance, but brittle under blast damage."
+
+	CeramicWedge = "Ceramic Armor Wedge"
+	CeramicWedgeIcon = "Ceramic Armor Wedge"
+	CeramicWedgeDesc = "Dense ceramic composite offering exceptional penetration and thermal resistance, but brittle under blast damage."
+
+	ShearThickening = "Shear-Thickening Fluid Armor"
+	ShearThickeningIcon = "Shear-Thickening Fluid Armor"
+	ShearThickeningDesc = "A non-Newtonian fluid suspended in a porous matrix that hardens upon projectile impact, providing excellent penetration resistance. Blast waves transmit freely through the fluid."
+
+	ShearThickening2x1 = "Shear-Thickening Fluid Armor 2x1"
+	ShearThickening2x1Icon = "Shear-Thickening Fluid Armor 2x1"
+	ShearThickening2x1Desc = "A non-Newtonian fluid suspended in a porous matrix that hardens upon projectile impact, providing excellent penetration resistance. Blast waves transmit freely through the fluid."
+
+	ShearThickeningWedge = "Shear-Thickening Fluid Armor Wedge"
+	ShearThickeningWedgeIcon = "Shear-Thickening Fluid Armor Wedge"
+	ShearThickeningWedgeDesc = "A non-Newtonian fluid suspended in a porous matrix that hardens upon projectile impact, providing excellent penetration resistance. Blast waves transmit freely through the fluid."
+
+	ShearThickening1x2Wedge = "Shear-Thickening Fluid Armor 1x2 Wedge"
+	ShearThickening1x2WedgeIcon = "Shear-Thickening Fluid Armor 1x2 Wedge"
+	ShearThickening1x2WedgeDesc = "A non-Newtonian fluid suspended in a porous matrix that hardens upon projectile impact, providing excellent penetration resistance. Blast waves transmit freely through the fluid."
+
+	ShearThickening1x3Wedge = "Shear-Thickening Fluid Armor 1x3 Wedge"
+	ShearThickening1x3WedgeIcon = "Shear-Thickening Fluid Armor 1x3 Wedge"
+	ShearThickening1x3WedgeDesc = "A non-Newtonian fluid suspended in a porous matrix that hardens upon projectile impact, providing excellent penetration resistance. Blast waves transmit freely through the fluid."
 }

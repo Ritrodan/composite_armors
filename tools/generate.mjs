@@ -39,6 +39,8 @@ const MATERIALS = {
   foam_tristeel:       { baseBright: 26, grain: 4,  bevelBright: 14, normalStrength: 1.35, poreScale: 7, porosity: 0.5, fillDepth: 0.6 },
   gold:                { baseBright: 66, grain: 6,  bevelBright: 28, normalStrength: 1.15, hammerScale: 11, hammerDepth: 1.0 },
   uranium:             { baseBright: 72,  grain: 6, bevelBright: 14, normalStrength: 1.3,  hexSize: 8, hexGroove: 0.8 },
+  ceramic:             { baseBright: 52, grain: 8,  bevelBright: 18, normalStrength: 1.2 },
+  shear_thickening:    { baseBright: 22, grain: 4,  bevelBright: 10, normalStrength: 1.45, poreScale: 6, porosity: 0.4 },
 };
 
 // Build a render-params object for a variant from armors.config.json.

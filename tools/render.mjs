@@ -310,6 +310,41 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     const fh = 0.7 + dome * 0.5 + (gn * 0.5 + gf * 0.3);
     const tc = tint(fv); return { h: fh * inside + 0.2, r: tc.r, g: tc.g, b: tc.b, rg: 214 + bev * 10 + grainV2 * 0.6, warm: 0 };
   }
+  if (P.material === 'ceramic') {
+    // Ceramic Armor: smooth light-grey crystalline surface with faint warm-neutral tint
+    const h = gn * 0.65 + gf * 0.32;
+    const v = vBase * 1.6;
+    const rg = 225 + bev * 12 + grainV * 0.4;
+    return { h, r: Math.min(255, v + 3), g: Math.min(255, v), b: Math.min(255, v - 3), rg, warm: 3 };
+  }
+  if (P.material === 'shear_thickening') {
+    // Shear-Thickening Fluid: dark cool-blue porous matrix housing non-Newtonian fluid
+    let h = gn * 0.4 + gf * 0.2, r = vBase * 0.75, g = vBase * 0.75, b = vBase * 0.75, rg = 188 + bev * 12;
+    const scale = P.poreScale || 6, nx = x / scale, ny = y / scale;
+    const ix = Math.floor(nx), iy = Math.floor(ny);
+    let minDist1 = 1e9;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const cx = ix + dx, cy = iy + dy;
+      const hx = Math.sin(cx * 19.731 + cy * 61.453) * 43758.5453;
+      const hy = Math.sin(cx * 43.219 + cy * 27.897) * 43758.5453;
+      const jx = hx - Math.floor(hx), jy = hy - Math.floor(hy);
+      const dist = Math.hypot(nx - (cx + jx), ny - (cy + jy));
+      if (dist < minDist1) { minDist1 = dist; }
+    }
+    if (inside > 0.15) {
+      const li = Math.min(1.0, (inside - 0.15) / 0.25);
+      const poreLimit = (P.porosity || 0.4) * 0.5;
+      if (minDist1 < poreLimit) {
+        const t = smooth(minDist1 / poreLimit);
+        h -= (1 - t) * 2.2 * li;
+        const tb = vBase * (0.08 + 0.92 * t) * 0.75;
+        r = r * (1 - li) + tb * 0.86 * li;
+        g = g * (1 - li) + tb * 0.93 * li;
+        b = b * (1 - li) + Math.min(255, tb * 1.15) * li;
+      }
+    }
+    return { h, r: r * 0.86, g: g * 0.93, b: Math.min(255, b * 1.15), rg, warm: -14 };
+  }
   const h = gn * 0.8 + gf * 0.4;
   const rg = 211 + bev * 14 + grainV * 0.66;
   return { h, r: vBase, g: vBase, b: vBase, rg, warm: 0 };

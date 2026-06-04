@@ -19,14 +19,14 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	DamageResistances
 	{
 		explosive = 45%
-		thermal = 150%
+		thermal = 15%
 	}
 	TypeCategories = [armor, non_flammable]
 	InitialPenetrationResistance = 8
 	ContinuingPenetrationResistance = &InitialPenetrationResistance
 	CreatePartPerTileWhenGrabbed = ""
 	CrewSpeedFactor = 0
-	Density = 3.4
+	Density = 2
 	IsWalled = true
 	IsSelfDestructible = false
 	AllowedDoorLocations = []
