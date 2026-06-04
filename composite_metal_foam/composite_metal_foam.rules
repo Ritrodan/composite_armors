@@ -8,14 +8,14 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	DescriptionKey = "Parts/CompositeMetalFoamDesc"
 	Resources
 	[
-		[steel, 2]
+		[steel, 1]
 		[tritanium, 1]
 	]
 	AIValueFactor = 0
 	Size = [1, 1]
 	IsRotateable = false
 	SelectionTypeID = "armor"
-	MaxHealth = 2500
+	MaxHealth = 2200
 	ExplosiveDamageAbsorption = 100%
 	DamageResistances
 	{

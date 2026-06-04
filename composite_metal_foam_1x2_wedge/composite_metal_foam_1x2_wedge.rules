@@ -12,14 +12,14 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	FlipWhenLoadingIDs = [Ritrodan.composite_metal_foam_1x2_wedge_R]
 	Resources
 	[
-		[steel, 2]
+		[steel, 1]
 		[tritanium, 1]
 	]
 	AIValueFactor = 0
 	Size = [1, 2]
 	AllowedContiguity = [Right, Bottom]
 	SelectionTypeID = "armor"
-	MaxHealth = 2500
+	MaxHealth = 2200
 	ExplosiveDamageAbsorption = 100%
 	DamageResistances
 	{

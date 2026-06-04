@@ -52,8 +52,8 @@
       "variantNoun": "composite metal foam",
       "description": "Lightweight tritanium hollow spheres, producing a very light and blast resistant armor that is weak against kinetic and energy weapons.",
       "texture": { "material": "foam_tristeel", "seed": 6610 },
-      "perTile": { "resources": [["steel", 2], ["tritanium", 1]], "maxHealth": 2200, "empAbsorb": null },
-      "wedgeRecipe": [["steel", 4]],
+      "perTile": { "resources": [["steel", 1], ["tritanium", 1]], "maxHealth": 2200, "empAbsorb": null },
+      "wedgeRecipe": [["steel", 2], ["iron", 2]],
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 94, "thermalResist": -99999, "penResist": 4, "density": 1.1 }
     },
     "gold_shielding": {
