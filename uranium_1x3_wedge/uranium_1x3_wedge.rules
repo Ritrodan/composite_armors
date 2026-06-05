@@ -13,12 +13,13 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 	Resources
 	[
 		[uranium, 3]
+		[steel, 3]
 	]
 	AIValueFactor = 0
 	Size = [1, 3]
 	AllowedContiguity = [Right, Bottom]
 	SelectionTypeID = "armor"
-	MaxHealth = 13500
+	MaxHealth = 14250
 	ExplosiveDamageAbsorption = 100%
 	DamageResistances
 	{
