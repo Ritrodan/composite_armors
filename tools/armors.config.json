@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "compatibleGameVersions": ["0.30.1"],
     "author": "Ritrodan",
-    "description": "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Composite Metal Foam, Gold Plating, Depleted Uranium, Ceramic, and Shear-Thickening Fluid Armor, with multiple size and wedge variants.",
+    "description": "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Composite Metal Foam, Gold Plating, and Depleted Uranium, with multiple size and wedge variants.",
     "modifiesMultiplayer": true,
     "modifiesGameplay": true,
     "stringsFolder": "strings"
@@ -30,8 +30,8 @@
       "variantNoun": "tri-steel armor",
       "description": "A very strong and weight efficient armor.",
       "texture": { "material": "tristeel", "seed": 7220 },
-      "perTile": { "resources": [["tristeel", 3]], "maxHealth": 6500, "empAbsorb": 700 },
-      "wedgeRecipe": [["tristeel", 1], ["tritanium", 1]],
+      "perTile": { "resources": [["tristeel", 3], ["steel", 2]], "maxHealth": 7000, "empAbsorb": 700 },
+      "wedgeRecipe": [["tristeel", 1], ["tritanium", 1], ["steel", 1]],
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 45, "thermalResist": 15, "penResist": 8, "density": 2.0, "empRecovery": 0.08 }
     },
     "combination_c": {
@@ -45,6 +45,18 @@
       "wedgeRecipe": [["steel", 4], ["iron", 1]],
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 50, "thermalResist": 10, "penResist": 9, "density": 2.3, "empRecovery": 0.8 }
     },
+    "metal_foam": {
+      "id": "metal_foam",
+      "nameKey": "MetalFoam",
+      "displayName": "Metal Foam",
+      "variantNoun": "metal foam",
+      "description": "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost.",
+      "texture": { "material": "metalfoam_irregular", "seed": 2250 },
+      "perTile": { "resources": [["steel", 2]], "maxHealth": 800, "empAbsorb": null },
+      "wedgeRecipe": [["steel", 1]],
+      "noUnderlyingStructure": true,
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 99, "thermalResist": -99999, "penResist": 2.5, "density": 0.75 }
+    },
     "composite_metal_foam": {
       "id": "composite_metal_foam",
       "nameKey": "CompositeMetalFoam",
@@ -52,8 +64,8 @@
       "variantNoun": "composite metal foam",
       "description": "Lightweight tritanium hollow spheres, producing a very light and blast resistant armor that is weak against kinetic and energy weapons.",
       "texture": { "material": "foam_tristeel", "seed": 6610 },
-      "perTile": { "resources": [["steel", 1], ["tritanium", 1]], "maxHealth": 2200, "empAbsorb": null },
-      "wedgeRecipe": [["steel", 2], ["iron", 2]],
+      "perTile": { "resources": [["steel", 2], ["tritanium", 1]], "maxHealth": 2500, "empAbsorb": null },
+      "wedgeRecipe": [["steel", 4]],
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 94, "thermalResist": -99999, "penResist": 4, "density": 1.1 }
     },
     "gold_shielding": {
@@ -73,31 +85,9 @@
       "variantNoun": "depleted uranium armor",
       "description": "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions.",
       "texture": { "material": "uranium", "seed": 5500 },
-      "perTile": { "resources": [["uranium", 2]], "maxHealth": 9000, "empAbsorb": 300 },
-      "wedgeRecipe": [["uranium", 1]],
+      "perTile": { "resources": [["uranium", 2], ["steel", 2]], "maxHealth": 9500, "empAbsorb": 300 },
+      "wedgeRecipe": [["uranium", 1], ["steel", 1]],
       "intensive": { "explosiveAbsorption": 100, "explosiveResist": 40, "thermalResist": 75, "penResist": 13, "density": 7.2, "empRecovery": 0.45 }
-    },
-    "ceramic": {
-      "id": "ceramic",
-      "nameKey": "Ceramic",
-      "displayName": "Ceramic Armor",
-      "variantNoun": "ceramic armor",
-      "description": "Dense ceramic composite offering exceptional penetration and thermal resistance, but brittle under blast damage.",
-      "texture": { "material": "ceram_honeycomb", "seed": 9901 },
-      "perTile": { "resources": [["carbon", 1], ["steel", 1]], "maxHealth": 2400, "empAbsorb": null },
-      "wedgeRecipe": [["carbon", 1], ["steel", 1]],
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 0, "thermalResist": 75, "penResist": 12, "density": 1.6 }
-    },
-    "shear_thickening": {
-      "id": "shear_thickening",
-      "nameKey": "ShearThickening",
-      "displayName": "Shear-Thickening Fluid Armor",
-      "variantNoun": "shear-thickening fluid armor",
-      "description": "A non-Newtonian fluid suspended in a porous matrix that hardens upon projectile impact, providing excellent penetration resistance. Blast waves transmit freely through the fluid.",
-      "texture": { "material": "stf_hex_colloid", "seed": 1155 },
-      "perTile": { "resources": [["carbon", 1], ["sulfur", 1], ["steel", 1]], "maxHealth": 2800, "empAbsorb": null },
-      "wedgeRecipe": [["sulfur", 5], ["steel", 4]],
-      "intensive": { "explosiveAbsorption": 35, "explosiveResist": 20, "thermalResist": -1000, "penResist": 8, "density": 1.2 }
     }
   },
   "variants": [
@@ -119,6 +109,11 @@
     { "material": "combination_c", "size": [1, 1], "shape": "wedge" },
     { "material": "combination_c", "size": [1, 2], "shape": "wedge" },
     { "material": "combination_c", "size": [1, 3], "shape": "wedge" },
+    { "material": "metal_foam", "size": [1, 1] },
+    { "material": "metal_foam", "size": [2, 1] },
+    { "material": "metal_foam", "size": [1, 1], "shape": "wedge" },
+    { "material": "metal_foam", "size": [1, 2], "shape": "wedge" },
+    { "material": "metal_foam", "size": [1, 3], "shape": "wedge" },
     { "material": "composite_metal_foam", "size": [1, 1] },
     { "material": "composite_metal_foam", "size": [2, 1] },
     { "material": "composite_metal_foam", "size": [1, 1], "shape": "wedge" },
@@ -130,14 +125,6 @@
     { "material": "uranium", "size": [2, 1] },
     { "material": "uranium", "size": [1, 1], "shape": "wedge" },
     { "material": "uranium", "size": [1, 2], "shape": "wedge" },
-    { "material": "uranium", "size": [1, 3], "shape": "wedge" },
-    { "material": "ceramic", "size": [1, 1] },
-    { "material": "ceramic", "size": [2, 1] },
-    { "material": "ceramic", "size": [1, 1], "shape": "wedge" },
-    { "material": "shear_thickening", "size": [1, 1] },
-    { "material": "shear_thickening", "size": [2, 1] },
-    { "material": "shear_thickening", "size": [1, 1], "shape": "wedge" },
-    { "material": "shear_thickening", "size": [1, 2], "shape": "wedge" },
-    { "material": "shear_thickening", "size": [1, 3], "shape": "wedge" }
+    { "material": "uranium", "size": [1, 3], "shape": "wedge" }
   ]
 }

@@ -3,7 +3,7 @@ Name = "Composite Armors"
 Version = 1.0.0
 CompatibleGameVersions = ["0.30.1"]
 Author = "Ritrodan"
-Description = "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Composite Metal Foam, Gold Plating, Depleted Uranium, Ceramic, and Shear-Thickening Fluid Armor, with multiple size and wedge variants."
+Description = "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Composite Metal Foam, Gold Plating, and Depleted Uranium, with multiple size and wedge variants."
 ModifiesMultiplayer = true
 ModifiesGameplay = true
 StringsFolder = "strings"
@@ -33,6 +33,11 @@ Actions
 			&<combination_c_wedge/combination_c_wedge.rules>/Part
 			&<combination_c_1x2_wedge/combination_c_1x2_wedge.rules>/Part
 			&<combination_c_1x3_wedge/combination_c_1x3_wedge.rules>/Part
+			&<metal_foam/metal_foam.rules>/Part
+			&<metal_foam_2x1/metal_foam_2x1.rules>/Part
+			&<metal_foam_wedge/metal_foam_wedge.rules>/Part
+			&<metal_foam_1x2_wedge/metal_foam_1x2_wedge.rules>/Part
+			&<metal_foam_1x3_wedge/metal_foam_1x3_wedge.rules>/Part
 			&<composite_metal_foam/composite_metal_foam.rules>/Part
 			&<composite_metal_foam_2x1/composite_metal_foam_2x1.rules>/Part
 			&<composite_metal_foam_wedge/composite_metal_foam_wedge.rules>/Part
@@ -45,14 +50,6 @@ Actions
 			&<uranium_wedge/uranium_wedge.rules>/Part
 			&<uranium_1x2_wedge/uranium_1x2_wedge.rules>/Part
 			&<uranium_1x3_wedge/uranium_1x3_wedge.rules>/Part
-			&<ceramic/ceramic.rules>/Part
-			&<ceramic_2x1/ceramic_2x1.rules>/Part
-			&<ceramic_wedge/ceramic_wedge.rules>/Part
-			&<shear_thickening/shear_thickening.rules>/Part
-			&<shear_thickening_2x1/shear_thickening_2x1.rules>/Part
-			&<shear_thickening_wedge/shear_thickening_wedge.rules>/Part
-			&<shear_thickening_1x2_wedge/shear_thickening_1x2_wedge.rules>/Part
-			&<shear_thickening_1x3_wedge/shear_thickening_1x3_wedge.rules>/Part
 		]
 	}
 ]
