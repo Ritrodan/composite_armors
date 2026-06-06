@@ -43,6 +43,11 @@ Actions
 			&<composite_metal_foam_wedge/composite_metal_foam_wedge.rules>/Part
 			&<composite_metal_foam_1x2_wedge/composite_metal_foam_1x2_wedge.rules>/Part
 			&<composite_metal_foam_1x3_wedge/composite_metal_foam_1x3_wedge.rules>/Part
+			&<ferroconcrete/ferroconcrete.rules>/Part
+			&<ferroconcrete_2x1/ferroconcrete_2x1.rules>/Part
+			&<ferroconcrete_wedge/ferroconcrete_wedge.rules>/Part
+			&<ferroconcrete_1x2_wedge/ferroconcrete_1x2_wedge.rules>/Part
+			&<ferroconcrete_1x3_wedge/ferroconcrete_1x3_wedge.rules>/Part
 			&<gold_shielding/gold_shielding.rules>/Part
 			&<gold_shielding_2x1/gold_shielding_2x1.rules>/Part
 			&<uranium/uranium.rules>/Part
