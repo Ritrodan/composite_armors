@@ -30,12 +30,14 @@ function damageLevels(files, sz) {
 }
 const PLATE = [['armor.png'], ['armor_33.png'], ['armor_66.png']];
 const ROOF = [['roof.png', 'roof_normals.png'], ['roof_33.png', 'roof_normals_33.png'], ['roof_66.png', 'roof_normals_66.png']];
-// Wedge external-wall layer: vanilla green wall strip copied from the vanilla
-// armor_wedge reference (geometry-only, same for all materials).
+// Wedge external-wall layer: the green lip + its normals along the hypotenuse,
+// rendered per-material (see render.mjs). The albedo damage levels composite the
+// (undamaged) lip over each level's plating; the lip's normal map never changes
+// with damage, so all three levels share the single external_wall_normals.png.
 const WEDGE_EXT_WALLS = [
   ['external_walls.png', 'external_wall_normals.png'],
-  ['external_walls_33.png', 'external_wall_normals_33.png'],
-  ['external_walls_66.png', 'external_wall_normals_66.png'],
+  ['external_walls_33.png', 'external_wall_normals.png'],
+  ['external_walls_66.png', 'external_wall_normals.png'],
 ];
 
 // Shared Graphics + DestroyedEffects + Blueprints body.
@@ -116,7 +118,7 @@ function blockRules(v) {
   // The 1x1 block is the parent catalog part, so it claims the bare material id
   // (Ritrodan.nera); every larger size is a child keyed by its folder
   // (Ritrodan.nera/2x1) and points back at the parent via EditorParentParts.
-  const id = isBase ? `Ritrodan.${mat.id}` : `Ritrodan.${dir}`;
+  const id = isBase ? `Ritrodan.${mat.id}` : `Ritrodan.${partId}`;
 
   // Editor wiring differs: the 1x1 is the catalog entry; variants hang off it.
   const editorBlock = isBase

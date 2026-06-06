@@ -769,22 +769,21 @@ export function renderSet(P) {
   const out = {};
   for (const [name, key] of FILES) out[name] = map[key];
   // Wedges carry an external-walls layer (green lip along the hypotenuse). The
-  // lip itself does not take damage, so its normals are shared across levels and
-  // each albedo level just composites the lip over that level's plating.
+  // lip itself does not take damage, so a single normal map is shared across all
+  // damage levels (the .rules point every level at it); each albedo level just
+  // composites the lip over that level's plating.
   if (P.wedge) {
-    const eNorm = renderWallNormals(P, F);
     out['external_walls.png'] = renderWallAlbedo(P, F, a0.img);
     out['external_walls_33.png'] = renderWallAlbedo(P, F, a1.img);
     out['external_walls_66.png'] = renderWallAlbedo(P, F, a2.img);
-    out['external_wall_normals.png'] = eNorm;
-    out['external_wall_normals_33.png'] = eNorm;
-    out['external_wall_normals_66.png'] = eNorm;
+    out['external_wall_normals.png'] = renderWallNormals(P, F);
   }
   return out;
 }
 
-// Extra files emitted only for wedges (the external-walls layer).
+// Extra files emitted only for wedges (the external-walls layer). One normal map
+// serves all three damage levels since the lip does not take damage.
 export const WALL_FILES = [
   'external_walls.png', 'external_walls_33.png', 'external_walls_66.png',
-  'external_wall_normals.png', 'external_wall_normals_33.png', 'external_wall_normals_66.png',
+  'external_wall_normals.png',
 ];
