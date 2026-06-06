@@ -9,9 +9,9 @@
 // is a pure port of that tool, so the output matches the preview — except crater
 // counts now scale with block area (see render.mjs).
 
-import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { writeFileSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
-import { renderSet, FILES } from './render.mjs';
+import { renderSet, FILES, WALL_FILES } from './render.mjs';
 import { encodePNG } from './png.mjs';
 import { loadConfig, pruneMaterialOrphans, REPO } from './config.mjs';
 
@@ -44,33 +44,6 @@ const MATERIALS = {
   stf_hex_colloid:     { baseBright: 32, grain: 4,  bevelBright: 14, normalStrength: 1.3, chamberSize: 16, fluidGlow: 1.2, fluidVisc: 0.8 },
   concrete:            { baseBright: 92, grain: 11, bevelBright: 6,  normalStrength: 1.35, aggregateScale: 11, aggregateDensity: 0.55, crackDepth: 0.65 },
 };
-
-// Vanilla wedge reference folders keyed by tile height (W is always 1).
-const VANILLA_WEDGE_REF = {
-  1: 'armor_wedge',
-  2: 'armor_1x2_wedge',
-  3: 'armor_1x3_wedge',
-};
-
-// The external wall strip for wedges is purely geometric (same for all materials).
-// We copy it directly from the vanilla reference so it matches exactly.
-// vanilla armor.png → external_walls.png (wall albedo strip)
-// vanilla external_wall_normals.png → external_wall_normals.png
-const WEDGE_WALL_COPY = [
-  ['armor.png',                    'external_walls.png'],
-  ['armor_33.png',                 'external_walls_33.png'],
-  ['armor_66.png',                 'external_walls_66.png'],
-  ['external_wall_normals.png',    'external_wall_normals.png'],
-  ['external_wall_normals_33.png', 'external_wall_normals_33.png'],
-  ['external_wall_normals_66.png', 'external_wall_normals_66.png'],
-];
-
-function writeWedgeWallFiles(H, outputDir) {
-  const vanillaDir = resolve(REPO, 'vanilla_references', VANILLA_WEDGE_REF[H]);
-  for (const [src, dst] of WEDGE_WALL_COPY) {
-    writeFileSync(join(outputDir, dst), readFileSync(join(vanillaDir, src)));
-  }
-}
 
 // Build a render-params object for a variant from armors.config.json.
 function resolveParams(v) {
@@ -108,8 +81,10 @@ function main() {
       total++;
     }
     if (part.isWedge) {
-      writeWedgeWallFiles(part.H, dir);
-      total += WEDGE_WALL_COPY.length;
+      for (const name of WALL_FILES) {
+        writeFileSync(join(dir, name), encodePNG(set[name]));
+        total++;
+      }
     }
     console.log(`  ✓ ${part.dir.padEnd(22)} ${P.tilesX}x${P.tilesY} ${P.material} (seed ${P.seed})`);
   }

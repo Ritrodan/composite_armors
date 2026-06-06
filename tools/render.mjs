@@ -607,11 +607,148 @@ function renderRoof(P, F, level, dmg) {
 
 function renderBlue(P, F) {
   const { W, H } = F, out = newImage(W, H), d = out.data;
+  const angle = P.wedge ? Math.atan2(H, W) * 180 / Math.PI : 0;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x, i4 = i * 4;
     if (!F.solid[i]) { d[i4 + 3] = 0; continue; }
     let b = 197 + Math.max(0, Math.min(51, F.roofG[i] - 199)) / 51 * 24; b = Math.max(197, Math.min(221, b));
-    d[i4] = 0; d[i4 + 1] = 0; d[i4 + 2] = Math.round(b); d[i4 + 3] = 255;
+    let r = 0, g = 0;
+    if (P.wedge) {                               // wall lip along the hypotenuse
+      const dh = hypDist(F, x, y);
+      if (dh >= 0 && dh <= 7) {
+        r = g = sampleProfile(WALL_PROFILES.bpR, angle, dh);
+        b = Math.max(b, sampleProfile(WALL_PROFILES.bpB, angle, dh));
+      }
+    }
+    d[i4] = Math.round(r); d[i4 + 1] = Math.round(g); d[i4 + 2] = Math.round(Math.min(255, b)); d[i4 + 3] = 255;
+  }
+  return out;
+}
+
+// ----------------------------------------------------------------------------
+// Wedge external walls (the green lip + its normals along the hypotenuse).
+//
+// In vanilla these are byte-copied from armor_{wedge,1x2,1x3} and so only exist
+// for those three sizes. We instead generate them procedurally from the wedge's
+// hypotenuse so they scale to any 1xN wedge AND match the part's own material.
+//
+// The lip is one cross-section profile sampled by perpendicular distance to the
+// hypotenuse (`dHyp`, the same signed distance buildFields uses). The profiles
+// below are the measured vanilla cross-sections at the three reference slopes
+// (angle = atan(N) for a 1xN wedge); intermediate/steeper wedges interpolate
+// (and clamp past the steepest reference, which keeps the lip stable).
+//   greenR/greenG  : albedo lip — pure paint-mask green (B=0). R distinguishes
+//                    the green lip (R≈0) from grey plating (R≈G) so we can
+//                    composite the lip OVER our own material floor.
+//   normR/G/B      : the lip's normal; tails to neutral 127,127,127 (no relief).
+const WALL_PROFILES = {
+  angles: [45, 63.43495, 71.56505], // atan(1), atan(2), atan(3) degrees
+  step: 0.5,                          // samples start at d=0, spaced 0.5px
+  greenG: {
+    1: [92, 120, 128, 170, 173, 215, 224, 238, 176, 124, 48, 30, 32, 36, 41, 43, 44, 37],
+    2: [81, 88, 104, 130, 157, 175, 195, 216, 229, 228, 158, 62, 27, 27, 28, 33, 42, 43],
+    3: [70, 79, 90, 104, 125, 142, 149, 164, 174, 201, 234, 236, 155, 63, 26, 26, 43, 43],
+  },
+  greenR: {
+    1: [0, 0, 0, 0, 0, 0, 0, 0, 9, 16, 26, 30, 32, 36, 41, 43, 44, 37],
+    2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 16, 27, 27, 28, 33, 42, 43],
+    3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 17, 21, 26, 43, 43],
+  },
+  normR: {
+    1: [81, 82, 83, 89, 92, 88, 78, 79, 93, 108, 123, 127, 127, 127, 127, 127, 127, 127],
+    2: [66, 67, 62, 59, 55, 70, 81, 80, 78, 76, 103, 124, 127, 127, 127, 127, 127, 127],
+    3: [66, 67, 66, 67, 72, 73, 82, 79, 70, 67, 65, 79, 119, 127, 127, 127, 127, 127],
+  },
+  normG: {
+    1: [171, 169, 169, 165, 161, 161, 175, 177, 161, 146, 132, 127, 127, 127, 127, 127, 127, 127],
+    2: [146, 151, 154, 155, 156, 149, 144, 143, 144, 144, 135, 126, 127, 127, 127, 127, 127, 127],
+    3: [135, 135, 136, 135, 135, 133, 132, 133, 134, 135, 136, 133, 128, 127, 127, 127, 127, 127],
+  },
+  normB: {
+    1: [210, 212, 216, 216, 221, 219, 201, 207, 184, 168, 136, 127, 127, 127, 127, 127, 127, 127],
+    2: [215, 219, 212, 205, 195, 203, 215, 216, 211, 213, 188, 135, 127, 127, 127, 127, 127, 127],
+    3: [222, 221, 221, 221, 221, 221, 225, 224, 215, 220, 219, 224, 160, 127, 127, 127, 127, 127],
+  },
+  // Blueprint lip: the wall reads as a lighter blue strip along the hypotenuse —
+  // R(=G) lifts toward white and B brightens toward 254, fading to the base blue.
+  bpR: {
+    1: [0, 5, 4, 13, 13, 24, 22, 28, 19, 15, 2, 0, 0, 0, 0, 0, 0, 0],
+    2: [0, 0, 0, 2, 7, 12, 20, 25, 30, 27, 8, 1, 0, 0, 0, 0, 0, 0],
+    3: [0, 0, 0, 2, 7, 12, 17, 14, 7, 13, 27, 27, 6, 0, 0, 0, 0, 0],
+  },
+  bpB: {
+    1: [221, 230, 234, 247, 247, 254, 255, 254, 241, 227, 211, 208, 211, 216, 224, 227, 227, 218],
+    2: [217, 220, 226, 236, 243, 248, 252, 254, 254, 254, 242, 215, 204, 204, 205, 213, 226, 227],
+    3: [202, 206, 213, 221, 232, 239, 237, 244, 244, 248, 253, 254, 238, 201, 185, 192, 226, 227],
+  },
+};
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+// Sample a step-0.5 array at perpendicular distance d (px); clamps at both ends.
+function sampleArr(arr, d) {
+  if (d <= 0) return arr[0];
+  const f = d / WALL_PROFILES.step, i = Math.floor(f);
+  if (i >= arr.length - 1) return arr[arr.length - 1];
+  return lerp(arr[i], arr[i + 1], f - i);
+}
+
+// Sample a profile table at the wedge's hypotenuse angle, interpolating between
+// the bracketing reference slopes (clamped outside the reference range).
+function sampleProfile(table, angleDeg, d) {
+  const A = WALL_PROFILES.angles, keys = [1, 2, 3];
+  if (angleDeg <= A[0]) return sampleArr(table[1], d);
+  if (angleDeg >= A[A.length - 1]) return sampleArr(table[3], d);
+  for (let i = 0; i < A.length - 1; i++) {
+    if (angleDeg >= A[i] && angleDeg <= A[i + 1]) {
+      const t = (angleDeg - A[i]) / (A[i + 1] - A[i]);
+      return lerp(sampleArr(table[keys[i]], d), sampleArr(table[keys[i + 1]], d), t);
+    }
+  }
+  return sampleArr(table[3], d);
+}
+
+// Signed perpendicular distance into the wedge from the hypotenuse (>=0 solid).
+function hypDist(F, x, y) {
+  const { W, H, diagLen } = F;
+  return (H * (x + 0.5) + W * (y + 0.5) - W * H) / diagLen;
+}
+
+// External-walls albedo: our material plating (passed in, per damage level) with
+// the paint-mask green lip composited along the hypotenuse.
+function renderWallAlbedo(P, F, plating) {
+  const { W, H } = F, out = newImage(W, H), d = out.data, src = plating.data;
+  const angle = Math.atan2(H, W) * 180 / Math.PI;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, i4 = i * 4;
+    d[i4] = src[i4]; d[i4 + 1] = src[i4 + 1]; d[i4 + 2] = src[i4 + 2]; d[i4 + 3] = src[i4 + 3];
+    if (src[i4 + 3] === 0) continue;            // hole / outside: leave plating alpha
+    const dh = hypDist(F, x, y);
+    if (dh < 0 || dh > 8) continue;             // outside the lip band
+    const G = sampleProfile(WALL_PROFILES.greenG, angle, dh);
+    if (G < 55) continue;                        // below plating tone: not green
+    const R = sampleProfile(WALL_PROFILES.greenR, angle, dh);
+    const mix = Math.max(0, Math.min(1, 1 - R / Math.max(G, 1))); // greenness
+    d[i4] = Math.round(src[i4] * (1 - mix));      // pure green: R,B -> 0
+    d[i4 + 1] = Math.round(src[i4 + 1] * (1 - mix) + G * mix);
+    d[i4 + 2] = Math.round(src[i4 + 2] * (1 - mix));
+  }
+  return out;
+}
+
+// External-walls normal map: neutral (127,127,127, no relief) except the lip
+// band along the hypotenuse, whose normal comes from the measured profile.
+function renderWallNormals(P, F) {
+  const { W, H } = F, out = newImage(W, H), d = out.data;
+  const angle = Math.atan2(H, W) * 180 / Math.PI;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, i4 = i * 4;
+    if (!F.solid[i]) { d[i4] = 127; d[i4 + 1] = 127; d[i4 + 2] = 127; d[i4 + 3] = 0; continue; }
+    const dh = hypDist(F, x, y);
+    d[i4] = Math.round(sampleProfile(WALL_PROFILES.normR, angle, dh));
+    d[i4 + 1] = Math.round(sampleProfile(WALL_PROFILES.normG, angle, dh));
+    d[i4 + 2] = Math.round(sampleProfile(WALL_PROFILES.normB, angle, dh));
+    d[i4 + 3] = 255;
   }
   return out;
 }
@@ -631,5 +768,22 @@ export function renderSet(P) {
   const map = { armor: a0.img, armor33: a1.img, armor66: a2.img, roof: r0, roof33: r1, roof66: r2, rnorm: n0, rnorm33: n1, rnorm66: n2, blue: blue, icon: a0.img };
   const out = {};
   for (const [name, key] of FILES) out[name] = map[key];
+  // Wedges carry an external-walls layer (green lip along the hypotenuse). The
+  // lip itself does not take damage, so a single normal map is shared across all
+  // damage levels (the .rules point every level at it); each albedo level just
+  // composites the lip over that level's plating.
+  if (P.wedge) {
+    out['external_walls.png'] = renderWallAlbedo(P, F, a0.img);
+    out['external_walls_33.png'] = renderWallAlbedo(P, F, a1.img);
+    out['external_walls_66.png'] = renderWallAlbedo(P, F, a2.img);
+    out['external_wall_normals.png'] = renderWallNormals(P, F);
+  }
   return out;
 }
+
+// Extra files emitted only for wedges (the external-walls layer). One normal map
+// serves all three damage levels since the lip does not take damage.
+export const WALL_FILES = [
+  'external_walls.png', 'external_walls_33.png', 'external_walls_66.png',
+  'external_wall_normals.png',
+];
