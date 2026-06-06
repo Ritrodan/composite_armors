@@ -398,6 +398,85 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     const rgFluid = 180 + Math.round(meniscus * 52) + Math.round(fluidRipple * 10);
     return { h: hFluid, r: fluidGlowBase * 0.78, g: fluidGlowBase * 1.06, b: fluidGlowBase * 1.02, rg: rgFluid, warm: 0 };
   }
+  if (P.material === 'concrete') {
+    // Reinforced Concrete: cement matrix containing embedded aggregate.
+    // Aggregate is represented as randomly distributed stones with slightly
+    // different tones and shallow relief.
+    const scale = fitPeriod(P.aggregateScale ?? 11);
+    const nx = x / scale;
+    const ny = y / scale;
+    const ix = Math.floor(nx);
+    const iy = Math.floor(ny);
+    let nearest = 1e9;
+    let second = 1e9;
+    // Voronoi-style aggregate distribution
+    for (let oy = -1; oy <= 1; oy++) {
+      for (let ox = -1; ox <= 1; ox++) {
+        const cx = ix + ox;
+        const cy = iy + oy;
+        const hx = Math.sin(cx * 127.1 + cy * 311.7) * 43758.5453;
+        const hy = Math.sin(cx * 269.5 + cy * 183.3) * 43758.5453;
+        const jx = hx - Math.floor(hx);
+        const jy = hy - Math.floor(hy);
+        const px = cx + jx;
+        const py = cy + jy;
+        const d = Math.hypot(nx - px, ny - py);
+        if (d < nearest) {
+          second = nearest;
+          nearest = d;
+        } else if (d < second) {
+          second = d;
+        }
+      }
+    }
+    const cellEdge = second - nearest;
+    // Base concrete tone
+    let v = vBase + gn * 4.5 + gf * 2.0;
+    let h = gn * 0.45 + gf * 0.20;
+    let rg = 205 + bev * 6;
+    // Aggregate particles
+    const aggregateRadius = 0.28 + (P.aggregateDensity ?? 0.55) * 0.35;
+    if (nearest < aggregateRadius && inside > 0.1) {
+      const t = 1 - smooth(nearest / aggregateRadius);
+      const stoneTone = -8 + gf * 4;
+      v += stoneTone * t;
+      h += t * 0.55;
+      rg -= t * 8;
+    }
+    // Mortar boundaries between aggregate clusters
+    if (cellEdge < 0.12) {
+      const groove = 1 - smooth(cellEdge / 0.12);
+      h -= groove * 0.35;
+      v -= groove * 5;
+    }
+    // Random shrinkage microcracks
+    const crackNoise =
+      Math.abs(
+        Math.sin(x * 0.043 + y * 0.071) +
+        Math.sin(x * 0.117 - y * 0.052)
+      );
+    if (crackNoise > 1.75 && inside > 0.2) {
+      const crack =
+        Math.pow((crackNoise - 1.75) / 0.25, 2) *
+        (P.crackDepth ?? 0.65);
+      h -= crack * 0.8;
+      v -= crack * 10;
+      rg -= crack * 12;
+    }
+    // Subtle weathering variation
+    v += Math.sin((x + y) * 0.015) * 2;
+    const r = v * 1.02;
+    const g = v * 1.01;
+    const b = v * 0.98;
+    return {
+      h,
+      r,
+      g,
+      b,
+      rg,
+      warm: 0
+    };
+  }
   const h = gn * 0.8 + gf * 0.4;
   const rg = 211 + bev * 14 + grainV * 0.66;
   return { h, r: vBase, g: vBase, b: vBase, rg, warm: 0 };

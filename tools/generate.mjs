@@ -23,6 +23,7 @@ const DEFAULTS = {
   rivetGap: 14, poreScale: 7, porosity: 0.5, fillDepth: 0.6,
   triSize: 0.74, triGroove: 1.0, hammerScale: 11, hammerDepth: 1.0,
   ingotTargetWidth: 32, ingotTargetHeight: 32, hexSize: 8, hexGroove: 0.8,
+  aggregateScale: 11, aggregateDensity: 0.55, crackDepth: 0.65,
   bevelBright: 16, bevelWidth: 2, normalStrength: 1.0, normalFlipY: false,
   normalEdgeFade: 0, ballNormalHeight: 2.4, surfaceNormalScale: 1.0,
   dmg33: 1.0, dmg66: 1.9, cratersPerTile: 6, holeSize: 0.62, edgeMargin: 6,
@@ -41,6 +42,7 @@ const MATERIALS = {
   uranium:             { baseBright: 72,  grain: 6, bevelBright: 14, normalStrength: 1.3,  hexSize: 8, hexGroove: 0.8 },
   ceram_honeycomb:     { baseBright: 35, grain: 5,  bevelBright: 16, normalStrength: 1.3, cellScale: 14, wallThick: 1.8 },
   stf_hex_colloid:     { baseBright: 32, grain: 4,  bevelBright: 14, normalStrength: 1.3, chamberSize: 16, fluidGlow: 1.2, fluidVisc: 0.8 },
+  concrete:            { baseBright: 92, grain: 11, bevelBright: 6,  normalStrength: 1.35, aggregateScale: 11, aggregateDensity: 0.55, crackDepth: 0.65 },
 };
 
 // Build a render-params object for a variant from armors.config.json.

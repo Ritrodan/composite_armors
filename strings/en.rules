@@ -139,4 +139,24 @@ Parts
 	Uranium1x3Wedge = "Depleted Uranium Armor 1x3 Wedge"
 	Uranium1x3WedgeIcon = "Depleted Uranium Armor 1x3 Wedge"
 	Uranium1x3WedgeDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions."
+
+	Ferroconcrete = "Ferroconcrete Armor"
+	FerroconcreteIcon = "Ferroconcrete Armor"
+	FerroconcreteDesc = "Concrete reinforced with rebar. Armor for cheap."
+
+	Ferroconcrete2x1 = "Ferroconcrete Armor 2x1"
+	Ferroconcrete2x1Icon = "Ferroconcrete Armor 2x1"
+	Ferroconcrete2x1Desc = "Concrete reinforced with rebar. Armor for cheap."
+
+	FerroconcreteWedge = "Ferroconcrete Armor Wedge"
+	FerroconcreteWedgeIcon = "Ferroconcrete Armor Wedge"
+	FerroconcreteWedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
+
+	Ferroconcrete1x2Wedge = "Ferroconcrete Armor 1x2 Wedge"
+	Ferroconcrete1x2WedgeIcon = "Ferroconcrete Armor 1x2 Wedge"
+	Ferroconcrete1x2WedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
+
+	Ferroconcrete1x3Wedge = "Ferroconcrete Armor 1x3 Wedge"
+	Ferroconcrete1x3WedgeIcon = "Ferroconcrete Armor 1x3 Wedge"
+	Ferroconcrete1x3WedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
 }

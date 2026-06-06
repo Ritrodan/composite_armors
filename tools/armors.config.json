@@ -21,7 +21,7 @@
       "texture": { "material": "nera", "seed": 4101 },
       "perTile": { "resources": [["steel", 2], ["coil", 1]], "maxHealth": 2400, "empAbsorb": null },
       "wedgeRecipe": [["steel", 3]],
-      "intensive": { "explosiveAbsorption": 50, "explosiveResist": 50, "thermalResist": -1000, "penResist": 6, "density": 1.2 }
+      "intensive": { "explosiveAbsorption": 50, "explosiveResist": 50, "thermalResist": -1000, "penResist": 6.0, "density": 1.2 }
     },
     "tri_steel": {
       "id": "tri_steel",
@@ -32,7 +32,7 @@
       "texture": { "material": "tristeel", "seed": 7220 },
       "perTile": { "resources": [["tristeel", 3], ["steel", 2]], "maxHealth": 7000, "empAbsorb": 700 },
       "wedgeRecipe": [["tristeel", 1], ["tritanium", 1], ["steel", 1]],
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 45, "thermalResist": 15, "penResist": 8, "density": 2.0, "empRecovery": 0.08 }
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 45, "thermalResist": 15, "penResist": 8.0, "density": 2.0, "empRecovery": 0.08 }
     },
     "combination_c": {
       "id": "combination_c",
@@ -43,7 +43,7 @@
       "texture": { "material": "compc", "seed": 8801 },
       "perTile": { "resources": [["steel", 3], ["carbon", 1]], "maxHealth": 4000, "empAbsorb": 1100 },
       "wedgeRecipe": [["steel", 4], ["iron", 1]],
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 50, "thermalResist": 10, "penResist": 9, "density": 2.3, "empRecovery": 0.8 }
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 50, "thermalResist": 10, "penResist": 9.0, "density": 2.3, "empRecovery": 0.8 }
     },
     "metal_foam": {
       "id": "metal_foam",
@@ -55,7 +55,7 @@
       "perTile": { "resources": [["steel", 2]], "maxHealth": 800, "empAbsorb": null },
       "wedgeRecipe": [["steel", 1]],
       "noUnderlyingStructure": true,
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 99, "thermalResist": -99999, "penResist": 2.5, "density": 0.75 }
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 90, "thermalResist": -10000, "penResist": 2.5, "density": 0.75 }
     },
     "composite_metal_foam": {
       "id": "composite_metal_foam",
@@ -66,7 +66,7 @@
       "texture": { "material": "foam_tristeel", "seed": 6610 },
       "perTile": { "resources": [["steel", 2], ["tritanium", 1]], "maxHealth": 2500, "empAbsorb": null },
       "wedgeRecipe": [["steel", 4]],
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 94, "thermalResist": -99999, "penResist": 4, "density": 1.1 }
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 83, "thermalResist": -10000, "penResist": 4.0, "density": 1.1 }
     },
     "gold_shielding": {
       "id": "gold_shielding",
@@ -76,7 +76,7 @@
       "description": "Hand-beaten gold plating offers extraordinary thermal insulation and acts as a superb Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits.",
       "texture": { "material": "gold", "seed": 3317 },
       "perTile": { "resources": [["gold", 1], ["steel", 2]], "maxHealth": 8000, "empAbsorb": 5000 },
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 33, "thermalResist": 75, "penResist": 2, "density": 7.0, "empRecovery": 2.0 }
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 33, "thermalResist": 90, "penResist": 2.0, "density": 7.0, "empRecovery": 2.0 }
     },
     "uranium": {
       "id": "uranium",
@@ -87,7 +87,18 @@
       "texture": { "material": "uranium", "seed": 5500 },
       "perTile": { "resources": [["uranium", 2], ["steel", 2]], "maxHealth": 9500, "empAbsorb": 300 },
       "wedgeRecipe": [["uranium", 1], ["steel", 1]],
-      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 40, "thermalResist": 75, "penResist": 13, "density": 7.2, "empRecovery": 0.45 }
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 40, "thermalResist": 75, "penResist": 13.0, "density": 7.2, "empRecovery": 0.45 }
+    },
+    "ferroconcrete": {
+      "id": "ferroconcrete",
+      "nameKey": "Ferroconcrete",
+      "displayName": "Ferroconcrete Armor",
+      "variantNoun": "ferroconcrete armor",
+      "description": "Concrete reinforced with rebar. Armor for cheap.",
+      "texture": { "material": "concrete", "seed": 6789 },
+      "perTile": { "resources": [["steel", 2], ["iron", 1]], "maxHealth": 2200, "empAbsorb": null },
+      "wedgeRecipe": [["steel", 1], ["iron", 1]],
+      "intensive": { "explosiveAbsorption": 100, "explosiveResist": 25, "thermalResist": 1000, "penResist": 3.0, "density": 2.5 }
     }
   },
   "variants": [
@@ -119,6 +130,11 @@
     { "material": "composite_metal_foam", "size": [1, 1], "shape": "wedge" },
     { "material": "composite_metal_foam", "size": [1, 2], "shape": "wedge" },
     { "material": "composite_metal_foam", "size": [1, 3], "shape": "wedge" },
+    { "material": "ferroconcrete", "size": [1, 1] },
+    { "material": "ferroconcrete", "size": [2, 1] },
+    { "material": "ferroconcrete", "size": [1, 1], "shape": "wedge" },
+    { "material": "ferroconcrete", "size": [1, 2], "shape": "wedge" },
+    { "material": "ferroconcrete", "size": [1, 3], "shape": "wedge" },
     { "material": "gold_shielding", "size": [1, 1] },
     { "material": "gold_shielding", "size": [2, 1] },
     { "material": "uranium", "size": [1, 1] },

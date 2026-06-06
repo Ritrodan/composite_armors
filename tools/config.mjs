@@ -10,11 +10,16 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export const REPO = resolve(__dirname, '..');
 const CONFIG_PATH = join(__dirname, 'armors.config.json');
 
-// Folder/ID naming: a 1x1 block is the base part (bare id); other blocks get a
-// WxH suffix. Wedges append `_wedge` (the 1x1 wedge is just `_wedge`).
+// Folder/ID naming: variants are nested within material folders.
+// A 1x1 block is "1x1"; other blocks get a WxH suffix. Wedges use "wedge" or "WxH_wedge".
 export function variantDir(materialId, W, H, isWedge) {
-  if (isWedge) return (W === 1 && H === 1) ? `${materialId}_wedge` : `${materialId}_${W}x${H}_wedge`;
-  return (W === 1 && H === 1) ? materialId : `${materialId}_${W}x${H}`;
+  let suffix;
+  if (isWedge) {
+    suffix = (W === 1 && H === 1) ? 'wedge' : `${W}x${H}_wedge`;
+  } else {
+    suffix = (W === 1 && H === 1) ? '1x1' : `${W}x${H}`;
+  }
+  return `${materialId}/${suffix}`;
 }
 // Suffix used to build NameKeys (no spaces): "", "2x1", "Wedge", "1x2Wedge".
 export function variantKeySuffix(W, H, isWedge) {
