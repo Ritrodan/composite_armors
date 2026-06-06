@@ -2,14 +2,14 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/Ferroconcrete1x2Wedge"
 	IconNameKey = "Parts/Ferroconcrete1x2WedgeIcon"
-	ID = Ritrodan.ferroconcrete/1x2_wedge
+	ID = Ritrodan.ferroconcrete_1x2Wedge
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.ferroconcrete" ]
 	EditorReplacementPartID = ""
 	DescriptionKey = "Parts/Ferroconcrete1x2WedgeDesc"
 	IsFlippable = true
-	OtherIDs = [Ritrodan.ferroconcrete/1x2_wedge_L, Ritrodan.ferroconcrete/1x2_wedge_R]
-	FlipWhenLoadingIDs = [Ritrodan.ferroconcrete/1x2_wedge_R]
+	OtherIDs = [Ritrodan.ferroconcrete_1x2Wedge_L, Ritrodan.ferroconcrete_1x2Wedge_R]
+	FlipWhenLoadingIDs = [Ritrodan.ferroconcrete_1x2Wedge_R]
 	Resources
 	[
 		[steel, 2]
@@ -122,15 +122,18 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 				DamageLevels
 				[
 					{
-						File = "armor.png"
+						File = "external_walls.png"
+						NormalsFile = "external_wall_normals.png"
 						Size = [1, 2]
 					}
 					{
-						File = "armor_33.png"
+						File = "external_walls_33.png"
+						NormalsFile = "external_wall_normals_33.png"
 						Size = [1, 2]
 					}
 					{
-						File = "armor_66.png"
+						File = "external_walls_66.png"
+						NormalsFile = "external_wall_normals_66.png"
 						Size = [1, 2]
 					}
 				]

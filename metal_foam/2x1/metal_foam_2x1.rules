@@ -2,7 +2,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/MetalFoam2x1"
 	IconNameKey = "Parts/MetalFoam2x1Icon"
-	ID = Ritrodan.metal_foam/2x1
+	ID = Ritrodan.metal_foam_2x1
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.metal_foam" ]
 	EditorReplacementPartID = Ritrodan.metal_foam

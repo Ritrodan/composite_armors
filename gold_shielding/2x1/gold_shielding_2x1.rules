@@ -2,7 +2,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/GoldShielding2x1"
 	IconNameKey = "Parts/GoldShielding2x1Icon"
-	ID = Ritrodan.gold_shielding/2x1
+	ID = Ritrodan.gold_shielding_2x1
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.gold_shielding" ]
 	EditorReplacementPartID = Ritrodan.gold_shielding
