@@ -101,9 +101,7 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     }
     const diagLen = Math.hypot(W, H);
     const getCde = (cx, cy) => {
-      // Wedge edge distance is measured to the hypotenuse only; the legs are
-      // flush internal connections (see edgeDistAt) so the pattern runs up to them.
-      if (P.wedge) { return (H * cx + W * cy - W * H) / diagLen; }
+      if (P.wedge) { const dHyp = (H * cx + W * cy - W * H) / diagLen; return Math.min(W - 1 - cx, H - 1 - cy, dHyp); }
       return Math.min(cx, cy, W - 1 - cx, H - 1 - cy);
     };
     const cde = getCde(bcx, bcy);
@@ -485,12 +483,7 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
 }
 
 function edgeDistAt(P, W, H, diagLen, x, y) {
-  // For wedges, only the hypotenuse is a true exposed face that needs a baked
-  // wall/bevel; the two legs connect to neighbouring armour, so the engine
-  // generates their walls when needed (matching vanilla, whose wedge wall
-  // texture is flat except for the diagonal). So the edge distance is measured
-  // to the hypotenuse alone, leaving the legs flush.
-  if (P.wedge) { return (H * (x + 0.5) + W * (y + 0.5) - W * H) / diagLen; }
+  if (P.wedge) { const dHyp = (H * (x + 0.5) + W * (y + 0.5) - W * H) / diagLen; return Math.min(W - 1 - x, H - 1 - y, dHyp); }
   return Math.min(x, y, W - 1 - x, H - 1 - y);
 }
 
@@ -503,7 +496,7 @@ function buildFields(P) {
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x;
     let de, isSolid = 1;
-    if (P.wedge) { const dHyp = (H * (x + 0.5) + W * (y + 0.5) - W * H) / diagLen; isSolid = dHyp >= 0 ? 1 : 0; de = dHyp; }
+    if (P.wedge) { const dHyp = (H * (x + 0.5) + W * (y + 0.5) - W * H) / diagLen; isSolid = dHyp >= 0 ? 1 : 0; de = Math.min(W - 1 - x, H - 1 - y, dHyp); }
     else de = Math.min(x, y, W - 1 - x, H - 1 - y);
     solid[i] = isSolid; edge[i] = de;
     let bev = Math.exp(-Math.pow(de - bw, 2) / (2 * 0.65 * bw * bw)); if (de < 1) bev -= 0.5;
