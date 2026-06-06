@@ -607,11 +607,20 @@ function renderRoof(P, F, level, dmg) {
 
 function renderBlue(P, F) {
   const { W, H } = F, out = newImage(W, H), d = out.data;
+  const angle = P.wedge ? Math.atan2(H, W) * 180 / Math.PI : 0;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x, i4 = i * 4;
     if (!F.solid[i]) { d[i4 + 3] = 0; continue; }
     let b = 197 + Math.max(0, Math.min(51, F.roofG[i] - 199)) / 51 * 24; b = Math.max(197, Math.min(221, b));
-    d[i4] = 0; d[i4 + 1] = 0; d[i4 + 2] = Math.round(b); d[i4 + 3] = 255;
+    let r = 0, g = 0;
+    if (P.wedge) {                               // wall lip along the hypotenuse
+      const dh = hypDist(F, x, y);
+      if (dh >= 0 && dh <= 7) {
+        r = g = sampleProfile(WALL_PROFILES.bpR, angle, dh);
+        b = Math.max(b, sampleProfile(WALL_PROFILES.bpB, angle, dh));
+      }
+    }
+    d[i4] = Math.round(r); d[i4 + 1] = Math.round(g); d[i4 + 2] = Math.round(Math.min(255, b)); d[i4 + 3] = 255;
   }
   return out;
 }
@@ -659,6 +668,18 @@ const WALL_PROFILES = {
     1: [210, 212, 216, 216, 221, 219, 201, 207, 184, 168, 136, 127, 127, 127, 127, 127, 127, 127],
     2: [215, 219, 212, 205, 195, 203, 215, 216, 211, 213, 188, 135, 127, 127, 127, 127, 127, 127],
     3: [222, 221, 221, 221, 221, 221, 225, 224, 215, 220, 219, 224, 160, 127, 127, 127, 127, 127],
+  },
+  // Blueprint lip: the wall reads as a lighter blue strip along the hypotenuse —
+  // R(=G) lifts toward white and B brightens toward 254, fading to the base blue.
+  bpR: {
+    1: [0, 5, 4, 13, 13, 24, 22, 28, 19, 15, 2, 0, 0, 0, 0, 0, 0, 0],
+    2: [0, 0, 0, 2, 7, 12, 20, 25, 30, 27, 8, 1, 0, 0, 0, 0, 0, 0],
+    3: [0, 0, 0, 2, 7, 12, 17, 14, 7, 13, 27, 27, 6, 0, 0, 0, 0, 0],
+  },
+  bpB: {
+    1: [221, 230, 234, 247, 247, 254, 255, 254, 241, 227, 211, 208, 211, 216, 224, 227, 227, 218],
+    2: [217, 220, 226, 236, 243, 248, 252, 254, 254, 254, 242, 215, 204, 204, 205, 213, 226, 227],
+    3: [202, 206, 213, 221, 232, 239, 237, 244, 244, 248, 253, 254, 238, 201, 185, 192, 226, 227],
   },
 };
 
