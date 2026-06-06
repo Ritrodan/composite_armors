@@ -415,7 +415,12 @@ function stringsFile(cfg) {
 
 function modFile(cfg) {
   const m = cfg.mod;
-  const adds = cfg.variants.map(v => `\t\t\t&<${v.dir}/${v.dir}.rules>/Part`).join('\n');
+  const adds = cfg.variants.map(v => {
+    const baseName = v.material.id;
+    const variantSuffix = v.keySuffix ? '_' + v.keySuffix : '';
+    const filename = `${baseName}${variantSuffix}.rules`;
+    return `\t\t\t&<${v.dir}/${filename}>/Part`;
+  }).join('\n');
   const games = m.compatibleGameVersions.map(g => `"${g}"`).join(', ');
   return `ID = ${m.id}
 Name = "${m.name}"
@@ -447,7 +452,10 @@ function main() {
   const outputs = [];
 
   for (const v of cfg.variants) {
-    outputs.push([join(v.dir, `${v.dir}.rules`), partRules(v)]);
+    const baseName = v.material.id;
+    const variantSuffix = v.keySuffix ? '_' + v.keySuffix : '';
+    const filename = `${baseName}${variantSuffix}.rules`;
+    outputs.push([join(v.dir, filename), partRules(v)]);
   }
   outputs.push([join(cfg.mod.stringsFolder, 'en.rules'), stringsFile(cfg)]);
   outputs.push(['mod.rules', modFile(cfg)]);

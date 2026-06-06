@@ -94,7 +94,7 @@
       "nameKey": "Ferroconcrete",
       "displayName": "Ferroconcrete Armor",
       "variantNoun": "ferroconcrete armor",
-      "description": "Reinforced concrete composite armor offering balanced protection with excellent thermal resistance.",
+      "description": "Concrete reinforced with rebar. Armor for cheap.",
       "texture": { "material": "concrete", "seed": 6789 },
       "perTile": { "resources": [["steel", 2], ["iron", 1]], "maxHealth": 2200, "empAbsorb": null },
       "wedgeRecipe": [["steel", 1], ["iron", 1]],

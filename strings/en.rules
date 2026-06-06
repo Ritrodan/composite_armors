@@ -142,21 +142,21 @@ Parts
 
 	Ferroconcrete = "Ferroconcrete Armor"
 	FerroconcreteIcon = "Ferroconcrete Armor"
-	FerroconcreteDesc = "Reinforced concrete composite armor offering balanced protection with excellent thermal resistance."
+	FerroconcreteDesc = "Concrete reinforced with rebar. Armor for cheap."
 
 	Ferroconcrete2x1 = "Ferroconcrete Armor 2x1"
 	Ferroconcrete2x1Icon = "Ferroconcrete Armor 2x1"
-	Ferroconcrete2x1Desc = "Reinforced concrete composite armor offering balanced protection with excellent thermal resistance."
+	Ferroconcrete2x1Desc = "Concrete reinforced with rebar. Armor for cheap."
 
 	FerroconcreteWedge = "Ferroconcrete Armor Wedge"
 	FerroconcreteWedgeIcon = "Ferroconcrete Armor Wedge"
-	FerroconcreteWedgeDesc = "Reinforced concrete composite armor offering balanced protection with excellent thermal resistance."
+	FerroconcreteWedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
 
 	Ferroconcrete1x2Wedge = "Ferroconcrete Armor 1x2 Wedge"
 	Ferroconcrete1x2WedgeIcon = "Ferroconcrete Armor 1x2 Wedge"
-	Ferroconcrete1x2WedgeDesc = "Reinforced concrete composite armor offering balanced protection with excellent thermal resistance."
+	Ferroconcrete1x2WedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
 
 	Ferroconcrete1x3Wedge = "Ferroconcrete Armor 1x3 Wedge"
 	Ferroconcrete1x3WedgeIcon = "Ferroconcrete Armor 1x3 Wedge"
-	Ferroconcrete1x3WedgeDesc = "Reinforced concrete composite armor offering balanced protection with excellent thermal resistance."
+	Ferroconcrete1x3WedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
 }
