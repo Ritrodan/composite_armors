@@ -9,7 +9,7 @@
 // is a pure port of that tool, so the output matches the preview — except crater
 // counts now scale with block area (see render.mjs).
 
-import { writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { writeFileSync, readFileSync, existsSync, rmSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { renderSet, FILES } from './render.mjs';
 import { encodePNG } from './png.mjs';
@@ -52,24 +52,26 @@ const VANILLA_WEDGE_REF = {
   3: 'armor_1x3_wedge',
 };
 
-// The external wall strip for wedges is purely geometric (same for all materials).
-// We copy it directly from the vanilla reference so it matches exactly.
-// vanilla armor.png → external_walls.png (wall albedo strip)
-// vanilla external_wall_normals.png → external_wall_normals.png
+// The external wall normals for wedges are purely geometric (same for all
+// materials), so we copy them straight from the vanilla reference. The wall
+// albedo is the material's own armor.png — there is no separate external_walls
+// strip — which matches the vanilla wedge structure exactly.
 const WEDGE_WALL_COPY = [
-  ['armor.png',                    'external_walls.png'],
-  ['armor_33.png',                 'external_walls_33.png'],
-  ['armor_66.png',                 'external_walls_66.png'],
   ['external_wall_normals.png',    'external_wall_normals.png'],
   ['external_wall_normals_33.png', 'external_wall_normals_33.png'],
   ['external_wall_normals_66.png', 'external_wall_normals_66.png'],
 ];
+
+// Stale wall-albedo strips left over from the earlier vanilla-copy approach.
+// They are no longer referenced by any wedge's .rules, so prune them.
+const WEDGE_WALL_ORPHANS = ['external_walls.png', 'external_walls_33.png', 'external_walls_66.png'];
 
 function writeWedgeWallFiles(H, outputDir) {
   const vanillaDir = resolve(REPO, 'vanilla_references', VANILLA_WEDGE_REF[H]);
   for (const [src, dst] of WEDGE_WALL_COPY) {
     writeFileSync(join(outputDir, dst), readFileSync(join(vanillaDir, src)));
   }
+  for (const orphan of WEDGE_WALL_ORPHANS) rmSync(join(outputDir, orphan), { force: true });
 }
 
 // Build a render-params object for a variant from armors.config.json.

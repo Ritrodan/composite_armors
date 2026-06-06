@@ -99,17 +99,17 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 				DamageLevels
 				[
 					{
-						File = "external_walls.png"
+						File = "armor.png"
 						NormalsFile = "external_wall_normals.png"
 						Size = [1, 1]
 					}
 					{
-						File = "external_walls_33.png"
+						File = "armor_33.png"
 						NormalsFile = "external_wall_normals_33.png"
 						Size = [1, 1]
 					}
 					{
-						File = "external_walls_66.png"
+						File = "armor_66.png"
 						NormalsFile = "external_wall_normals_66.png"
 						Size = [1, 1]
 					}

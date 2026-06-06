@@ -30,12 +30,14 @@ function damageLevels(files, sz) {
 }
 const PLATE = [['armor.png'], ['armor_33.png'], ['armor_66.png']];
 const ROOF = [['roof.png', 'roof_normals.png'], ['roof_33.png', 'roof_normals_33.png'], ['roof_66.png', 'roof_normals_66.png']];
-// Wedge external-wall layer: vanilla green wall strip copied from the vanilla
-// armor_wedge reference (geometry-only, same for all materials).
+// Wedge external-wall layer: matches the vanilla armor_wedge structure exactly —
+// the material's own armor plate is the wall albedo and the only extra asset is
+// the vanilla geometric wall normals (external_wall_normals.png, copied from the
+// reference). There is no separate external_walls.png strip.
 const WEDGE_EXT_WALLS = [
-  ['external_walls.png', 'external_wall_normals.png'],
-  ['external_walls_33.png', 'external_wall_normals_33.png'],
-  ['external_walls_66.png', 'external_wall_normals_66.png'],
+  ['armor.png', 'external_wall_normals.png'],
+  ['armor_33.png', 'external_wall_normals_33.png'],
+  ['armor_66.png', 'external_wall_normals_66.png'],
 ];
 
 // Shared Graphics + DestroyedEffects + Blueprints body.
