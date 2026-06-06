@@ -7,9 +7,9 @@
 //   node tools/gen_rules.mjs        # regenerate everything
 //   node tools/gen_rules.mjs --check  # fail if any file would change (CI-friendly)
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadConfig, REPO } from './config.mjs';
+import { loadConfig, pruneMaterialOrphans, REPO } from './config.mjs';
 
 // Print a JS number without trailing-zero noise: 5 -> "5", 1.2 -> "1.2".
 const n = x => String(x);
@@ -30,12 +30,17 @@ function damageLevels(files, sz) {
 }
 const PLATE = [['armor.png'], ['armor_33.png'], ['armor_66.png']];
 const ROOF = [['roof.png', 'roof_normals.png'], ['roof_33.png', 'roof_normals_33.png'], ['roof_66.png', 'roof_normals_66.png']];
+// Wedge external-wall layer: vanilla green wall strip copied from the vanilla
+// armor_wedge reference (geometry-only, same for all materials).
+const WEDGE_EXT_WALLS = [
+  ['external_walls.png', 'external_wall_normals.png'],
+  ['external_walls_33.png', 'external_wall_normals_33.png'],
+  ['external_walls_66.png', 'external_wall_normals_66.png'],
+];
 
-// Shared Graphics + DestroyedEffects + Blueprints body (identical for blocks and
-// wedges — our procedural textures are full plates, so wedges reuse the same
-// floors/walls/roofs layers; the triangle shape comes from the texture alpha and
-// the PolygonCollider).
-function graphicsBody(sz, cx, cy, floorComment, wallsLayer = 'walls') {
+// Shared Graphics + DestroyedEffects + Blueprints body.
+// wallFiles: the [[file, normalsFile?],...] list for the Walls DamageLevels.
+function graphicsBody(sz, cx, cy, floorComment, wallsLayer = 'walls', wallFiles = PLATE) {
   return `\t\tGraphics
 \t\t{
 \t\t\tType = Graphics
@@ -53,7 +58,7 @@ ${damageLevels(PLATE, sz)}
 \t\t\t\tLayer = "${wallsLayer}"
 \t\t\t\tDamageLevels
 \t\t\t\t[
-${damageLevels(PLATE, sz)}
+${damageLevels(wallFiles, sz)}
 \t\t\t\t]
 \t\t\t}
 \t\t\tRoof
@@ -101,7 +106,7 @@ function empParts(empAbsorb, empRecovery) {
 }
 
 function blockRules(v) {
-  const { material: mat, W, H, isBase, tiles, keySuffix: suffix, dir } = v;
+  const { material: mat, W, H, isBase, tiles, keySuffix: suffix, partId } = v;
   const pt = mat.perTile, iv = mat.intensive;
 
   const resources = pt.resources.map(([name, qty]) => `\t\t[${name}, ${qty * tiles}]`).join('\n');
@@ -291,7 +296,7 @@ function wedgeResources(mat, H) {
 }
 
 function wedgeRules(v) {
-  const { material: mat, W, H, keySuffix: suffix, dir, areaTiles } = v;
+  const { material: mat, W, H, keySuffix: suffix, partId, areaTiles } = v;
   const pt = mat.perTile, iv = mat.intensive;
   const g = wedgeGeometry(H);
 
@@ -305,8 +310,8 @@ function wedgeRules(v) {
   // 1x2/1x3 wedges have mirror (L/R) handedness; the 1x1 wedge is its own mirror.
   const flipBlock = g.flipBlock === 'FLIP'
     ? `\tIsFlippable = true
-\tOtherIDs = [Ritrodan.${dir}_L, Ritrodan.${dir}_R]
-\tFlipWhenLoadingIDs = [Ritrodan.${dir}_R]
+\tOtherIDs = [Ritrodan.${partId}_L, Ritrodan.${partId}_R]
+\tFlipWhenLoadingIDs = [Ritrodan.${partId}_R]
 `
     : '';
 
@@ -314,7 +319,7 @@ function wedgeRules(v) {
 {
 \tNameKey = "Parts/${mat.nameKey}${suffix}"
 \tIconNameKey = "Parts/${mat.nameKey}${suffix}Icon"
-\tID = Ritrodan.${dir}
+\tID = Ritrodan.${partId}
 \tEditorGroup = "Structure"
 \tEditorParentParts = [ "Ritrodan.${mat.id}" ]
 \tEditorReplacementPartID = ""
@@ -379,7 +384,7 @@ ${g.virtual}
 \t\t\t]
 \t\t}
 
-${emp.block}${graphicsBody(sz, cx, cy, '', 'external_walls')}
+${emp.block}${graphicsBody(sz, cx, cy, '', 'external_walls', WEDGE_EXT_WALLS)}
 \t}
 
 \tStats
@@ -480,10 +485,23 @@ function main() {
     }
   }
 
+  // Loose files in a material root are orphans (the 1x1 now lives in its own
+  // subfolder). Flag them under --check; remove them otherwise.
   if (check) {
-    if (changed) { console.error(`${changed} file(s) out of date — run: node tools/gen_rules.mjs`); process.exit(1); }
+    let stale = changed;
+    for (const id of Object.keys(cfg.materials)) {
+      const matDir = join(REPO, id);
+      if (!existsSync(matDir)) continue;
+      for (const entry of readdirSync(matDir)) {
+        if (statSync(join(matDir, entry)).isDirectory()) continue;
+        console.error(`  ✗ ${join(id, entry)} is an orphan in a material root`);
+        stale++;
+      }
+    }
+    if (stale) { console.error(`${stale} file(s) out of date — run: node tools/gen_rules.mjs`); process.exit(1); }
     console.log('All generated files up to date.');
   } else {
+    for (const rel of pruneMaterialOrphans(cfg)) console.log(`  ✗ removed orphan ${rel}`);
     console.log(`Done — ${changed} file(s) written, ${outputs.length - changed} unchanged.`);
   }
 }

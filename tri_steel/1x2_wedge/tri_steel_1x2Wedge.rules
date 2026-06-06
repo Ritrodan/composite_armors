@@ -2,14 +2,14 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/TriSteel1x2Wedge"
 	IconNameKey = "Parts/TriSteel1x2WedgeIcon"
-	ID = Ritrodan.tri_steel/1x2_wedge
+	ID = Ritrodan.tri_steel_1x2Wedge
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.tri_steel" ]
 	EditorReplacementPartID = ""
 	DescriptionKey = "Parts/TriSteel1x2WedgeDesc"
 	IsFlippable = true
-	OtherIDs = [Ritrodan.tri_steel/1x2_wedge_L, Ritrodan.tri_steel/1x2_wedge_R]
-	FlipWhenLoadingIDs = [Ritrodan.tri_steel/1x2_wedge_R]
+	OtherIDs = [Ritrodan.tri_steel_1x2Wedge_L, Ritrodan.tri_steel_1x2Wedge_R]
+	FlipWhenLoadingIDs = [Ritrodan.tri_steel_1x2Wedge_R]
 	Resources
 	[
 		[tristeel, 3]
@@ -130,15 +130,18 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 				DamageLevels
 				[
 					{
-						File = "armor.png"
+						File = "external_walls.png"
+						NormalsFile = "external_wall_normals.png"
 						Size = [1, 2]
 					}
 					{
-						File = "armor_33.png"
+						File = "external_walls_33.png"
+						NormalsFile = "external_wall_normals_33.png"
 						Size = [1, 2]
 					}
 					{
-						File = "armor_66.png"
+						File = "external_walls_66.png"
+						NormalsFile = "external_wall_normals_66.png"
 						Size = [1, 2]
 					}
 				]

@@ -2,14 +2,14 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/CombinationC1x3Wedge"
 	IconNameKey = "Parts/CombinationC1x3WedgeIcon"
-	ID = Ritrodan.combination_c/1x3_wedge
+	ID = Ritrodan.combination_c_1x3Wedge
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.combination_c" ]
 	EditorReplacementPartID = ""
 	DescriptionKey = "Parts/CombinationC1x3WedgeDesc"
 	IsFlippable = true
-	OtherIDs = [Ritrodan.combination_c/1x3_wedge_L, Ritrodan.combination_c/1x3_wedge_R]
-	FlipWhenLoadingIDs = [Ritrodan.combination_c/1x3_wedge_R]
+	OtherIDs = [Ritrodan.combination_c_1x3Wedge_L, Ritrodan.combination_c_1x3Wedge_R]
+	FlipWhenLoadingIDs = [Ritrodan.combination_c_1x3Wedge_R]
 	Resources
 	[
 		[steel, 12]
@@ -138,15 +138,18 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 				DamageLevels
 				[
 					{
-						File = "armor.png"
+						File = "external_walls.png"
+						NormalsFile = "external_wall_normals.png"
 						Size = [1, 3]
 					}
 					{
-						File = "armor_33.png"
+						File = "external_walls_33.png"
+						NormalsFile = "external_wall_normals_33.png"
 						Size = [1, 3]
 					}
 					{
-						File = "armor_66.png"
+						File = "external_walls_66.png"
+						NormalsFile = "external_wall_normals_66.png"
 						Size = [1, 3]
 					}
 				]
