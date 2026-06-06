@@ -95,7 +95,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 			}
 			Walls
 			{
-				Layer = "walls"
+				Layer = "external_walls"
 				DamageLevels
 				[
 					{

@@ -35,7 +35,7 @@ const ROOF = [['roof.png', 'roof_normals.png'], ['roof_33.png', 'roof_normals_33
 // wedges — our procedural textures are full plates, so wedges reuse the same
 // floors/walls/roofs layers; the triangle shape comes from the texture alpha and
 // the PolygonCollider).
-function graphicsBody(sz, cx, cy, floorComment) {
+function graphicsBody(sz, cx, cy, floorComment, wallsLayer = 'walls') {
   return `\t\tGraphics
 \t\t{
 \t\t\tType = Graphics
@@ -50,7 +50,7 @@ ${damageLevels(PLATE, sz)}
 \t\t\t}
 \t\t\tWalls
 \t\t\t{
-\t\t\t\tLayer = "walls"
+\t\t\t\tLayer = "${wallsLayer}"
 \t\t\t\tDamageLevels
 \t\t\t\t[
 ${damageLevels(PLATE, sz)}
@@ -374,7 +374,7 @@ ${g.virtual}
 \t\t\t]
 \t\t}
 
-${emp.block}${graphicsBody(sz, cx, cy, '')}
+${emp.block}${graphicsBody(sz, cx, cy, '', 'external_walls')}
 \t}
 
 \tStats
