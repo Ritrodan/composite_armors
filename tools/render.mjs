@@ -610,17 +610,22 @@ function renderBlue(P, F) {
   const angle = P.wedge ? Math.atan2(H, W) * 180 / Math.PI : 0;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x, i4 = i * 4;
-    if (!F.solid[i]) { d[i4 + 3] = 0; continue; }
-    let b = 197 + Math.max(0, Math.min(51, F.roofG[i] - 199)) / 51 * 24; b = Math.max(197, Math.min(221, b));
-    let r = 0, g = 0;
-    if (P.wedge) {                               // wall lip along the hypotenuse
+    if (P.wedge) {
       const dh = hypDist(F, x, y);
-      if (dh >= 0 && dh <= 7) {
-        r = g = sampleProfile(WALL_PROFILES.bpR, angle, dh);
-        b = Math.max(b, sampleProfile(WALL_PROFILES.bpB, angle, dh));
+      if (dh < 0) {
+        // Outside the solid: lighter-blue wall-lip strip (matches vanilla blueprints.png).
+        const d_out = -dh;
+        const A = sampleProfile(WALL_PROFILES.lipA, angle, d_out);
+        if (A <= 0) { d[i4 + 3] = 0; continue; }
+        const r = sampleProfile(WALL_PROFILES.bpR, angle, d_out);
+        const b = sampleProfile(WALL_PROFILES.bpB, angle, d_out);
+        d[i4] = Math.round(r); d[i4 + 1] = Math.round(r); d[i4 + 2] = Math.round(b); d[i4 + 3] = Math.round(A);
+        continue;
       }
     }
-    d[i4] = Math.round(r); d[i4 + 1] = Math.round(g); d[i4 + 2] = Math.round(Math.min(255, b)); d[i4 + 3] = 255;
+    if (!F.solid[i]) { d[i4 + 3] = 0; continue; }
+    let b = 197 + Math.max(0, Math.min(51, F.roofG[i] - 199)) / 51 * 24; b = Math.max(197, Math.min(221, b));
+    d[i4] = 0; d[i4 + 1] = 0; d[i4 + 2] = Math.round(b); d[i4 + 3] = 255;
   }
   return out;
 }
@@ -628,58 +633,67 @@ function renderBlue(P, F) {
 // ----------------------------------------------------------------------------
 // Wedge external walls (the green lip + its normals along the hypotenuse).
 //
-// In vanilla these are byte-copied from armor_{wedge,1x2,1x3} and so only exist
-// for those three sizes. We instead generate them procedurally from the wedge's
-// hypotenuse so they scale to any 1xN wedge AND match the part's own material.
+// In vanilla the wall lip protrudes OUTSIDE the block boundary: armor.png (used
+// as the Walls layer) has the green strip baked into the empty-triangle region
+// (dHyp < 0), with an alpha fade at the outermost edge.  We reproduce this with
+// a separate external_walls.png whose inside (dHyp >= 0) copies the plating and
+// whose outside (dHyp < 0) carries the green lip + fade.
 //
-// The lip is one cross-section profile sampled by perpendicular distance to the
-// hypotenuse (`dHyp`, the same signed distance buildFields uses). The profiles
-// below are the measured vanilla cross-sections at the three reference slopes
-// (angle = atan(N) for a 1xN wedge); intermediate/steeper wedges interpolate
-// (and clamp past the steepest reference, which keeps the lip stable).
-//   greenR/greenG  : albedo lip — pure paint-mask green (B=0). R distinguishes
-//                    the green lip (R≈0) from grey plating (R≈G) so we can
-//                    composite the lip OVER our own material floor.
-//   normR/G/B      : the lip's normal; tails to neutral 127,127,127 (no relief).
+// All profiles are sampled by d_out = -dHyp (positive = outside the boundary,
+// 0 = hypotenuse edge).  Measured pixel-by-pixel from the three vanilla reference
+// wedges (armor_wedge/1x2/1x3) at step 0.5 px, 26 entries (d_out 0 … 12.5 px).
+// Key 1 = 45° (1×1), key 2 = 63.4° (1×2), key 3 = 71.6° (1×3).
 const WALL_PROFILES = {
-  angles: [45, 63.43495, 71.56505], // atan(1), atan(2), atan(3) degrees
-  step: 0.5,                          // samples start at d=0, spaced 0.5px
-  greenG: {
-    1: [92, 120, 128, 170, 173, 215, 224, 238, 176, 124, 48, 30, 32, 36, 41, 43, 44, 37],
-    2: [81, 88, 104, 130, 157, 175, 195, 216, 229, 228, 158, 62, 27, 27, 28, 33, 42, 43],
-    3: [70, 79, 90, 104, 125, 142, 149, 164, 174, 201, 234, 236, 155, 63, 26, 26, 43, 43],
+  angles: [45, 63.43495, 71.56505],
+  step: 0.5,
+  // lipG/lipR: green-lip albedo (B=0). Near d=0 R≈G (grey edge), further out R=0.
+  lipG: {
+    1: [ 28, 29,140,252,231,214,197,197,157,123, 89,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [159,186,211,214,195,179,164,139, 96, 67, 49, 33, 18,  7,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [165,179,196,190,165,143,136,126,109, 81, 61, 48, 32, 22,  7,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
   },
-  greenR: {
-    1: [0, 0, 0, 0, 0, 0, 0, 0, 9, 16, 26, 30, 32, 36, 41, 43, 44, 37],
-    2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 16, 27, 27, 28, 33, 42, 43],
-    3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 17, 21, 26, 43, 43],
+  lipR: {
+    1: [ 28, 29, 14,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [  7,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [  4,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
   },
+  // lipA: alpha (255 = opaque lip, fades outward to 0).
+  lipA: {
+    1: [255,255,255,255,255,255,255,255,255,255,255,112, 97, 83, 57, 47, 37, 22, 12,  9,  6,  3,  2,  1,  0,  0],
+    2: [255,255,255,255,255,255,255,255,218,180,154,128, 97, 68, 45, 38, 30, 22, 15, 11,  9,  6,  5,  3,  2,  2],
+    3: [255,255,255,255,255,255,255,255,243,214,178,165,131,116, 84, 71, 54, 45, 38, 31, 25, 20, 15, 11,  8,  6],
+  },
+  // normR/G/B: lip normal map (outward from boundary); normA controls the active zone.
   normR: {
-    1: [81, 82, 83, 89, 92, 88, 78, 79, 93, 108, 123, 127, 127, 127, 127, 127, 127, 127],
-    2: [66, 67, 62, 59, 55, 70, 81, 80, 78, 76, 103, 124, 127, 127, 127, 127, 127, 127],
-    3: [66, 67, 66, 67, 72, 73, 82, 79, 70, 67, 65, 79, 119, 127, 127, 127, 127, 127],
+    1: [127,127,104, 82, 67, 77, 88,101, 82, 82, 82,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127],
+    2: [ 96, 87, 89, 88, 67, 62, 75, 68, 93,142,165,188,216,239,127,127,127,127,127,127,127,127,127,127,127,127],
+    3: [ 89, 84, 78, 76, 73, 70, 75, 76, 82,105,142,154,188,202,239,247,127,127,127,127,127,127,127,127,127,127],
   },
   normG: {
-    1: [171, 169, 169, 165, 161, 161, 175, 177, 161, 146, 132, 127, 127, 127, 127, 127, 127, 127],
-    2: [146, 151, 154, 155, 156, 149, 144, 143, 144, 144, 135, 126, 127, 127, 127, 127, 127, 127],
-    3: [135, 135, 136, 135, 135, 133, 132, 133, 134, 135, 136, 133, 128, 127, 127, 127, 127, 127],
+    1: [127,127,149,170,188,175,162,152,167,169,172,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127],
+    2: [137,141,140,137,154,151,146,153,176,193,206,217,233,246,127,127,127,127,127,127,127,127,127,127,127,127],
+    3: [132,132,131,135,133,133,135,134,143,160,183,190,212,221,245,250,127,127,127,127,127,127,127,127,127,127],
   },
   normB: {
-    1: [210, 212, 216, 216, 221, 219, 201, 207, 184, 168, 136, 127, 127, 127, 127, 127, 127, 127],
-    2: [215, 219, 212, 205, 195, 203, 215, 216, 211, 213, 188, 135, 127, 127, 127, 127, 127, 127],
-    3: [222, 221, 221, 221, 221, 221, 225, 224, 215, 220, 219, 224, 160, 127, 127, 127, 127, 127],
+    1: [127,127,174,222,177,197,218,224,214,212,210,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127],
+    2: [181,192,217,220,201,198,213,211,209,234,237,241,248,252,127,127,127,127,127,127,127,127,127,127,127,127],
+    3: [191,203,216,225,222,218,223,226,224,227,236,237,243,246,252,254,127,127,127,127,127,127,127,127,127,127],
   },
-  // Blueprint lip: the wall reads as a lighter blue strip along the hypotenuse —
-  // R(=G) lifts toward white and B brightens toward 254, fading to the base blue.
+  normA: {
+    1: [255,255,255,255,255,255,255,255,255,255,255,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [255,255,255,255,255,255,255,255,205,154,122, 90, 53, 21,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [255,255,255,255,255,255,255,255,239,202,154,138, 90, 72, 21, 11,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+  },
+  // bpR/bpB: blueprint lip (lighter blue strip outside the boundary).
   bpR: {
-    1: [0, 5, 4, 13, 13, 24, 22, 28, 19, 15, 2, 0, 0, 0, 0, 0, 0, 0],
-    2: [0, 0, 0, 2, 7, 12, 20, 25, 30, 27, 8, 1, 0, 0, 0, 0, 0, 0],
-    3: [0, 0, 0, 2, 7, 12, 17, 14, 7, 13, 27, 27, 6, 0, 0, 0, 0, 0],
+    1: [  0,  0, 16, 33, 23, 18, 13, 26,  8,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [ 15, 21, 28, 23, 16, 17, 13,  6,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [ 11, 13, 17, 19, 12,  6,  9, 12,  6,  2,  3,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
   },
   bpB: {
-    1: [221, 230, 234, 247, 247, 254, 255, 254, 241, 227, 211, 208, 211, 216, 224, 227, 227, 218],
-    2: [217, 220, 226, 236, 243, 248, 252, 254, 254, 254, 242, 215, 204, 204, 205, 213, 226, 227],
-    3: [202, 206, 213, 221, 232, 239, 237, 244, 244, 248, 253, 254, 238, 201, 185, 192, 226, 227],
+    1: [206,206,230,255,255,254,253,251,245,232,220,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [238,246,252,253,251,246,243,237,220,206,198,189,182,176,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [235,241,250,248,241,234,234,228,222,209,200,194,187,182,175,173,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
   },
 };
 
@@ -714,41 +728,47 @@ function hypDist(F, x, y) {
   return (H * (x + 0.5) + W * (y + 0.5) - W * H) / diagLen;
 }
 
-// External-walls albedo: our material plating (passed in, per damage level) with
-// the paint-mask green lip composited along the hypotenuse.
+// External-walls albedo: plating inside the solid (dHyp >= 0), green lip outside
+// (dHyp < 0) with an alpha fade — matching how vanilla bakes the lip into armor.png.
 function renderWallAlbedo(P, F, plating) {
   const { W, H } = F, out = newImage(W, H), d = out.data, src = plating.data;
   const angle = Math.atan2(H, W) * 180 / Math.PI;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x, i4 = i * 4;
-    d[i4] = src[i4]; d[i4 + 1] = src[i4 + 1]; d[i4 + 2] = src[i4 + 2]; d[i4 + 3] = src[i4 + 3];
-    if (src[i4 + 3] === 0) continue;            // hole / outside: leave plating alpha
     const dh = hypDist(F, x, y);
-    if (dh < 0 || dh > 8) continue;             // outside the lip band
-    const G = sampleProfile(WALL_PROFILES.greenG, angle, dh);
-    if (G < 55) continue;                        // below plating tone: not green
-    const R = sampleProfile(WALL_PROFILES.greenR, angle, dh);
-    const mix = Math.max(0, Math.min(1, 1 - R / Math.max(G, 1))); // greenness
-    d[i4] = Math.round(src[i4] * (1 - mix));      // pure green: R,B -> 0
-    d[i4 + 1] = Math.round(src[i4 + 1] * (1 - mix) + G * mix);
-    d[i4 + 2] = Math.round(src[i4 + 2] * (1 - mix));
+    if (dh >= 0) {
+      d[i4] = src[i4]; d[i4 + 1] = src[i4 + 1]; d[i4 + 2] = src[i4 + 2]; d[i4 + 3] = src[i4 + 3];
+    } else {
+      const d_out = -dh;
+      const A = sampleProfile(WALL_PROFILES.lipA, angle, d_out);
+      if (A <= 0) { d[i4 + 3] = 0; continue; }
+      const G = sampleProfile(WALL_PROFILES.lipG, angle, d_out);
+      const R = sampleProfile(WALL_PROFILES.lipR, angle, d_out);
+      d[i4] = Math.round(R); d[i4 + 1] = Math.round(G); d[i4 + 2] = 0; d[i4 + 3] = Math.round(A);
+    }
   }
   return out;
 }
 
-// External-walls normal map: neutral (127,127,127, no relief) except the lip
-// band along the hypotenuse, whose normal comes from the measured profile.
+// External-walls normal map: flat neutral inside the solid; lip relief outside,
+// fading to transparent where the alpha envelope ends.
 function renderWallNormals(P, F) {
   const { W, H } = F, out = newImage(W, H), d = out.data;
   const angle = Math.atan2(H, W) * 180 / Math.PI;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x, i4 = i * 4;
-    if (!F.solid[i]) { d[i4] = 127; d[i4 + 1] = 127; d[i4 + 2] = 127; d[i4 + 3] = 0; continue; }
     const dh = hypDist(F, x, y);
-    d[i4] = Math.round(sampleProfile(WALL_PROFILES.normR, angle, dh));
-    d[i4 + 1] = Math.round(sampleProfile(WALL_PROFILES.normG, angle, dh));
-    d[i4 + 2] = Math.round(sampleProfile(WALL_PROFILES.normB, angle, dh));
-    d[i4 + 3] = 255;
+    if (dh >= 0) {
+      d[i4] = 127; d[i4 + 1] = 127; d[i4 + 2] = 127; d[i4 + 3] = 255;
+    } else {
+      const d_out = -dh;
+      const A = sampleProfile(WALL_PROFILES.normA, angle, d_out);
+      if (A <= 0) { d[i4] = 127; d[i4 + 1] = 127; d[i4 + 2] = 127; d[i4 + 3] = 0; continue; }
+      d[i4] = Math.round(sampleProfile(WALL_PROFILES.normR, angle, d_out));
+      d[i4 + 1] = Math.round(sampleProfile(WALL_PROFILES.normG, angle, d_out));
+      d[i4 + 2] = Math.round(sampleProfile(WALL_PROFILES.normB, angle, d_out));
+      d[i4 + 3] = Math.round(A);
+    }
   }
   return out;
 }
