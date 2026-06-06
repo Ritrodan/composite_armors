@@ -113,6 +113,11 @@ function blockRules(v) {
   const cx = n(W / 2), cy = n(H / 2);
   const sz = `[${W}, ${H}]`;
 
+  // The 1x1 block is the parent catalog part, so it claims the bare material id
+  // (Ritrodan.nera); every larger size is a child keyed by its folder
+  // (Ritrodan.nera/2x1) and points back at the parent via EditorParentParts.
+  const id = isBase ? `Ritrodan.${mat.id}` : `Ritrodan.${dir}`;
+
   // Editor wiring differs: the 1x1 is the catalog entry; variants hang off it.
   const editorBlock = isBase
     ? `\tEditorGroups = ["Defenses", "Structure"]
@@ -139,7 +144,7 @@ function blockRules(v) {
 {
 \tNameKey = "Parts/${mat.nameKey}${suffix}"
 \tIconNameKey = "Parts/${mat.nameKey}${suffix}Icon"
-\tID = Ritrodan.${partId}
+\tID = ${id}
 ${editorBlock}
 \tResources
 \t[
