@@ -2,14 +2,14 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/TriSteel1x3Wedge"
 	IconNameKey = "Parts/TriSteel1x3WedgeIcon"
-	ID = Ritrodan.tri_steel/1x3_wedge
+	ID = Ritrodan.tri_steel_1x3Wedge
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.tri_steel" ]
 	EditorReplacementPartID = ""
 	DescriptionKey = "Parts/TriSteel1x3WedgeDesc"
 	IsFlippable = true
-	OtherIDs = [Ritrodan.tri_steel/1x3_wedge_L, Ritrodan.tri_steel/1x3_wedge_R]
-	FlipWhenLoadingIDs = [Ritrodan.tri_steel/1x3_wedge_R]
+	OtherIDs = [Ritrodan.tri_steel_1x3Wedge_L, Ritrodan.tri_steel_1x3Wedge_R]
+	FlipWhenLoadingIDs = [Ritrodan.tri_steel_1x3Wedge_R]
 	Resources
 	[
 		[tristeel, 3]

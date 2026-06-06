@@ -2,7 +2,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/NERAWedge"
 	IconNameKey = "Parts/NERAWedgeIcon"
-	ID = Ritrodan.nera/wedge
+	ID = Ritrodan.nera_Wedge
 	EditorGroup = "Structure"
 	EditorParentParts = [ "Ritrodan.nera" ]
 	EditorReplacementPartID = ""

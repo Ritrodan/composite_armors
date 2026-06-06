@@ -7,9 +7,9 @@
 //   node tools/gen_rules.mjs        # regenerate everything
 //   node tools/gen_rules.mjs --check  # fail if any file would change (CI-friendly)
 
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadConfig, REPO } from './config.mjs';
+import { loadConfig, pruneMaterialOrphans, REPO } from './config.mjs';
 
 // Print a JS number without trailing-zero noise: 5 -> "5", 1.2 -> "1.2".
 const n = x => String(x);
@@ -101,7 +101,7 @@ function empParts(empAbsorb, empRecovery) {
 }
 
 function blockRules(v) {
-  const { material: mat, W, H, isBase, tiles, keySuffix: suffix, dir } = v;
+  const { material: mat, W, H, isBase, tiles, keySuffix: suffix, partId } = v;
   const pt = mat.perTile, iv = mat.intensive;
 
   const resources = pt.resources.map(([name, qty]) => `\t\t[${name}, ${qty * tiles}]`).join('\n');
@@ -134,7 +134,7 @@ function blockRules(v) {
 {
 \tNameKey = "Parts/${mat.nameKey}${suffix}"
 \tIconNameKey = "Parts/${mat.nameKey}${suffix}Icon"
-\tID = Ritrodan.${dir}
+\tID = Ritrodan.${partId}
 ${editorBlock}
 \tResources
 \t[
@@ -286,7 +286,7 @@ function wedgeResources(mat, H) {
 }
 
 function wedgeRules(v) {
-  const { material: mat, W, H, keySuffix: suffix, dir, areaTiles } = v;
+  const { material: mat, W, H, keySuffix: suffix, partId, areaTiles } = v;
   const pt = mat.perTile, iv = mat.intensive;
   const g = wedgeGeometry(H);
 
@@ -300,8 +300,8 @@ function wedgeRules(v) {
   // 1x2/1x3 wedges have mirror (L/R) handedness; the 1x1 wedge is its own mirror.
   const flipBlock = g.flipBlock === 'FLIP'
     ? `\tIsFlippable = true
-\tOtherIDs = [Ritrodan.${dir}_L, Ritrodan.${dir}_R]
-\tFlipWhenLoadingIDs = [Ritrodan.${dir}_R]
+\tOtherIDs = [Ritrodan.${partId}_L, Ritrodan.${partId}_R]
+\tFlipWhenLoadingIDs = [Ritrodan.${partId}_R]
 `
     : '';
 
@@ -309,7 +309,7 @@ function wedgeRules(v) {
 {
 \tNameKey = "Parts/${mat.nameKey}${suffix}"
 \tIconNameKey = "Parts/${mat.nameKey}${suffix}Icon"
-\tID = Ritrodan.${dir}
+\tID = Ritrodan.${partId}
 \tEditorGroup = "Structure"
 \tEditorParentParts = [ "Ritrodan.${mat.id}" ]
 \tEditorReplacementPartID = ""
@@ -475,10 +475,23 @@ function main() {
     }
   }
 
+  // Loose files in a material root are orphans (the 1x1 now lives in its own
+  // subfolder). Flag them under --check; remove them otherwise.
   if (check) {
-    if (changed) { console.error(`${changed} file(s) out of date — run: node tools/gen_rules.mjs`); process.exit(1); }
+    let stale = changed;
+    for (const id of Object.keys(cfg.materials)) {
+      const matDir = join(REPO, id);
+      if (!existsSync(matDir)) continue;
+      for (const entry of readdirSync(matDir)) {
+        if (statSync(join(matDir, entry)).isDirectory()) continue;
+        console.error(`  ✗ ${join(id, entry)} is an orphan in a material root`);
+        stale++;
+      }
+    }
+    if (stale) { console.error(`${stale} file(s) out of date — run: node tools/gen_rules.mjs`); process.exit(1); }
     console.log('All generated files up to date.');
   } else {
+    for (const rel of pruneMaterialOrphans(cfg)) console.log(`  ✗ removed orphan ${rel}`);
     console.log(`Done — ${changed} file(s) written, ${outputs.length - changed} unchanged.`);
   }
 }

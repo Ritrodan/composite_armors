@@ -2,7 +2,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/TriSteel"
 	IconNameKey = "Parts/TriSteelIcon"
-	ID = Ritrodan.tri_steel/1x1
+	ID = Ritrodan.tri_steel
 	EditorGroups = ["Defenses", "Structure"]
 	DontStackInEditorGroups = ["Structure"]
 	DescriptionKey = "Parts/TriSteelDesc"

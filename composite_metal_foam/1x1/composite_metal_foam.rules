@@ -2,7 +2,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/CompositeMetalFoam"
 	IconNameKey = "Parts/CompositeMetalFoamIcon"
-	ID = Ritrodan.composite_metal_foam/1x1
+	ID = Ritrodan.composite_metal_foam
 	EditorGroups = ["Defenses", "Structure"]
 	DontStackInEditorGroups = ["Structure"]
 	DescriptionKey = "Parts/CompositeMetalFoamDesc"

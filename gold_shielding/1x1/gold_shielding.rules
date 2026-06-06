@@ -2,7 +2,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/GoldShielding"
 	IconNameKey = "Parts/GoldShieldingIcon"
-	ID = Ritrodan.gold_shielding/1x1
+	ID = Ritrodan.gold_shielding
 	EditorGroups = ["Defenses", "Structure"]
 	DontStackInEditorGroups = ["Structure"]
 	DescriptionKey = "Parts/GoldShieldingDesc"

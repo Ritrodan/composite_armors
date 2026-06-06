@@ -13,7 +13,7 @@ import { writeFileSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { renderSet, FILES } from './render.mjs';
 import { encodePNG } from './png.mjs';
-import { loadConfig, REPO } from './config.mjs';
+import { loadConfig, pruneMaterialOrphans, REPO } from './config.mjs';
 
 // Baseline params — the HULL FOUNDRY HTML control defaults.
 const DEFAULTS = {
@@ -53,7 +53,8 @@ function resolveParams(v) {
 }
 
 function main() {
-  const { variants } = loadConfig();
+  const cfg = loadConfig();
+  const { variants } = cfg;
   const filter = process.argv.slice(2);
   const parts = filter.length ? variants.filter(v => filter.includes(v.dir)) : variants;
 
@@ -81,6 +82,12 @@ function main() {
     }
     console.log(`  ✓ ${part.dir.padEnd(22)} ${P.tilesX}x${P.tilesY} ${P.material} (seed ${P.seed})`);
   }
+  // Drop any stray graphics left loose in a material root (the textures now live
+  // in per-variant subfolders), so parent folders never hold orphaned PNGs.
+  if (!filter.length) {
+    for (const rel of pruneMaterialOrphans(cfg)) console.log(`  ✗ removed orphan ${rel}`);
+  }
+
   console.log(`Done — wrote ${total} PNGs across ${parts.length} part(s).`);
 }
 
