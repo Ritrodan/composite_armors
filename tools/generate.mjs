@@ -52,11 +52,14 @@ const VANILLA_WEDGE_REF = {
   3: 'armor_1x3_wedge',
 };
 
-// The external wall normal map for wedges is purely geometric (same for all
-// materials), so we copy it straight from the vanilla reference. The wall
-// albedo itself is just the part's own armor.png (already rendered below),
-// exactly like the vanilla armor_wedge — so no external_walls.png is written.
+// The external wall strip for wedges is purely geometric (same for all materials).
+// We copy it directly from the vanilla reference so it matches exactly.
+// vanilla armor.png → external_walls.png (wall albedo strip)
+// vanilla external_wall_normals.png → external_wall_normals.png
 const WEDGE_WALL_COPY = [
+  ['armor.png',                    'external_walls.png'],
+  ['armor_33.png',                 'external_walls_33.png'],
+  ['armor_66.png',                 'external_walls_66.png'],
   ['external_wall_normals.png',    'external_wall_normals.png'],
   ['external_wall_normals_33.png', 'external_wall_normals_33.png'],
   ['external_wall_normals_66.png', 'external_wall_normals_66.png'],

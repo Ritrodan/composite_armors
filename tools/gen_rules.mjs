@@ -30,14 +30,12 @@ function damageLevels(files, sz) {
 }
 const PLATE = [['armor.png'], ['armor_33.png'], ['armor_66.png']];
 const ROOF = [['roof.png', 'roof_normals.png'], ['roof_33.png', 'roof_normals_33.png'], ['roof_66.png', 'roof_normals_66.png']];
-// Wedge external-wall layer. Like the vanilla armor_wedge, this reuses the
-// part's own plate albedo (armor.png) for the wall strip and only supplies a
-// dedicated wall normal map (external_wall_normals.png, copied from vanilla so
-// the geometry matches). No separate external_walls.png albedo is needed.
+// Wedge external-wall layer: vanilla green wall strip copied from the vanilla
+// armor_wedge reference (geometry-only, same for all materials).
 const WEDGE_EXT_WALLS = [
-  ['armor.png', 'external_wall_normals.png'],
-  ['armor_33.png', 'external_wall_normals_33.png'],
-  ['armor_66.png', 'external_wall_normals_66.png'],
+  ['external_walls.png', 'external_wall_normals.png'],
+  ['external_walls_33.png', 'external_wall_normals_33.png'],
+  ['external_walls_66.png', 'external_wall_normals_66.png'],
 ];
 
 // Shared Graphics + DestroyedEffects + Blueprints body.
@@ -116,9 +114,9 @@ function blockRules(v) {
   const sz = `[${W}, ${H}]`;
 
   // The 1x1 block is the parent catalog part, so it claims the bare material id
-  // (Ritrodan.nera); every larger size is a child keyed by its size suffix
-  // (Ritrodan.nera_2x1) and points back at the parent via EditorParentParts.
-  const id = isBase ? `Ritrodan.${mat.id}` : `Ritrodan.${partId}`;
+  // (Ritrodan.nera); every larger size is a child keyed by its folder
+  // (Ritrodan.nera/2x1) and points back at the parent via EditorParentParts.
+  const id = isBase ? `Ritrodan.${mat.id}` : `Ritrodan.${dir}`;
 
   // Editor wiring differs: the 1x1 is the catalog entry; variants hang off it.
   const editorBlock = isBase
