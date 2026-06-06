@@ -2,7 +2,7 @@ Part : <./Data/ships/terran/base_part_terran.rules>/Part
 {
 	NameKey = "Parts/Ferroconcrete"
 	IconNameKey = "Parts/FerroconcreteIcon"
-	ID = Ritrodan.ferroconcrete/1x1
+	ID = Ritrodan.ferroconcrete
 	EditorGroups = ["Defenses", "Structure"]
 	DontStackInEditorGroups = ["Structure"]
 	DescriptionKey = "Parts/FerroconcreteDesc"
