@@ -36,6 +36,22 @@ Parts
 	NERA1x4WedgeIcon = "NERA 1x4 Wedge"
 	NERA1x4WedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
+	NERA1x5Wedge = "NERA 1x5 Wedge"
+	NERA1x5WedgeIcon = "NERA 1x5 Wedge"
+	NERA1x5WedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+
+	NERA1x6Wedge = "NERA 1x6 Wedge"
+	NERA1x6WedgeIcon = "NERA 1x6 Wedge"
+	NERA1x6WedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+
+	NERA2x2Wedge = "NERA 2x2 Wedge"
+	NERA2x2WedgeIcon = "NERA 2x2 Wedge"
+	NERA2x2WedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+
+	NERA2x3Wedge = "NERA 2x3 Wedge"
+	NERA2x3WedgeIcon = "NERA 2x3 Wedge"
+	NERA2x3WedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+
 	TriSteel = "Tri-Steel Armor"
 	TriSteelIcon = "Tri-Steel Armor"
 	TriSteelDesc = "A very strong and weight efficient armor."
@@ -179,4 +195,20 @@ Parts
 	Structure1x4Wedge = "Structure 1x4 Wedge"
 	Structure1x4WedgeIcon = "Structure 1x4 Wedge"
 	Structure1x4WedgeDesc = "A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on."
+
+	Structure1x5Wedge = "Structure 1x5 Wedge"
+	Structure1x5WedgeIcon = "Structure 1x5 Wedge"
+	Structure1x5WedgeDesc = "A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on."
+
+	Structure1x6Wedge = "Structure 1x6 Wedge"
+	Structure1x6WedgeIcon = "Structure 1x6 Wedge"
+	Structure1x6WedgeDesc = "A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on."
+
+	Structure2x2Wedge = "Structure 2x2 Wedge"
+	Structure2x2WedgeIcon = "Structure 2x2 Wedge"
+	Structure2x2WedgeDesc = "A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on."
+
+	Structure2x3Wedge = "Structure 2x3 Wedge"
+	Structure2x3WedgeIcon = "Structure 2x3 Wedge"
+	Structure2x3WedgeDesc = "A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on."
 }

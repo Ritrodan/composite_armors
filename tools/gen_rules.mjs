@@ -207,7 +207,7 @@ function wedgeGeometry(H) {
   if (H < 1) throw new Error(`unsupported wedge height ${H}`);
   if (H === 1) {
     return {
-      underlying: structureWedgeId(1),
+      underlying: structureWedgeId(1, 1),
       flipBlock: '',
       walls: `\tExternalWalls = [TopRight, Right, BottomRight, Bottom, BottomLeft]
 \tInternalWalls = [Left, TopLeft, Top]`,
@@ -229,7 +229,7 @@ function wedgeGeometry(H) {
 \t\t}`;
   const rows = fn => Array.from({ length: H }, (_, r) => cell(r, fn(r))).join('\n');
   return {
-    underlying: structureWedgeId(H),
+    underlying: structureWedgeId(1, H),
     flipBlock: 'FLIP',
     walls: `\tExternalWallsByCell
 \t[
@@ -246,13 +246,83 @@ ${rows(intFor)}
   };
 }
 
-// Resource list for a wedge as [name, qty] pairs. A 1x2 wedge covers exactly one
-// tile, so it uses the full per-tile block recipe; every other height uses the
-// half-block `wedgeRecipe`, scaled by the long axis.
-function wedgeResourcePairs(mat, H) {
-  const src = (H === 2) ? mat.perTile.resources : mat.wedgeRecipe;
-  const mult = (H === 2) ? 1 : H;
-  return src.map(([name, qty]) => [name, qty * mult]);
+// Walls for a multi-column WxH wedge (hypotenuse from [W,0] to [0,H]). No
+// vanilla part has this shape, so the rules are generalized from the vanilla
+// 1xN wedges (the algorithm reproduces all three vanilla samples exactly):
+// for each cell, an outer edge is External if the solid triangle touches it
+// with positive length, Internal otherwise; edges shared with another solid
+// cell get no wall. Corners are External where the hypotenuse passes exactly
+// through them or where two External edges meet, Internal next to an Internal
+// edge. Cells entirely outside the triangle get no walls at all.
+function generalWedgeGeometry(W, H) {
+  const d = (x, y) => H * x + W * y - W * H;
+  const RING = ['TopRight', 'Right', 'BottomRight', 'Bottom', 'BottomLeft', 'Left', 'TopLeft', 'Top'];
+  const isEmptyCell = (x, y) => x >= 0 && y >= 0 && x < W && y < H &&
+    Math.max(d(x, y), d(x + 1, y), d(x, y + 1), d(x + 1, y + 1)) <= 0;
+  const extByCell = [], intByCell = [];
+  for (let cy = 0; cy < H; cy++) for (let cx = 0; cx < W; cx++) {
+    const dc = {
+      TopLeft: d(cx, cy), TopRight: d(cx + 1, cy),
+      BottomLeft: d(cx, cy + 1), BottomRight: d(cx + 1, cy + 1),
+    };
+    if (Math.max(...Object.values(dc)) <= 0) {
+      extByCell.push([cx, cy, ['None']]); intByCell.push([cx, cy, ['None']]);
+      continue;
+    }
+    const ext = new Set(), int_ = new Set();
+    const edges = {
+      Top: { corners: ['TopLeft', 'TopRight'], outer: cy === 0 || isEmptyCell(cx, cy - 1) },
+      Right: { corners: ['TopRight', 'BottomRight'], outer: cx === W - 1 || isEmptyCell(cx + 1, cy) },
+      Bottom: { corners: ['BottomLeft', 'BottomRight'], outer: cy === H - 1 || isEmptyCell(cx, cy + 1) },
+      Left: { corners: ['TopLeft', 'BottomLeft'], outer: cx === 0 || isEmptyCell(cx - 1, cy) },
+    };
+    const status = {};
+    for (const [name, e] of Object.entries(edges)) {
+      if (!e.outer) { status[name] = null; continue; }
+      status[name] = Math.max(dc[e.corners[0]], dc[e.corners[1]]) > 0 ? 'ext' : 'int';
+      (status[name] === 'ext' ? ext : int_).add(name);
+    }
+    const partial = Math.min(...Object.values(dc)) < 0;
+    const cornerAdj = { TopRight: ['Top', 'Right'], BottomRight: ['Bottom', 'Right'], BottomLeft: ['Bottom', 'Left'], TopLeft: ['Top', 'Left'] };
+    for (const [c, [e1, e2]] of Object.entries(cornerAdj)) {
+      // A hypotenuse-endpoint corner wall only exists where the hypotenuse
+      // actually cuts the cell, not where it merely grazes a solid cell's corner.
+      if (dc[c] === 0 && partial) ext.add(c);
+      else if (status[e1] === 'ext' && status[e2] === 'ext') ext.add(c);
+      else if (status[e1] === 'int' || status[e2] === 'int') int_.add(c);
+    }
+    extByCell.push([cx, cy, RING.filter(k => ext.has(k))]);
+    intByCell.push([cx, cy, RING.filter(k => int_.has(k))]);
+  }
+  const cell = ([cx, cy, vals]) => `\t\t{
+\t\t\tKey = [${cx}, ${cy}]
+\t\t\tValue = [${vals.length ? vals.join(', ') : 'None'}]
+\t\t}`;
+  const mirrorSym = W === H;
+  return {
+    underlying: structureWedgeId(W, H),
+    flipBlock: mirrorSym ? '' : 'FLIP',
+    walls: `\tExternalWallsByCell
+\t[
+${extByCell.map(cell).join('\n')}
+\t]
+\tInternalWallsByCell
+\t[
+${intByCell.map(cell).join('\n')}
+\t]`,
+    virtual: `\t\t{ExternalCell=[${W - 1}, -1]; InternalCell=[${W}, 0]}
+\t\t{ExternalCell=[-1, ${H - 1}]; InternalCell=[0, ${H}]}`,
+    flipH: mirrorSym ? '[1, 0, 3, 2]' : '[0, 3, 2, 1]',
+    flipV: mirrorSym ? '[3, 2, 1, 0]' : '[2, 1, 0, 3]',
+  };
+}
+
+// Resource list for a wedge as [name, qty] pairs. A 1x2 wedge covers exactly
+// one tile, so it uses the full per-tile block recipe; every other shape uses
+// the half-block `wedgeRecipe`, scaled by the half-tiles it covers (W*H).
+function wedgeResourcePairs(mat, W, H) {
+  if (W === 1 && H === 2) return mat.perTile.resources.map(([name, qty]) => [name, qty]);
+  return mat.wedgeRecipe.map(([name, qty]) => [name, qty * W * H]);
 }
 
 // Sum two [name, qty] resource lists, preserving first-seen order.
@@ -270,19 +340,19 @@ const formatResources = pairs => pairs.map(([name, qty]) => `\t\t[${name}, ${qty
 function wedgeRules(v, structureCfg) {
   const { material: mat, W, H, keySuffix: suffix, partId, areaTiles, isHybrid } = v;
   const pt = mat.perTile, iv = mat.intensive;
-  const g = wedgeGeometry(H);
+  const g = W === 1 ? wedgeGeometry(H) : generalWedgeGeometry(W, H);
 
   const cx = n(W / 2), cy = n(H / 2);
   const sz = `[${W}, ${H}]`;
   // Hybrids fold the structural frame into the part itself (vanilla
   // armor_structure_hybrid_*): its steel and HP are added on top of the armor
   // wedge, and there is no separate underlying structure part.
-  let resourcePairs = wedgeResourcePairs(mat, H);
+  let resourcePairs = wedgeResourcePairs(mat, W, H);
   let maxHealth = Math.round(pt.maxHealth * areaTiles);
   if (isHybrid) {
     const st = structureCfg.wedgePerLongTile;
-    resourcePairs = mergeResources(resourcePairs, st.resources.map(([name, qty]) => [name, qty * H]));
-    maxHealth += st.maxHealth * H;
+    resourcePairs = mergeResources(resourcePairs, st.resources.map(([name, qty]) => [name, qty * W * H]));
+    maxHealth += st.maxHealth * W * H;
   }
   const resources = formatResources(resourcePairs);
   const penResist = round1(iv.penResist * WEDGE_PEN_FACTOR);
@@ -359,8 +429,8 @@ ${g.virtual}
 \t\t\tType = PolygonCollider
 \t\t\tVertices
 \t\t\t[
-\t\t\t\t[1, 0]
-\t\t\t\t[1, ${H}]
+\t\t\t\t[${W}, 0]
+\t\t\t\t[${W}, ${H}]
 \t\t\t\t[0, ${H}]
 \t\t\t]
 \t\t}
@@ -388,12 +458,14 @@ function structureRules(sv, st) {
   const { W, H, isWedge, keySuffix: suffix, partId } = sv;
   const sz = `[${W}, ${H}]`;
   const cx = n(W / 2), cy = n(H / 2);
+  // Wedge stats scale with covered half-tiles (W*H), matching vanilla's
+  // 500 HP / 1 steel per half-tile-pair; blocks scale with full tiles.
   const resourcePairs = isWedge
-    ? st.wedgePerLongTile.resources.map(([name, qty]) => [name, qty * H])
+    ? st.wedgePerLongTile.resources.map(([name, qty]) => [name, qty * W * H])
     : st.perTile.resources.map(([name, qty]) => [name, qty * W * H]);
-  const maxHealth = isWedge ? st.wedgePerLongTile.maxHealth * H : st.perTile.maxHealth * W * H;
+  const maxHealth = isWedge ? st.wedgePerLongTile.maxHealth * W * H : st.perTile.maxHealth * W * H;
 
-  const flippable = isWedge && H > 1;
+  const flippable = isWedge && W !== H;
   const flipBlock = flippable
     ? `\tIsFlippable = true
 \tOtherIDs = [Ritrodan.${partId}_L, Ritrodan.${partId}_R]
@@ -417,8 +489,8 @@ function structureRules(sv, st) {
 \t\t\tType = PolygonCollider
 \t\t\tVertices
 \t\t\t[
-\t\t\t\t[1, 0]
-\t\t\t\t[1, ${H}]
+\t\t\t\t[${W}, 0]
+\t\t\t\t[${W}, ${H}]
 \t\t\t\t[0, ${H}]
 \t\t\t]
 \t\t}

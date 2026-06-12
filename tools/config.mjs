@@ -37,12 +37,12 @@ export function variantLabelSuffix(W, H, shape = 'block') {
   return one ? '' : `${W}x${H}`;
 }
 
-// The structure part an armor wedge of height H sits on. Vanilla ships wedge
-// structure up to 1x3; taller wedges use our procedurally generated parts.
-export function structureWedgeId(H) {
-  if (H === 1) return 'cosmoteer.structure_wedge';
-  if (H <= 3) return `cosmoteer.structure_1x${H}_wedge`;
-  return `Ritrodan.structure_1x${H}_wedge`;
+// The structure part an armor wedge sits on. Vanilla ships wedge structure up
+// to 1x3; taller or multi-column wedges use our procedurally generated parts.
+export function structureWedgeId(W, H) {
+  if (W === 1 && H === 1) return 'cosmoteer.structure_wedge';
+  if (W === 1 && H <= 3) return `cosmoteer.structure_1x${H}_wedge`;
+  return `Ritrodan.structure_${variantDirSuffix(W, H, 'wedge')}`;
 }
 
 // Each armor lives in a material folder whose only contents are the per-variant
@@ -76,7 +76,7 @@ function structureVariant(W, H, isWedge) {
     W, H, isWedge,
     longDim,
     tiles: W * H,
-    areaTiles: isWedge ? longDim / 2 : W * H,
+    areaTiles: isWedge ? W * H / 2 : W * H,
     // A bare 1x1 block would produce empty suffixes that collide with vanilla's
     // "Parts/Structure" string keys, so it is always spelled out as 1x1.
     keySuffix: variantKeySuffix(W, H, shape) || '1x1',
@@ -101,15 +101,15 @@ export function loadConfig() {
     if (isWedge && !mat.wedgeRecipe) {
       throw new Error(`material "${mat.id}" has a wedge variant but no wedgeRecipe`);
     }
-    if (isWedge && W !== 1) {
-      throw new Error(`wedges must be 1xN (got ${W}x${H} for "${mat.id}")`);
+    if (isWedge && W > H) {
+      throw new Error(`wedges are stored long-axis-vertical; use [${H}, ${W}] instead of [${W}, ${H}] for "${mat.id}"`);
     }
     // Only a 1x1 *block* is a base catalog part; wedges always hang off it.
     const isBase = !isWedge && W === 1 && H === 1;
     const longDim = Math.max(W, H);
     // Effective material area in tiles: a block is W*H; a wedge is half its
-    // bounding box (the triangle covers half the long axis).
-    const areaTiles = isWedge ? longDim / 2 : W * H;
+    // bounding box (the triangle covers half of it).
+    const areaTiles = isWedge ? W * H / 2 : W * H;
     return {
       material: mat,
       W, H, isWedge, isHybrid, isBase,
@@ -138,14 +138,14 @@ export function loadConfig() {
     for (const sv of cfg.structure.variants || []) {
       const [W, H] = sv.size;
       const isWedge = sv.shape === 'wedge';
-      if (isWedge && W !== 1) throw new Error(`structure wedges must be 1xN (got ${W}x${H})`);
+      if (isWedge && W > H) throw new Error(`structure wedges are stored long-axis-vertical (got ${W}x${H})`);
       addStructure(W, H, isWedge);
     }
   }
   for (const v of variants) {
-    if (v.isWedge && !v.isHybrid && !v.material.noUnderlyingStructure && v.H > 3) {
-      if (!cfg.structure) throw new Error(`armor wedge 1x${v.H} needs a generated structure wedge but no "structure" section is configured`);
-      addStructure(1, v.H, true);
+    if (v.isWedge && !v.isHybrid && !v.material.noUnderlyingStructure && !(v.W === 1 && v.H <= 3)) {
+      if (!cfg.structure) throw new Error(`armor wedge ${v.W}x${v.H} needs a generated structure wedge but no "structure" section is configured`);
+      addStructure(v.W, v.H, true);
     }
   }
   const structureVariants = [...wanted.values()];

@@ -143,8 +143,8 @@ function bilinear(img, fx, fy) {
     (v * (1 - tx) + p10[c] * tx) * (1 - ty) + (p01[c] * (1 - tx) + p11[c] * tx) * ty);
 }
 
-function midpointTab(out, H, cosT, sinT) {
-  const W = TILE, Ht = H * TILE, diag = Math.hypot(W, Ht);
+function midpointTab(out, Wt2, H, cosT, sinT) {
+  const W = Wt2 * TILE, Ht = H * TILE, diag = Math.hypot(W, Ht);
   const ref3 = ref('structure_1x3_wedge', 'structure.png');
   const W3 = ref3.width, H3 = ref3.height, diag3 = Math.hypot(W3, H3);
   // Chord midpoints and chord-aligned unit vectors (u along, n inward normal).
@@ -177,8 +177,8 @@ function midpointTab(out, H, cosT, sinT) {
 
 // Clip a tiled set at the hypotenuse of a 1xH wedge and lay the vanilla chord
 // bar along it. Damage levels use the profile of the matching vanilla level.
-function clipAndChord(out, H) {
-  const W = TILE, Ht = H * TILE, diag = Math.hypot(W, Ht);
+function clipAndChord(out, Wt2, H) {
+  const W = Wt2 * TILE, Ht = H * TILE, diag = Math.hypot(W, Ht);
   // Normals near the chord point perpendicular to it; re-laying the 1x3 bar on
   // a steeper slope rotates the content, so the encoded vectors rotate too.
   const ref3 = ref('structure_1x3_wedge', 'structure.png');
@@ -207,13 +207,13 @@ function clipAndChord(out, H) {
       d[i4 + 3] = Math.max(Math.round(a), Math.round(d[i4 + 3] * (dist >= 0 ? 1 : 0)));
     }
   }
-  midpointTab(out, H, cosT, sinT);
+  midpointTab(out, Wt2, H, cosT, sinT);
 }
 
 // Returns { 'structure.png': img, ... } for a structure part of W x H tiles.
 export function structureSet(W, H, isWedge, seed) {
   const out = {};
-  if (isWedge && H <= 3) {
+  if (isWedge && W === 1 && H <= 3) {
     const dir = H === 1 ? 'structure_wedge' : `structure_1x${H}_wedge`;
     for (const name of NAMES) out[name] = clone(ref(dir, name));
   } else {
@@ -227,7 +227,7 @@ export function structureSet(W, H, isWedge, seed) {
       }
       out[name] = img;
     }
-    if (isWedge) clipAndChord(out, H);
+    if (isWedge) clipAndChord(out, W, H);
   }
   out['blueprints.png'] = blueprintsFrom(out['structure.png']);
   return out;
