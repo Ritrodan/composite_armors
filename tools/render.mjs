@@ -120,18 +120,86 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     }
     return { h, r, g, b, rg, warm: 0 };
   }
-  if (P.material === 'hardened') {
-    // Tri-Steel: heavy riveted steel plate
-    const g = fitPeriod(P.rivetGap || 14);
-    const rcx = Math.round(x / g) * g, rcy = Math.round(y / g) * g;
-    const d = Math.hypot(x - rcx, y - rcy), rad = 2.8;
-    let r = vBase, gr = vBase, b = vBase, h = gn * 0.6 + gf * 0.3;
-    let rg = 215 + bev * 14;
-    if (d < rad) {
-      const t = smooth(1 - d / rad), v = vBase + t * 55;
-      r = gr = b = v; h += t * 1.8 * inside; rg = 228 + t * 18;
+  if (P.material === 'tristeel') {
+    // Tri-Steel: hardened blue-cyan plate with a recessed recursive-triangle
+    // emblem (three raised corner faces around a sunken central triangle). One
+    // emblem per 64px block, so it tiles natively. All relief is in the height
+    // field; shading is symmetric (survives rotation).
+    const teal = (v) => ({ r: v * 0.80, g: v * 1.00, b: v * 1.13 });
+    const triSize = P.triSize ?? 0.74, triGroove = P.triGroove ?? 1.0;
+    const cx = (Math.floor(x / TILE) + 0.5) * TILE, cy = (Math.floor(y / TILE) + 0.5) * TILE;
+    const px = x - cx, py = y - cy;
+    const Rad = TILE * 0.5 * triSize, s3 = 0.8660254;
+    const v0x = 0, v0y = -Rad, v1x = -Rad * s3, v1y = Rad * 0.5, v2x = Rad * s3, v2y = Rad * 0.5;
+    const m0x = (v1x + v2x) / 2, m0y = (v1y + v2y) / 2, m1x = (v0x + v2x) / 2, m1y = (v0y + v2y) / 2, m2x = (v0x + v1x) / 2, m2y = (v0y + v1y) / 2;
+    const segD = (ax, ay, bx, by) => {
+      const ex = bx - ax, ey = by - ay, wx = px - ax, wy = py - ay;
+      const tt = Math.max(0, Math.min(1, (wx * ex + wy * ey) / (ex * ex + ey * ey)));
+      return Math.hypot(px - (ax + ex * tt), py - (ay + ey * tt));
+    };
+    const sideF = (ax, ay, bx, by) => (px - bx) * (ay - by) - (ax - bx) * (py - by);
+    const inTri = (ax, ay, bx, by, ccx, ccy) => {
+      const d1 = sideF(ax, ay, bx, by), d2 = sideF(bx, by, ccx, ccy), d3 = sideF(ccx, ccy, ax, ay);
+      return !(((d1 < 0) || (d2 < 0) || (d3 < 0)) && ((d1 > 0) || (d2 > 0) || (d3 > 0)));
+    };
+    const inBig = inTri(v0x, v0y, v1x, v1y, v2x, v2y);
+    const inCentre = inTri(m0x, m0y, m1x, m1y, m2x, m2y);
+    const dGroove = Math.min(
+      segD(v0x, v0y, v1x, v1y), segD(v1x, v1y, v2x, v2y), segD(v2x, v2y, v0x, v0y),
+      segD(m0x, m0y, m1x, m1y), segD(m1x, m1y, m2x, m2y), segD(m2x, m2y, m0x, m0y)
+    );
+    const depth = triGroove, grooveW = 2.0, chamfer = 2.4;
+    let v = vBase, h = gn * 0.55 + gf * 0.3, rg = 212 + bev * 14 + grainV * 0.6;
+    if (inBig) { v += inCentre ? -7 : 5 * inside; h += (inCentre ? -1.0 : 1.0) * 0.9 * inside; rg += inCentre ? -16 : 10; }
+    if (dGroove < grooveW) {
+      const cut = 1 - smooth(dGroove / grooveW);
+      h -= cut * 1.4 * depth * inside; v -= cut * 16 * depth * inside; rg -= cut * 34 * depth;
+    } else if (dGroove < grooveW + chamfer) {
+      const ct = smooth((dGroove - grooveW) / chamfer);
+      h += 0.5 * ct * inside; v += 3 * ct * inside;
     }
-    return { h, r, g: gr, b, rg, warm: 0 };
+    const tc = teal(v);
+    return { h, r: tc.r, g: tc.g, b: tc.b, rg, warm: 0 };
+  }
+  if (P.material === 'foam_tristeel') {
+    // Composite Metal Foam: open-cell metal foam with its cavities cast full of
+    // tri-steel — dark steel struts hold bright saturated teal slugs. Relief is in
+    // the height field; shading is symmetric (survives rotation).
+    const teal = (v) => ({ r: v * 0.66, g: v * 1.00, b: v * 1.32 });
+    const scale = P.poreScale ?? 7, nx = x / scale, ny = y / scale;
+    const ix = Math.floor(nx), iy = Math.floor(ny);
+    let d1 = 1e9, d2 = 1e9;
+    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+      const cx = ix + dx, cy = iy + dy;
+      const hx = Math.sin(cx * 12.9898 + cy * 78.233) * 43758.5453;
+      const hy = Math.sin(cx * 37.103 + cy * 53.641) * 43758.5453;
+      const jx = hx - Math.floor(hx), jy = hy - Math.floor(hy);
+      const dist = Math.hypot(nx - (cx + jx + gn * 0.25), ny - (cy + jy + gf * 0.25));
+      if (dist < d1) { d2 = d1; d1 = dist; } else if (dist < d2) { d2 = dist; }
+    }
+    const cellWall = d2 - d1;
+    let h = gn * 0.4 + gf * 0.2, v = vBase, rg = 200 + bev * 10, tealMix = 0;
+    if (inside > 0.15) {
+      const li = Math.min(1.0, (inside - 0.15) / 0.25);
+      const poreLimit = (P.porosity ?? 0.5) * 0.55 + gf * 0.05;
+      if (d1 < poreLimit) {
+        const t = smooth(d1 / poreLimit), dome = 1 - t * t, seam = smooth(Math.max(0, (t - 0.70) / 0.30));
+        h += (-(P.fillDepth ?? 0.6) * 1.6 + dome * 0.8) * li;
+        const fillV = vBase * (0.95 + 0.75 * dome) + 30 * dome - seam * 14;
+        v = v * (1 - li) + fillV * li;
+        rg = rg * (1 - li) + (150 + dome * 60 - seam * 34) * li;
+        tealMix = li;
+      } else if (cellWall < 0.22) {
+        const bump = (1 - smooth(cellWall / 0.22)) * 0.5 * li;
+        h += bump; v += bump * 22; rg += bump * 6;
+      }
+    }
+    let r = v, g = v, b = v;
+    if (tealMix > 0) {
+      const tc = teal(v);
+      r = v * (1 - tealMix) + tc.r * tealMix; g = v * (1 - tealMix) + tc.g * tealMix; b = v * (1 - tealMix) + tc.b * tealMix;
+    }
+    return { h, r, g, b, rg, warm: 0 };
   }
   if (P.material === 'metalfoam_irregular') {
     // Metal Foam: Worley cellular noise pore matrix
@@ -165,52 +233,31 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     return { h, r, g, b, rg, warm: 0 };
   }
   if (P.material === 'gold') {
-    // Gold Shielding: chamfered ingot grid with directional edge lighting
-    const base = vBase;
-    let r = base * 1.38, g = base * 1.08, b = base * 0.52;
-    let h = gn * 0.3 + gf * 0.15, rg = 200 + bev * 10;
-    const warm = 58 * inside;
-    const divX = Math.max(1, Math.round(W / (P.ingotTargetWidth || 32)));
-    const divY = Math.max(1, Math.round(H / (P.ingotTargetHeight || 32)));
-    const subX = fitPeriod(W / divX), subY = fitPeriod(H / divY);
-    const lx = ((x % subX) + subX) % subX, ly = ((y % subY) + subY) % subY;
-    const ex = Math.min(lx, subX - lx), ey = Math.min(ly, subY - ly);
-    const ingotEdge = Math.min(ex, ey);
-    const grooveW = 2.2, chamferW = 3.5;
-    const li = inside > 0.1 ? smooth(Math.min(1, (inside - 0.1) / 0.15)) : 0;
-    if (li > 0) {
-      if (ingotEdge < grooveW) {
-        const t = smooth(ingotEdge / grooveW), sh = 0.35 + 0.65 * t;
-        h -= (1 - t) * 2.0 * li; r *= sh; g *= sh; b *= sh;
-        rg = rg * (1 - li) + (115 + t * 45) * li;
-      } else if (ingotEdge < grooveW + chamferW) {
-        // chamfer slope: height only + mild symmetric AO toward the recessed seam
-        const t = smooth((ingotEdge - grooveW) / chamferW);
-        const m = 1 - (1 - (0.82 + 0.18 * t)) * li;
-        h += 0.8 * t * li;
-        r *= m; g *= m; b *= m;
-        rg += t * 6 * li;
-      } else {
-        const faceFr = Math.min(1, (ingotEdge - grooveW - chamferW) / Math.max(1, Math.min(subX, subY) * 0.35));
-        const dome = faceFr * faceFr;
-        h += 0.55 * dome * li;
-        const fx = lx / subX - 0.5, fy = ly / subY - 0.5;
-        // crown sheen centred on the ingot — radially symmetric, rotation-safe
-        const sheen = gauss(Math.hypot(fx, fy), 0.22) * 24 * li;
-        r += sheen * 1.25; g += sheen * 0.95; b += sheen * 0.30;
-        rg += sheen * 0.3 + dome * 6 * li;
-        const bp = Math.min(7, Math.max(4, Math.min(subX, subY) * 0.18));
-        const rdx = Math.min(lx - bp, subX - bp - lx), rdy = Math.min(ly - bp, subY - bp - ly);
-        if (rdx >= 0 && rdy >= 0) {
-          const cd = Math.hypot(rdx, rdy), rrad = 2.0;
-          if (cd < rrad) {
-            const rt = smooth(1 - cd / rrad);
-            h += rt * 1.5 * li; r += rt * 52 * li; g += rt * 40 * li; b += rt * 14 * li;
-            rg = rg * (1 - rt * li) + 224 * rt * li;
-          }
-        }
+    // Gold Plating: hand-beaten gold — an offset lattice of shallow concave
+    // dimples. The bowls live in the height field (symmetric), so the hammer
+    // marks read from the normal map and stay correct under rotation. Colour is a
+    // warm gold tint of the luminance.
+    const hammerScale = P.hammerScale ?? 11, hammerDepth = P.hammerDepth ?? 1.0;
+    const colW = fitPeriod(hammerScale), rowH = fitPeriod(hammerScale * 0.866);
+    const r0 = Math.round(y / rowH);
+    let d0 = 1e9;
+    for (let r = r0 - 1; r <= r0 + 1; r++) {
+      const cy = r * rowH, off = (r & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for (let c = c0 - 1; c <= c0 + 1; c++) {
+        const cx = c * colW + off, d = Math.hypot(x - cx, y - cy);
+        if (d < d0) d0 = d;
       }
     }
+    const R = colW * 0.5;
+    const t = Math.min(1, d0 / R);                 // 0 at dimple centre, 1 at the rim
+    const bowl = 1 - t * t;                          // concave floor
+    const rim = smooth(Math.max(0, (t - 0.78) / 0.22)); // proud ridge where bowls meet
+    const depth = hammerDepth;
+    const h = (-bowl * 1.3 * depth + rim * 0.6 * depth) * inside + gn * 0.45 + gf * 0.25;
+    const v = vBase - bowl * 6 * depth * inside + rim * 10 * depth * inside + (gn * 0.5 + gf * 0.35) * 4;
+    const r = v * 1.08 + 40, g = v * 0.82 + 16, b = v * 0.30 + 2;
+    const rg = 206 + bev * 16 + rim * 14 * depth - bowl * 8 * depth + grainV * 0.5;
+    const warm = 30 + rim * 6 - bowl * 4;            // strong warm cast, survives ship colour
     return { h, r, g, b, rg, warm };
   }
   if (P.material === 'uranium') {
@@ -262,6 +309,173 @@ function surface(P, W, H, x, y, bev, gn, gf, inside) {
     const fv = vBase2 + 4 * inside + grainV2 * 0.3;
     const fh = 0.7 + dome * 0.5 + (gn * 0.5 + gf * 0.3);
     const tc = tint(fv); return { h: fh * inside + 0.2, r: tc.r, g: tc.g, b: tc.b, rg: 214 + bev * 10 + grainV2 * 0.6, warm: 0 };
+  }
+  if (P.material === 'ceram_honeycomb') {
+    // Ceramic Honeycomb Matrix: rigid hex-cell walls with recessed amber colloidal fluid pockets
+    const S = P.cellScale;
+    const colW = fitPeriod(S * 1.732);
+    const rowH = fitPeriod(S * 3.0) / 2;
+    const r0 = Math.round(y / rowH);
+    const cells = [];
+    for (let r = r0 - 1; r <= r0 + 1; r++) {
+      const cy = r * rowH, off = (r & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for (let c = c0 - 1; c <= c0 + 1; c++) cells.push([c * colW + off, cy]);
+    }
+    let d0 = 1e9, cx0 = 0, cy0 = 0;
+    for (const [cx, cy] of cells) { const d = Math.hypot(x - cx, y - cy); if (d < d0) { d0 = d; cx0 = cx; cy0 = cy; } }
+    let insideDist = 1e9;
+    for (const [cx, cy] of cells) {
+      const dx = cx - cx0, dy = cy - cy0, len = Math.hypot(dx, dy);
+      if (len < 1e-6) continue;
+      const dn = Math.hypot(x - cx, y - cy);
+      const ed = (dn * dn - d0 * d0) / (2 * len);
+      if (ed < insideDist) insideDist = ed;
+    }
+    const wall = P.wallThick;
+    let h = gn * 0.5 + gf * 0.25;
+    let r = vBase, g = vBase, b = vBase, rg = 210;
+    if (insideDist < wall) {
+      const t = smooth(insideDist / wall);
+      h += 1.1 * inside;
+      const frameV = vBase * 0.85 + t * 15;
+      r = frameV * 0.95; g = frameV * 0.95; b = frameV * 1.0; rg = 220;
+    } else {
+      const t = Math.min(1, (insideDist - wall) / 6);
+      const fluidDome = Math.sin(t * Math.PI * 0.5);
+      h -= (0.6 - fluidDome * 0.3) * inside;
+      const fluidV = vBase * 1.25 + (gn * 3);
+      r = fluidV * 1.25 + 20; g = fluidV * 0.88 + 8; b = fluidV * 0.35;
+      rg = 170 + Math.round(fluidDome * 35);
+    }
+    return { h, r, g, b, rg, warm: 0 };
+  }
+  if (P.material === 'stf_hex_colloid') {
+    // STF Hex-Colloid Matrix: pointy-top hex chambers housing pearlescent cyan-grey non-Newtonian fluid
+    const S = P.chamberSize;
+    const colW = fitPeriod(S * 1.7320508);
+    const rowH = fitPeriod(S * 3.0) / 2;
+    const r0 = Math.round(y / rowH);
+    let d0 = 1e9, cx0 = 0, cy0 = 0;
+    for (let r = r0 - 1; r <= r0 + 1; r++) {
+      const cy = r * rowH, off = (r & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for (let c = c0 - 1; c <= c0 + 1; c++) {
+        const cx = c * colW + off, d = Math.hypot(x - cx, y - cy);
+        if (d < d0) { d0 = d; cx0 = cx; cy0 = cy; }
+      }
+    }
+    let insideDist = 1e9;
+    for (let r = r0 - 1; r <= r0 + 1; r++) {
+      const cy = r * rowH, off = (r & 1) ? colW * 0.5 : 0, c0 = Math.round((x - off) / colW);
+      for (let c = c0 - 1; c <= c0 + 1; c++) {
+        const cx = c * colW + off, dx = cx - cx0, dy = cy - cy0;
+        if (Math.hypot(dx, dy) < 1e-6) continue;
+        const dn = Math.hypot(x - cx, y - cy);
+        const ed = (dn * dn - d0 * d0) / (2 * Math.hypot(dx, dy));
+        if (ed < insideDist) insideDist = ed;
+      }
+    }
+    const wallW = 2.0, rimW = 1.5;
+    if (insideDist < wallW) {
+      const microWeave = Math.sin(x * 1.5) * Math.cos(y * 1.5) * 0.08;
+      const frameV = vBase * 0.60 * (1.0 + microWeave);
+      return { h: (0.5 + microWeave) * inside, r: frameV, g: frameV, b: frameV, rg: 175, warm: 0 };
+    }
+    if (insideDist < wallW + rimW) {
+      const tRim = (insideDist - wallW) / rimW;
+      const rimProfile = Math.sin(tRim * Math.PI);
+      const rimV = vBase * (1.0 + rimProfile * 0.15);
+      return { h: (0.8 + rimProfile * 0.5) * inside, r: rimV, g: rimV, b: rimV, rg: 225, warm: 0 };
+    }
+    const fMax = S - wallW - rimW;
+    const fDist = Math.max(0, insideDist - (wallW + rimW));
+    const meniscus = Math.sin((fDist / fMax) * Math.PI * 0.5);
+    const colloidLockup = Math.max(0, gf * 0.6 + gn * 0.4) * P.fluidGlow;
+    const waveX = Math.sin(x * P.fluidVisc + gn * 1.5);
+    const waveY = Math.cos(y * P.fluidVisc + gf * 1.5);
+    const fluidRipple = waveX * waveY * 0.28;
+    const hFluid = (-1.3 * (1.0 - meniscus) + fluidRipple * 0.25 + colloidLockup * 0.05) * inside;
+    const fluidGlowBase = vBase + meniscus * 26 + fluidRipple * 12 + colloidLockup * 20;
+    const rgFluid = 180 + Math.round(meniscus * 52) + Math.round(fluidRipple * 10);
+    return { h: hFluid, r: fluidGlowBase * 0.78, g: fluidGlowBase * 1.06, b: fluidGlowBase * 1.02, rg: rgFluid, warm: 0 };
+  }
+  if (P.material === 'concrete') {
+    // Reinforced Concrete: cement matrix containing embedded aggregate.
+    // Aggregate is represented as randomly distributed stones with slightly
+    // different tones and shallow relief.
+    const scale = fitPeriod(P.aggregateScale ?? 11);
+    const nx = x / scale;
+    const ny = y / scale;
+    const ix = Math.floor(nx);
+    const iy = Math.floor(ny);
+    let nearest = 1e9;
+    let second = 1e9;
+    // Voronoi-style aggregate distribution
+    for (let oy = -1; oy <= 1; oy++) {
+      for (let ox = -1; ox <= 1; ox++) {
+        const cx = ix + ox;
+        const cy = iy + oy;
+        const hx = Math.sin(cx * 127.1 + cy * 311.7) * 43758.5453;
+        const hy = Math.sin(cx * 269.5 + cy * 183.3) * 43758.5453;
+        const jx = hx - Math.floor(hx);
+        const jy = hy - Math.floor(hy);
+        const px = cx + jx;
+        const py = cy + jy;
+        const d = Math.hypot(nx - px, ny - py);
+        if (d < nearest) {
+          second = nearest;
+          nearest = d;
+        } else if (d < second) {
+          second = d;
+        }
+      }
+    }
+    const cellEdge = second - nearest;
+    // Base concrete tone
+    let v = vBase + gn * 4.5 + gf * 2.0;
+    let h = gn * 0.45 + gf * 0.20;
+    let rg = 205 + bev * 6;
+    // Aggregate particles
+    const aggregateRadius = 0.28 + (P.aggregateDensity ?? 0.55) * 0.35;
+    if (nearest < aggregateRadius && inside > 0.1) {
+      const t = 1 - smooth(nearest / aggregateRadius);
+      const stoneTone = -8 + gf * 4;
+      v += stoneTone * t;
+      h += t * 0.55;
+      rg -= t * 8;
+    }
+    // Mortar boundaries between aggregate clusters
+    if (cellEdge < 0.12) {
+      const groove = 1 - smooth(cellEdge / 0.12);
+      h -= groove * 0.35;
+      v -= groove * 5;
+    }
+    // Random shrinkage microcracks
+    const crackNoise =
+      Math.abs(
+        Math.sin(x * 0.043 + y * 0.071) +
+        Math.sin(x * 0.117 - y * 0.052)
+      );
+    if (crackNoise > 1.75 && inside > 0.2) {
+      const crack =
+        Math.pow((crackNoise - 1.75) / 0.25, 2) *
+        (P.crackDepth ?? 0.65);
+      h -= crack * 0.8;
+      v -= crack * 10;
+      rg -= crack * 12;
+    }
+    // Subtle weathering variation
+    v += Math.sin((x + y) * 0.015) * 2;
+    const r = v * 1.02;
+    const g = v * 1.01;
+    const b = v * 0.98;
+    return {
+      h,
+      r,
+      g,
+      b,
+      rg,
+      warm: 0
+    };
   }
   const h = gn * 0.8 + gf * 0.4;
   const rg = 211 + bev * 14 + grainV * 0.66;
@@ -393,11 +607,168 @@ function renderRoof(P, F, level, dmg) {
 
 function renderBlue(P, F) {
   const { W, H } = F, out = newImage(W, H), d = out.data;
+  const angle = P.wedge ? Math.atan2(H, W) * 180 / Math.PI : 0;
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x, i4 = i * 4;
+    if (P.wedge) {
+      const dh = hypDist(F, x, y);
+      if (dh < 0) {
+        // Outside the solid: lighter-blue wall-lip strip (matches vanilla blueprints.png).
+        const d_out = -dh;
+        const A = sampleProfile(WALL_PROFILES.lipA, angle, d_out);
+        if (A <= 0) { d[i4 + 3] = 0; continue; }
+        const r = sampleProfile(WALL_PROFILES.bpR, angle, d_out);
+        const b = sampleProfile(WALL_PROFILES.bpB, angle, d_out);
+        d[i4] = Math.round(r); d[i4 + 1] = Math.round(r); d[i4 + 2] = Math.round(b); d[i4 + 3] = Math.round(A);
+        continue;
+      }
+    }
     if (!F.solid[i]) { d[i4 + 3] = 0; continue; }
     let b = 197 + Math.max(0, Math.min(51, F.roofG[i] - 199)) / 51 * 24; b = Math.max(197, Math.min(221, b));
     d[i4] = 0; d[i4 + 1] = 0; d[i4 + 2] = Math.round(b); d[i4 + 3] = 255;
+  }
+  return out;
+}
+
+// ----------------------------------------------------------------------------
+// Wedge external walls (the green lip + its normals along the hypotenuse).
+//
+// In vanilla the wall lip protrudes OUTSIDE the block boundary: armor.png (used
+// as the Walls layer) has the green strip baked into the empty-triangle region
+// (dHyp < 0), with an alpha fade at the outermost edge.  We reproduce this with
+// a separate external_walls.png whose inside (dHyp >= 0) copies the plating and
+// whose outside (dHyp < 0) carries the green lip + fade.
+//
+// All profiles are sampled by d_out = -dHyp (positive = outside the boundary,
+// 0 = hypotenuse edge).  Measured pixel-by-pixel from the three vanilla reference
+// wedges (armor_wedge/1x2/1x3) at step 0.5 px, 26 entries (d_out 0 … 12.5 px).
+// Key 1 = 45° (1×1), key 2 = 63.4° (1×2), key 3 = 71.6° (1×3).
+const WALL_PROFILES = {
+  angles: [45, 63.43495, 71.56505],
+  step: 0.5,
+  // lipG/lipR: green-lip albedo (B=0). Near d=0 R≈G (grey edge), further out R=0.
+  lipG: {
+    1: [ 28, 29,140,252,231,214,197,197,157,123, 89,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [159,186,211,214,195,179,164,139, 96, 67, 49, 33, 18,  7,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [165,179,196,190,165,143,136,126,109, 81, 61, 48, 32, 22,  7,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+  },
+  lipR: {
+    1: [ 28, 29, 14,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [  7,  3,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [  4,  2,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+  },
+  // lipA: alpha (255 = opaque lip, fades outward to 0).
+  lipA: {
+    1: [255,255,255,255,255,255,255,255,255,255,255,112, 97, 83, 57, 47, 37, 22, 12,  9,  6,  3,  2,  1,  0,  0],
+    2: [255,255,255,255,255,255,255,255,218,180,154,128, 97, 68, 45, 38, 30, 22, 15, 11,  9,  6,  5,  3,  2,  2],
+    3: [255,255,255,255,255,255,255,255,243,214,178,165,131,116, 84, 71, 54, 45, 38, 31, 25, 20, 15, 11,  8,  6],
+  },
+  // normR/G/B: lip normal map (outward from boundary); normA controls the active zone.
+  normR: {
+    1: [127,127,104, 82, 67, 77, 88,101, 82, 82, 82,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127],
+    2: [ 96, 87, 89, 88, 67, 62, 75, 68, 93,142,165,188,216,239,127,127,127,127,127,127,127,127,127,127,127,127],
+    3: [ 89, 84, 78, 76, 73, 70, 75, 76, 82,105,142,154,188,202,239,247,127,127,127,127,127,127,127,127,127,127],
+  },
+  normG: {
+    1: [127,127,149,170,188,175,162,152,167,169,172,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127],
+    2: [137,141,140,137,154,151,146,153,176,193,206,217,233,246,127,127,127,127,127,127,127,127,127,127,127,127],
+    3: [132,132,131,135,133,133,135,134,143,160,183,190,212,221,245,250,127,127,127,127,127,127,127,127,127,127],
+  },
+  normB: {
+    1: [127,127,174,222,177,197,218,224,214,212,210,127,127,127,127,127,127,127,127,127,127,127,127,127,127,127],
+    2: [181,192,217,220,201,198,213,211,209,234,237,241,248,252,127,127,127,127,127,127,127,127,127,127,127,127],
+    3: [191,203,216,225,222,218,223,226,224,227,236,237,243,246,252,254,127,127,127,127,127,127,127,127,127,127],
+  },
+  normA: {
+    1: [255,255,255,255,255,255,255,255,255,255,255,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [255,255,255,255,255,255,255,255,205,154,122, 90, 53, 21,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [255,255,255,255,255,255,255,255,239,202,154,138, 90, 72, 21, 11,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+  },
+  // bpR/bpB: blueprint lip (lighter blue strip outside the boundary).
+  bpR: {
+    1: [  0,  0, 16, 33, 23, 18, 13, 26,  8,  4,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [ 15, 21, 28, 23, 16, 17, 13,  6,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [ 11, 13, 17, 19, 12,  6,  9, 12,  6,  2,  3,  1,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+  },
+  bpB: {
+    1: [206,206,230,255,255,254,253,251,245,232,220,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    2: [238,246,252,253,251,246,243,237,220,206,198,189,182,176,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+    3: [235,241,250,248,241,234,234,228,222,209,200,194,187,182,175,173,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0],
+  },
+};
+
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+// Sample a step-0.5 array at perpendicular distance d (px); clamps at both ends.
+function sampleArr(arr, d) {
+  if (d <= 0) return arr[0];
+  const f = d / WALL_PROFILES.step, i = Math.floor(f);
+  if (i >= arr.length - 1) return arr[arr.length - 1];
+  return lerp(arr[i], arr[i + 1], f - i);
+}
+
+// Sample a profile table at the wedge's hypotenuse angle, interpolating between
+// the bracketing reference slopes (clamped outside the reference range).
+function sampleProfile(table, angleDeg, d) {
+  const A = WALL_PROFILES.angles, keys = [1, 2, 3];
+  if (angleDeg <= A[0]) return sampleArr(table[1], d);
+  if (angleDeg >= A[A.length - 1]) return sampleArr(table[3], d);
+  for (let i = 0; i < A.length - 1; i++) {
+    if (angleDeg >= A[i] && angleDeg <= A[i + 1]) {
+      const t = (angleDeg - A[i]) / (A[i + 1] - A[i]);
+      return lerp(sampleArr(table[keys[i]], d), sampleArr(table[keys[i + 1]], d), t);
+    }
+  }
+  return sampleArr(table[3], d);
+}
+
+// Signed perpendicular distance into the wedge from the hypotenuse (>=0 solid).
+function hypDist(F, x, y) {
+  const { W, H, diagLen } = F;
+  return (H * (x + 0.5) + W * (y + 0.5) - W * H) / diagLen;
+}
+
+// External-walls albedo: plating inside the solid (dHyp >= 0), green lip outside
+// (dHyp < 0) with an alpha fade — matching how vanilla bakes the lip into armor.png.
+function renderWallAlbedo(P, F, plating) {
+  const { W, H } = F, out = newImage(W, H), d = out.data, src = plating.data;
+  const angle = Math.atan2(H, W) * 180 / Math.PI;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, i4 = i * 4;
+    const dh = hypDist(F, x, y);
+    if (dh >= 0) {
+      d[i4] = src[i4]; d[i4 + 1] = src[i4 + 1]; d[i4 + 2] = src[i4 + 2]; d[i4 + 3] = src[i4 + 3];
+    } else {
+      const d_out = -dh;
+      const A = sampleProfile(WALL_PROFILES.lipA, angle, d_out);
+      if (A <= 0) { d[i4 + 3] = 0; continue; }
+      const G = sampleProfile(WALL_PROFILES.lipG, angle, d_out);
+      const R = sampleProfile(WALL_PROFILES.lipR, angle, d_out);
+      d[i4] = Math.round(R); d[i4 + 1] = Math.round(G); d[i4 + 2] = 0; d[i4 + 3] = Math.round(A);
+    }
+  }
+  return out;
+}
+
+// External-walls normal map: flat neutral inside the solid; lip relief outside,
+// fading to transparent where the alpha envelope ends.
+function renderWallNormals(P, F) {
+  const { W, H } = F, out = newImage(W, H), d = out.data;
+  const angle = Math.atan2(H, W) * 180 / Math.PI;
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x, i4 = i * 4;
+    const dh = hypDist(F, x, y);
+    if (dh >= 0) {
+      d[i4] = 127; d[i4 + 1] = 127; d[i4 + 2] = 127; d[i4 + 3] = 255;
+    } else {
+      const d_out = -dh;
+      const A = sampleProfile(WALL_PROFILES.normA, angle, d_out);
+      if (A <= 0) { d[i4] = 127; d[i4 + 1] = 127; d[i4 + 2] = 127; d[i4 + 3] = 0; continue; }
+      d[i4] = Math.round(sampleProfile(WALL_PROFILES.normR, angle, d_out));
+      d[i4 + 1] = Math.round(sampleProfile(WALL_PROFILES.normG, angle, d_out));
+      d[i4 + 2] = Math.round(sampleProfile(WALL_PROFILES.normB, angle, d_out));
+      d[i4 + 3] = Math.round(A);
+    }
   }
   return out;
 }
@@ -417,5 +788,22 @@ export function renderSet(P) {
   const map = { armor: a0.img, armor33: a1.img, armor66: a2.img, roof: r0, roof33: r1, roof66: r2, rnorm: n0, rnorm33: n1, rnorm66: n2, blue: blue, icon: a0.img };
   const out = {};
   for (const [name, key] of FILES) out[name] = map[key];
+  // Wedges carry an external-walls layer (green lip along the hypotenuse). The
+  // lip itself does not take damage, so a single normal map is shared across all
+  // damage levels (the .rules point every level at it); each albedo level just
+  // composites the lip over that level's plating.
+  if (P.wedge) {
+    out['external_walls.png'] = renderWallAlbedo(P, F, a0.img);
+    out['external_walls_33.png'] = renderWallAlbedo(P, F, a1.img);
+    out['external_walls_66.png'] = renderWallAlbedo(P, F, a2.img);
+    out['external_wall_normals.png'] = renderWallNormals(P, F);
+  }
   return out;
 }
+
+// Extra files emitted only for wedges (the external-walls layer). One normal map
+// serves all three damage levels since the lip does not take damage.
+export const WALL_FILES = [
+  'external_walls.png', 'external_walls_33.png', 'external_walls_66.png',
+  'external_wall_normals.png',
+];

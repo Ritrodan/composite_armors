@@ -1,0 +1,202 @@
+Part : <./Data/ships/terran/base_part_terran.rules>/Part
+{
+	NameKey = "Parts/TriSteel1x3Wedge"
+	IconNameKey = "Parts/TriSteel1x3WedgeIcon"
+	ID = Ritrodan.tri_steel_1x3Wedge
+	EditorGroup = "Structure"
+	EditorParentParts = [ "Ritrodan.tri_steel" ]
+	EditorReplacementPartID = ""
+	DescriptionKey = "Parts/TriSteel1x3WedgeDesc"
+	IsFlippable = true
+	OtherIDs = [Ritrodan.tri_steel_1x3Wedge_L, Ritrodan.tri_steel_1x3Wedge_R]
+	FlipWhenLoadingIDs = [Ritrodan.tri_steel_1x3Wedge_R]
+	Resources
+	[
+		[tristeel, 3]
+		[tritanium, 3]
+		[steel, 3]
+	]
+	AIValueFactor = 0
+	Size = [1, 3]
+	AllowedContiguity = [Right, Bottom]
+	SelectionTypeID = "armor"
+	MaxHealth = 10500
+	ExplosiveDamageAbsorption = 100%
+	DamageResistances
+	{
+		explosive = 45%
+		thermal = 15%
+	}
+	TypeCategories = [armor, non_flammable]
+	Flammable = false
+	ReceivableBuffs : ^/0/ReceivableBuffs []
+	UnderlyingPartPerTile = ""
+	UnderlyingPart = cosmoteer.structure_1x3_wedge
+	CreatePartPerTileWhenGrabbed = ""
+	InitialPenetrationResistance = 5.7
+	ContinuingPenetrationResistance = &InitialPenetrationResistance
+	CrewSpeedFactor = 0
+	Density = 2
+	IsRotateable = true
+	IsWalled = true
+	IsSelfDestructible = false
+	ExternalWallsByCell
+	[
+		{
+			Key = [0, 0]
+			Value = [TopRight, Right]
+		}
+		{
+			Key = [0, 1]
+			Value = [Right]
+		}
+		{
+			Key = [0, 2]
+			Value = [Right, BottomRight, Bottom, BottomLeft]
+		}
+	]
+	InternalWallsByCell
+	[
+		{
+			Key = [0, 0]
+			Value = [BottomLeft, Left, TopLeft, Top]
+		}
+		{
+			Key = [0, 1]
+			Value = [TopLeft, Left, BottomLeft]
+		}
+		{
+			Key = [0, 2]
+			Value = [Left, TopLeft]
+		}
+	]
+	VirtualInternalCells
+	[
+		{ExternalCell=[0, -1]; InternalCell=[1, 0]}
+		{ExternalCell=[-1, 2]; InternalCell=[0, 3]}
+	]
+	AllowedDoorLocations = []
+	GeneratorRequiresDoor = false
+	FlipHRotate = [0, 3, 2, 1]
+	FlipVRotate = [2, 1, 0, 3]
+	GenerateRectCollider = false
+	EditorIcon
+	{
+		Texture
+		{
+			File = "icon.png"
+			SampleMode = Linear
+		}
+		Size = [32, 96]
+	}
+	Components : ^/0/Components
+	{
+		Collider
+		{
+			Type = PolygonCollider
+			Vertices
+			[
+				[1, 0]
+				[1, 3]
+				[0, 3]
+			]
+		}
+
+		EmpAbsorber
+		{
+			Type = ExplosiveResourceDrainSink
+			ResourceType = battery
+			AbsorbsResourceDrain = 1050
+			RecoveryRate = (&AbsorbsResourceDrain) * 0.08
+		}
+
+		Graphics
+		{
+			Type = Graphics
+			Location = [0.5, 1.5]
+			Floor
+			{
+				Layer = "floors"
+				DamageLevels
+				[
+					{
+						File = "armor.png"
+						Size = [1, 3]
+					}
+					{
+						File = "armor_33.png"
+						Size = [1, 3]
+					}
+					{
+						File = "armor_66.png"
+						Size = [1, 3]
+					}
+				]
+			}
+			Walls
+			{
+				Layer = "external_walls"
+				DamageLevels
+				[
+					{
+						File = "external_walls.png"
+						NormalsFile = "external_wall_normals.png"
+						Size = [1, 3]
+					}
+					{
+						File = "external_walls_33.png"
+						NormalsFile = "external_wall_normals.png"
+						Size = [1, 3]
+					}
+					{
+						File = "external_walls_66.png"
+						NormalsFile = "external_wall_normals.png"
+						Size = [1, 3]
+					}
+				]
+			}
+			Roof
+			{
+				Layer = "roofs"
+				DamageLevels
+				[
+					{
+						File = "roof.png"
+						NormalsFile = "roof_normals.png"
+						Size = [1, 3]
+					}
+					{
+						File = "roof_33.png"
+						NormalsFile = "roof_normals_33.png"
+						Size = [1, 3]
+					}
+					{
+						File = "roof_66.png"
+						NormalsFile = "roof_normals_66.png"
+						Size = [1, 3]
+					}
+				]
+			}
+		}
+
+		DestroyedEffects
+		{
+			Type = DeathEffects
+			MediaEffects = &/COMMON_EFFECTS/SmallPartDestroyedDry
+			Location = [0.5, 1.5]
+		}
+
+		Blueprints
+		{
+			Type = BlueprintSprite
+			File = "blueprints.png"
+			Size = [1, 3]
+		}
+	}
+
+	Stats
+	{
+		EMPResist = (&~/Part/Components/EmpAbsorber/AbsorbsResourceDrain) / 1000
+		AOEResist = (&~/Part/DamageResistances/explosive) * 100
+	}
+}

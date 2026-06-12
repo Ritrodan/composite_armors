@@ -20,6 +20,18 @@ Parts
 	NERA2x2Icon = "NERA 2x2"
 	NERA2x2Desc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
+	NERAWedge = "NERA Wedge"
+	NERAWedgeIcon = "NERA Wedge"
+	NERAWedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+
+	NERA1x2Wedge = "NERA 1x2 Wedge"
+	NERA1x2WedgeIcon = "NERA 1x2 Wedge"
+	NERA1x2WedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+
+	NERA1x3Wedge = "NERA 1x3 Wedge"
+	NERA1x3WedgeIcon = "NERA 1x3 Wedge"
+	NERA1x3WedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+
 	TriSteel = "Tri-Steel Armor"
 	TriSteelIcon = "Tri-Steel Armor"
 	TriSteelDesc = "A very strong and weight efficient armor."
@@ -27,6 +39,18 @@ Parts
 	TriSteel2x1 = "Tri-Steel Armor 2x1"
 	TriSteel2x1Icon = "Tri-Steel Armor 2x1"
 	TriSteel2x1Desc = "A very strong and weight efficient armor."
+
+	TriSteelWedge = "Tri-Steel Armor Wedge"
+	TriSteelWedgeIcon = "Tri-Steel Armor Wedge"
+	TriSteelWedgeDesc = "A very strong and weight efficient armor."
+
+	TriSteel1x2Wedge = "Tri-Steel Armor 1x2 Wedge"
+	TriSteel1x2WedgeIcon = "Tri-Steel Armor 1x2 Wedge"
+	TriSteel1x2WedgeDesc = "A very strong and weight efficient armor."
+
+	TriSteel1x3Wedge = "Tri-Steel Armor 1x3 Wedge"
+	TriSteel1x3WedgeIcon = "Tri-Steel Armor 1x3 Wedge"
+	TriSteel1x3WedgeDesc = "A very strong and weight efficient armor."
 
 	CombinationC = "Combination C Armor"
 	CombinationCIcon = "Combination C Armor"
@@ -36,21 +60,65 @@ Parts
 	CombinationC2x1Icon = "Combination C Armor 2x1"
 	CombinationC2x1Desc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
 
+	CombinationCWedge = "Combination C Armor Wedge"
+	CombinationCWedgeIcon = "Combination C Armor Wedge"
+	CombinationCWedgeDesc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
+
+	CombinationC1x2Wedge = "Combination C Armor 1x2 Wedge"
+	CombinationC1x2WedgeIcon = "Combination C Armor 1x2 Wedge"
+	CombinationC1x2WedgeDesc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
+
+	CombinationC1x3Wedge = "Combination C Armor 1x3 Wedge"
+	CombinationC1x3WedgeIcon = "Combination C Armor 1x3 Wedge"
+	CombinationC1x3WedgeDesc = "High-hardness boron carbide spheres suspended in a steel matrix. Combination C resists penetration better than standard armor at the same HP, with mild thermal resistance."
+
 	MetalFoam = "Metal Foam"
 	MetalFoamIcon = "Metal Foam"
-	MetalFoamDesc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+	MetalFoamDesc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
 
 	MetalFoam2x1 = "Metal Foam 2x1"
 	MetalFoam2x1Icon = "Metal Foam 2x1"
-	MetalFoam2x1Desc = "Closed-pore hollow sphere steel foam. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+	MetalFoam2x1Desc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
 
-	GoldShielding = "Gold Shielding"
-	GoldShieldingIcon = "Gold Shielding"
-	GoldShieldingDesc = "Dense gold plating offers extraordinary thermal insulation and acts as a superb Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
+	MetalFoamWedge = "Metal Foam Wedge"
+	MetalFoamWedgeIcon = "Metal Foam Wedge"
+	MetalFoamWedgeDesc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
 
-	GoldShielding2x1 = "Gold Shielding 2x1"
-	GoldShielding2x1Icon = "Gold Shielding 2x1"
-	GoldShielding2x1Desc = "Dense gold plating offers extraordinary thermal insulation and acts as a superb Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
+	MetalFoam1x2Wedge = "Metal Foam 1x2 Wedge"
+	MetalFoam1x2WedgeIcon = "Metal Foam 1x2 Wedge"
+	MetalFoam1x2WedgeDesc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+
+	MetalFoam1x3Wedge = "Metal Foam 1x3 Wedge"
+	MetalFoam1x3WedgeIcon = "Metal Foam 1x3 Wedge"
+	MetalFoam1x3WedgeDesc = "Applique closed-pore hollow sphere steel foam with no underlying structure. Negligible penetration resistance and catastrophically vulnerable to thermal damage, but provides exceptional blast absorption per unit cost."
+
+	CompositeMetalFoam = "Composite Metal Foam"
+	CompositeMetalFoamIcon = "Composite Metal Foam"
+	CompositeMetalFoamDesc = "Lightweight tritanium hollow spheres, producing a very light and blast resistant armor that is weak against kinetic and energy weapons."
+
+	CompositeMetalFoam2x1 = "Composite Metal Foam 2x1"
+	CompositeMetalFoam2x1Icon = "Composite Metal Foam 2x1"
+	CompositeMetalFoam2x1Desc = "Lightweight tritanium hollow spheres, producing a very light and blast resistant armor that is weak against kinetic and energy weapons."
+
+	CompositeMetalFoamWedge = "Composite Metal Foam Wedge"
+	CompositeMetalFoamWedgeIcon = "Composite Metal Foam Wedge"
+	CompositeMetalFoamWedgeDesc = "Lightweight tritanium hollow spheres, producing a very light and blast resistant armor that is weak against kinetic and energy weapons."
+
+	CompositeMetalFoam1x2Wedge = "Composite Metal Foam 1x2 Wedge"
+	CompositeMetalFoam1x2WedgeIcon = "Composite Metal Foam 1x2 Wedge"
+	CompositeMetalFoam1x2WedgeDesc = "Lightweight tritanium hollow spheres, producing a very light and blast resistant armor that is weak against kinetic and energy weapons."
+
+	CompositeMetalFoam1x3Wedge = "Composite Metal Foam 1x3 Wedge"
+	CompositeMetalFoam1x3WedgeIcon = "Composite Metal Foam 1x3 Wedge"
+	CompositeMetalFoam1x3WedgeDesc = "Lightweight tritanium hollow spheres, producing a very light and blast resistant armor that is weak against kinetic and energy weapons."
+
+	GoldShielding = "Gold Plating"
+	GoldShieldingIcon = "Gold Plating"
+	GoldShieldingDesc = "Hand-beaten gold plating offers extraordinary thermal insulation and acts as a superb Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
+
+	GoldShielding2x1 = "Gold Plating 2x1"
+	GoldShielding2x1Icon = "Gold Plating 2x1"
+	GoldShielding2x1Desc = "Hand-beaten gold plating offers extraordinary thermal insulation and acts as a superb Faraday cage, providing unmatched EMP protection. Its softness leaves it vulnerable to penetrating hits."
 
 	Uranium = "Depleted Uranium Armor"
 	UraniumIcon = "Depleted Uranium Armor"
@@ -59,4 +127,36 @@ Parts
 	Uranium2x1 = "Depleted Uranium Armor 2x1"
 	Uranium2x1Icon = "Depleted Uranium Armor 2x1"
 	Uranium2x1Desc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions."
+
+	UraniumWedge = "Depleted Uranium Armor Wedge"
+	UraniumWedgeIcon = "Depleted Uranium Armor Wedge"
+	UraniumWedgeDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions."
+
+	Uranium1x2Wedge = "Depleted Uranium Armor 1x2 Wedge"
+	Uranium1x2WedgeIcon = "Depleted Uranium Armor 1x2 Wedge"
+	Uranium1x2WedgeDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions."
+
+	Uranium1x3Wedge = "Depleted Uranium Armor 1x3 Wedge"
+	Uranium1x3WedgeIcon = "Depleted Uranium Armor 1x3 Wedge"
+	Uranium1x3WedgeDesc = "Extremely dense uranium plating packs enormous raw HP into a single block, but is heavy and has additional vulnerability to penetration and explosions."
+
+	Ferroconcrete = "Ferroconcrete Armor"
+	FerroconcreteIcon = "Ferroconcrete Armor"
+	FerroconcreteDesc = "Concrete reinforced with rebar. Armor for cheap."
+
+	Ferroconcrete2x1 = "Ferroconcrete Armor 2x1"
+	Ferroconcrete2x1Icon = "Ferroconcrete Armor 2x1"
+	Ferroconcrete2x1Desc = "Concrete reinforced with rebar. Armor for cheap."
+
+	FerroconcreteWedge = "Ferroconcrete Armor Wedge"
+	FerroconcreteWedgeIcon = "Ferroconcrete Armor Wedge"
+	FerroconcreteWedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
+
+	Ferroconcrete1x2Wedge = "Ferroconcrete Armor 1x2 Wedge"
+	Ferroconcrete1x2WedgeIcon = "Ferroconcrete Armor 1x2 Wedge"
+	Ferroconcrete1x2WedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
+
+	Ferroconcrete1x3Wedge = "Ferroconcrete Armor 1x3 Wedge"
+	Ferroconcrete1x3WedgeIcon = "Ferroconcrete Armor 1x3 Wedge"
+	Ferroconcrete1x3WedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
 }

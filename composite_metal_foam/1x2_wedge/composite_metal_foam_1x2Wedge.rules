@@ -1,0 +1,184 @@
+Part : <./Data/ships/terran/base_part_terran.rules>/Part
+{
+	NameKey = "Parts/CompositeMetalFoam1x2Wedge"
+	IconNameKey = "Parts/CompositeMetalFoam1x2WedgeIcon"
+	ID = Ritrodan.composite_metal_foam_1x2Wedge
+	EditorGroup = "Structure"
+	EditorParentParts = [ "Ritrodan.composite_metal_foam" ]
+	EditorReplacementPartID = ""
+	DescriptionKey = "Parts/CompositeMetalFoam1x2WedgeDesc"
+	IsFlippable = true
+	OtherIDs = [Ritrodan.composite_metal_foam_1x2Wedge_L, Ritrodan.composite_metal_foam_1x2Wedge_R]
+	FlipWhenLoadingIDs = [Ritrodan.composite_metal_foam_1x2Wedge_R]
+	Resources
+	[
+		[steel, 2]
+		[tritanium, 1]
+	]
+	AIValueFactor = 0
+	Size = [1, 2]
+	AllowedContiguity = [Right, Bottom]
+	SelectionTypeID = "armor"
+	MaxHealth = 2500
+	ExplosiveDamageAbsorption = 100%
+	DamageResistances
+	{
+		explosive = 83%
+		thermal = -10000%
+	}
+	TypeCategories = [armor, non_flammable]
+	Flammable = false
+	ReceivableBuffs : ^/0/ReceivableBuffs []
+	UnderlyingPartPerTile = ""
+	UnderlyingPart = cosmoteer.structure_1x2_wedge
+	CreatePartPerTileWhenGrabbed = ""
+	InitialPenetrationResistance = 2.9
+	ContinuingPenetrationResistance = &InitialPenetrationResistance
+	CrewSpeedFactor = 0
+	Density = 1.1
+	IsRotateable = true
+	IsWalled = true
+	IsSelfDestructible = false
+	ExternalWallsByCell
+	[
+		{
+			Key = [0, 0]
+			Value = [TopRight, Right]
+		}
+		{
+			Key = [0, 1]
+			Value = [Right, BottomRight, Bottom, BottomLeft]
+		}
+	]
+	InternalWallsByCell
+	[
+		{
+			Key = [0, 0]
+			Value = [BottomLeft, Left, TopLeft, Top]
+		}
+		{
+			Key = [0, 1]
+			Value = [Left, TopLeft]
+		}
+	]
+	VirtualInternalCells
+	[
+		{ExternalCell=[0, -1]; InternalCell=[1, 0]}
+		{ExternalCell=[-1, 1]; InternalCell=[0, 2]}
+	]
+	AllowedDoorLocations = []
+	GeneratorRequiresDoor = false
+	FlipHRotate = [0, 3, 2, 1]
+	FlipVRotate = [2, 1, 0, 3]
+	GenerateRectCollider = false
+	EditorIcon
+	{
+		Texture
+		{
+			File = "icon.png"
+			SampleMode = Linear
+		}
+		Size = [32, 64]
+	}
+	Components : ^/0/Components
+	{
+		Collider
+		{
+			Type = PolygonCollider
+			Vertices
+			[
+				[1, 0]
+				[1, 2]
+				[0, 2]
+			]
+		}
+
+		Graphics
+		{
+			Type = Graphics
+			Location = [0.5, 1]
+			Floor
+			{
+				Layer = "floors"
+				DamageLevels
+				[
+					{
+						File = "armor.png"
+						Size = [1, 2]
+					}
+					{
+						File = "armor_33.png"
+						Size = [1, 2]
+					}
+					{
+						File = "armor_66.png"
+						Size = [1, 2]
+					}
+				]
+			}
+			Walls
+			{
+				Layer = "external_walls"
+				DamageLevels
+				[
+					{
+						File = "external_walls.png"
+						NormalsFile = "external_wall_normals.png"
+						Size = [1, 2]
+					}
+					{
+						File = "external_walls_33.png"
+						NormalsFile = "external_wall_normals.png"
+						Size = [1, 2]
+					}
+					{
+						File = "external_walls_66.png"
+						NormalsFile = "external_wall_normals.png"
+						Size = [1, 2]
+					}
+				]
+			}
+			Roof
+			{
+				Layer = "roofs"
+				DamageLevels
+				[
+					{
+						File = "roof.png"
+						NormalsFile = "roof_normals.png"
+						Size = [1, 2]
+					}
+					{
+						File = "roof_33.png"
+						NormalsFile = "roof_normals_33.png"
+						Size = [1, 2]
+					}
+					{
+						File = "roof_66.png"
+						NormalsFile = "roof_normals_66.png"
+						Size = [1, 2]
+					}
+				]
+			}
+		}
+
+		DestroyedEffects
+		{
+			Type = DeathEffects
+			MediaEffects = &/COMMON_EFFECTS/SmallPartDestroyedDry
+			Location = [0.5, 1]
+		}
+
+		Blueprints
+		{
+			Type = BlueprintSprite
+			File = "blueprints.png"
+			Size = [1, 2]
+		}
+	}
+
+	Stats
+	{
+		AOEResist = (&~/Part/DamageResistances/explosive) * 100
+	}
+}

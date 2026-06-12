@@ -11,17 +11,19 @@
 
 import { writeFileSync, existsSync } from 'node:fs';
 import { resolve, join } from 'node:path';
-import { renderSet, FILES } from './render.mjs';
+import { renderSet, FILES, WALL_FILES } from './render.mjs';
 import { encodePNG } from './png.mjs';
-import { loadConfig, REPO } from './config.mjs';
+import { loadConfig, pruneMaterialOrphans, REPO } from './config.mjs';
 
 // Baseline params — the HULL FOUNDRY HTML control defaults.
 const DEFAULTS = {
   tilesX: 1, tilesY: 1, wedge: false, material: 'vanilla',
   baseBright: 29, grain: 9, grainScale: 9, weavePeriod: 13,
   ballSpacing: 15, ballFill: 0.94,
-  rivetGap: 14, poreScale: 7, porosity: 0.5,
+  rivetGap: 14, poreScale: 7, porosity: 0.5, fillDepth: 0.6,
+  triSize: 0.74, triGroove: 1.0, hammerScale: 11, hammerDepth: 1.0,
   ingotTargetWidth: 32, ingotTargetHeight: 32, hexSize: 8, hexGroove: 0.8,
+  aggregateScale: 11, aggregateDensity: 0.55, crackDepth: 0.65,
   bevelBright: 16, bevelWidth: 2, normalStrength: 1.0, normalFlipY: false,
   normalEdgeFade: 0, ballNormalHeight: 2.4, surfaceNormalScale: 1.0,
   dmg33: 1.0, dmg66: 1.9, cratersPerTile: 6, holeSize: 0.62, edgeMargin: 6,
@@ -33,21 +35,26 @@ const MATERIALS = {
   vanilla:             { baseBright: 29, grain: 9,  bevelBright: 16, normalStrength: 1.0 },
   nera:                { baseBright: 30, grain: 5,  bevelBright: 16, normalStrength: 0.85, weavePeriod: 15 },
   compc:               { baseBright: 29, grain: 9,  bevelBright: 16, normalStrength: 1.1,  ballSpacing: 15, ballFill: 0.94 },
-  hardened:            { baseBright: 32, grain: 8,  bevelBright: 20, normalStrength: 1.1,  rivetGap: 14 },
+  tristeel:            { baseBright: 38, grain: 7,  bevelBright: 22, normalStrength: 1.2,  triSize: 0.74, triGroove: 1.0 },
   metalfoam_irregular: { baseBright: 24, grain: 4,  bevelBright: 12, normalStrength: 1.4,  poreScale: 7, porosity: 0.5 },
-  gold:                { baseBright: 105, grain: 3, bevelBright: 22, normalStrength: 1.2,  ingotTargetWidth: 32, ingotTargetHeight: 32 },
+  foam_tristeel:       { baseBright: 26, grain: 4,  bevelBright: 14, normalStrength: 1.35, poreScale: 7, porosity: 0.5, fillDepth: 0.6 },
+  gold:                { baseBright: 66, grain: 6,  bevelBright: 28, normalStrength: 1.15, hammerScale: 11, hammerDepth: 1.0 },
   uranium:             { baseBright: 72,  grain: 6, bevelBright: 14, normalStrength: 1.3,  hexSize: 8, hexGroove: 0.8 },
+  ceram_honeycomb:     { baseBright: 35, grain: 5,  bevelBright: 16, normalStrength: 1.3, cellScale: 14, wallThick: 1.8 },
+  stf_hex_colloid:     { baseBright: 32, grain: 4,  bevelBright: 14, normalStrength: 1.3, chamberSize: 16, fluidGlow: 1.2, fluidVisc: 0.8 },
+  concrete:            { baseBright: 92, grain: 11, bevelBright: 6,  normalStrength: 1.35, aggregateScale: 11, aggregateDensity: 0.55, crackDepth: 0.65 },
 };
 
 // Build a render-params object for a variant from armors.config.json.
 function resolveParams(v) {
   const tex = v.material.texture;          // { material, seed }
   const mat = MATERIALS[tex.material] || {};
-  return { ...DEFAULTS, ...mat, material: tex.material, seed: tex.seed, tilesX: v.W, tilesY: v.H, dir: v.dir };
+  return { ...DEFAULTS, ...mat, material: tex.material, seed: tex.seed, tilesX: v.W, tilesY: v.H, wedge: v.isWedge, dir: v.dir };
 }
 
 function main() {
-  const { variants } = loadConfig();
+  const cfg = loadConfig();
+  const { variants } = cfg;
   const filter = process.argv.slice(2);
   const parts = filter.length ? variants.filter(v => filter.includes(v.dir)) : variants;
 
@@ -73,8 +80,20 @@ function main() {
       writeFileSync(join(dir, name), encodePNG(set[name]));
       total++;
     }
+    if (part.isWedge) {
+      for (const name of WALL_FILES) {
+        writeFileSync(join(dir, name), encodePNG(set[name]));
+        total++;
+      }
+    }
     console.log(`  ✓ ${part.dir.padEnd(22)} ${P.tilesX}x${P.tilesY} ${P.material} (seed ${P.seed})`);
   }
+  // Drop any stray graphics left loose in a material root (the textures now live
+  // in per-variant subfolders), so parent folders never hold orphaned PNGs.
+  if (!filter.length) {
+    for (const rel of pruneMaterialOrphans(cfg)) console.log(`  ✗ removed orphan ${rel}`);
+  }
+
   console.log(`Done — wrote ${total} PNGs across ${parts.length} part(s).`);
 }
 
