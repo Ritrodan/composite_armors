@@ -11,7 +11,8 @@
 
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
-import { renderSet, renderStructureSet, FILES, WALL_FILES, STRUCTURE_FILES } from './render.mjs';
+import { renderSet, FILES, WALL_FILES } from './render.mjs';
+import { structureSet, STRUCTURE_FILES } from './structure_tex.mjs';
 import { encodePNG } from './png.mjs';
 import { loadConfig, pruneMaterialOrphans, REPO } from './config.mjs';
 
@@ -52,16 +53,6 @@ function resolveParams(v) {
   return { ...DEFAULTS, ...mat, material: tex.material, seed: tex.seed, tilesX: v.W, tilesY: v.H, wedge: v.isWedge, dir: v.dir };
 }
 
-// Render params for a structure lattice of the given dims (also used for the
-// structure floor baked into hybrid wedges).
-function structureParams(W, H, isWedge, seed) {
-  return {
-    tilesX: W, tilesY: H, wedge: isWedge, seed,
-    normalStrength: 1.2, normalFlipY: false, normalEdgeFade: 0,
-    dmg33: 1.0, dmg66: 1.9, cratersPerTile: 5, holeSize: 0.62, edgeMargin: 4,
-  };
-}
-
 function main() {
   const cfg = loadConfig();
   const structureSeed = cfg.structure?.texture?.seed ?? 9090;
@@ -89,7 +80,7 @@ function main() {
     if (part.isHybrid) {
       // The hybrid's floor is the integrated structure lattice that shows
       // through damage holes (vanilla armor_structure_hybrid floor.png).
-      const sset = renderStructureSet(structureParams(part.W, part.H, true, structureSeed));
+      const sset = structureSet(part.W, part.H, true, structureSeed);
       write(dir, 'floor.png', sset['structure.png']);
       write(dir, 'floor_33.png', sset['structure_33.png']);
       write(dir, 'floor_66.png', sset['structure_66.png']);
@@ -99,7 +90,7 @@ function main() {
   for (const sv of structParts) {
     const dir = resolve(REPO, sv.dir);
     mkdirSync(dir, { recursive: true });
-    const set = renderStructureSet(structureParams(sv.W, sv.H, sv.isWedge, structureSeed));
+    const set = structureSet(sv.W, sv.H, sv.isWedge, structureSeed);
     for (const name of STRUCTURE_FILES) write(dir, name, set[name]);
     console.log(`  ✓ ${sv.dir.padEnd(22)} ${sv.W}x${sv.H} structure (seed ${structureSeed})`);
   }
