@@ -27,8 +27,8 @@ const DEFAULTS = {
   aggregateScale: 11, aggregateDensity: 0.55, crackDepth: 0.65,
   bevelBright: 16, bevelWidth: 2, normalStrength: 1.0, normalFlipY: false,
   normalEdgeFade: 0, ballNormalHeight: 2.4, surfaceNormalScale: 1.0,
-  dmg33: 0.92, dmg66: 1.5, cratersPerTile: 6, holeSize: 0.66, edgeMargin: 4,
-  floorHoleScale: 0.76, layeredHoles: true, jagAmp: 3.4, charPow: 1.35, scorchMul: 200,
+  dmg33: 0.92, dmg66: 1.6, cratersPerTile: 6, holeSize: 0.66, edgeMargin: 4,
+  coreHoleScale: 0.45, layeredHoles: true, jagAmp: 3.4, charPow: 1.35, scorchMul: 200,
   scorch: true, seed: 1234, tint: '#7d8a99', applyTint: false,
 };
 
@@ -52,7 +52,7 @@ function resolveParams(v) {
   const tex = v.material.texture;          // { material, seed }
   const mat = MATERIALS[tex.material] || {};
   return { ...DEFAULTS, ...mat, material: tex.material, seed: tex.seed, tilesX: v.W, tilesY: v.H, wedge: v.isWedge, dir: v.dir,
-    // The torn-plating ledge only makes sense over a structural frame.
+    // Only parts with a structural frame bake the lattice into hole interiors.
     layeredHoles: !v.material.noUnderlyingStructure };
 }
 
@@ -75,6 +75,9 @@ function main() {
     const dir = resolve(REPO, part.dir);
     mkdirSync(dir, { recursive: true });
     const P = resolveParams(part);
+    // The lattice baked into hole interiors: the vanilla structure pixels at
+    // this part's exact size and shape.
+    if (P.layeredHoles) P.lattice = structureSet(part.W, part.H, part.isWedge, structureSeed)['structure.png'];
     const set = renderSet(P);
     for (const [name] of FILES) write(dir, name, set[name]);
     if (part.isWedge) {

@@ -515,11 +515,13 @@ function craterCount(P) {
 }
 
 // Two hole masks per damage level, matching vanilla steel armor: the roof gets
-// the full-size hole, the floor/walls a smaller one (vanilla's floor hole area
-// is ~65% of the roof's). The annulus between them reads as a torn-plating
-// ledge inside each crater, and the underlying structure part shows only
-// through the deep center — the vanilla "armor torn open over the frame" look.
-// Parts without underlying structure keep a single punch-through mask.
+// the full-size hole, and a smaller core marks where the blast removed even
+// the structural lattice. Between them, the floor/wall texture bakes a
+// darkened structure lattice (the game does not render the underlying
+// structure part through holes — vanilla bakes it: ~88% of the opaque pixels
+// inside vanilla roof holes sit exactly on the structure girder mask, at
+// ~54% brightness). Parts without underlying structure keep a single
+// punch-through mask and bake nothing.
 function buildDamage(P, F, level) {
   const { W, H, N, diagLen } = F;
   const rng = mulberry32(P.seed ^ 0x9e37);
@@ -567,10 +569,10 @@ function buildDamage(P, F, level) {
   // Coarse tear noise: long spike arms on hole boundaries (vanilla's star rips);
   // the fine chaos FBM adds small-scale raggedness on top.
   const tear = makeFBM(P.seed ^ 0x77cc, 2, 7);
-  const floorScale = P.layeredHoles ? P.floorHoleScale : 1;
-  const hole = new Uint8Array(N), holeFloor = new Uint8Array(N), char = new Float32Array(N), scorch = new Float32Array(N), dmgHeight = Float32Array.from(F.height);
+  const coreScale = P.layeredHoles ? P.coreHoleScale : 1;
+  const hole = new Uint8Array(N), holeCore = new Uint8Array(N), char = new Float32Array(N), scorch = new Float32Array(N), dmgHeight = Float32Array.from(F.height);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const i = y * W + x; let dent = 0, rim = 0, crush = 0, isHole = 0, isHoleFloor = 0;
+    const i = y * W + x; let dent = 0, rim = 0, crush = 0, isHole = 0, isHoleCore = 0;
     // Noise-perturbed hole boundary: blast holes are torn stars, not circles.
     const jag = (tear(x, y) - 0.5) * 2 * P.jagAmp + (chaos(x, y) - 0.5) * 2 * 1.2;
     for (const c of used) {
@@ -584,17 +586,17 @@ function buildDamage(P, F, level) {
         crush += t; char[i] += Math.pow(t, P.charPow);
         const dj = d + jag;
         if (dj < rr * P.holeSize) isHole = 1;
-        if (dj < rr * P.holeSize * floorScale) isHoleFloor = 1;
+        if (dj < rr * P.holeSize * coreScale) isHoleCore = 1;
       }
     }
-    if (F.edge[i] < keep) { isHole = 0; isHoleFloor = 0; }
-    hole[i] = isHole; holeFloor[i] = isHoleFloor;
+    if (F.edge[i] < keep) { isHole = 0; isHoleCore = 0; }
+    hole[i] = isHole; holeCore[i] = isHoleCore;
     if (crush > 0) { const ch = (chaos(x, y) - 0.5) * 2; dmgHeight[i] += -dent + rim + ch * crush * 2.4 * intens; }
     const ef = Math.max(0, Math.min(1, (F.edge[i] - 2) / keep));
     char[i] = Math.min(1, char[i]) * ef;
     scorch[i] = Math.min(1, scorch[i]) * ef;
   }
-  return { hole, holeFloor, char, scorch, dmgHeight, intens };
+  return { hole, holeCore, char, scorch, dmgHeight, intens };
 }
 
 function normalsFromHeight(P, F, height, hole) {
@@ -625,7 +627,22 @@ function renderArmor(P, F, level) {
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x, i4 = i * 4;
     if (!F.solid[i]) { d[i4 + 3] = 0; continue; }
-    if (level > 0 && dmg.holeFloor[i]) { d[i4 + 3] = 0; continue; }
+    if (level > 0 && dmg.hole[i]) {
+      // Inside the roof hole the plating is gone. Bake the underlying
+      // structure lattice (darkened like vanilla's) unless the blast core
+      // took the lattice with it.
+      const L = P.lattice;
+      if (!L || dmg.holeCore[i] || L.data[i4 + 3] < 8) { d[i4 + 3] = 0; continue; }
+      // Vanilla's bake brightness varies in coherent patches (measured
+      // quartiles 0.36/0.56/0.73), so some beam arms stay bright while
+      // others sit in shadow.
+      const dk = 0.36 + valueNoise(x, y, 9, P.seed ^ 0x1357) * 0.42;
+      d[i4] = Math.round(L.data[i4] * dk);
+      d[i4 + 1] = Math.round(L.data[i4 + 1] * dk);
+      d[i4 + 2] = Math.round(L.data[i4 + 2] * dk);
+      d[i4 + 3] = L.data[i4 + 3];
+      continue;
+    }
     let r = F.aR[i], g = F.aG[i], b = F.aB[i];
     if (level > 0) { const c = dmg.char[i], sc = dmg.scorch[i], f = 1 - c * 0.72 - sc * 0.18; r = r * f - c * 14; g = g * f - c * 14; b = b * f - c * 14; if (P.scorch) b += Math.min(42, c * 9); }
     d[i4] = clamp8(r, level); d[i4 + 1] = clamp8(g, level); d[i4 + 2] = clamp8(Math.min(255, b), level); d[i4 + 3] = 255;
