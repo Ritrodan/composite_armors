@@ -119,6 +119,62 @@ function sampleProfile(prof, d) {
   return prof[i].map((v, c) => v + (prof[i + 1][c] - v) * t);
 }
 
+// --- Midpoint gusset tab ------------------------------------------------------
+// Every vanilla wedge carries a connector plate at the middle of its
+// hypotenuse, sitting normal to it (the wedge counterpart of the tabs at the
+// edge midpoints of the square tile). The averaged chord profile smears it
+// away, so it is re-sampled directly from the vanilla 1x3 wedge in
+// chord-aligned coordinates (s along the chord from its midpoint, d
+// perpendicular) and re-laid at the target chord's midpoint.
+const TAB_S = 9.5;        // half-extent along the chord (px)
+const TAB_D_MIN = -3, TAB_D_MAX = 8;
+const TAB_FEATHER = 2;    // blend back into the plain bar at the ends
+
+function bilinear(img, fx, fy) {
+  const x0 = Math.floor(fx - 0.5), y0 = Math.floor(fy - 0.5);
+  const tx = fx - 0.5 - x0, ty = fy - 0.5 - y0;
+  const at = (x, y) => {
+    x = Math.min(img.width - 1, Math.max(0, x)); y = Math.min(img.height - 1, Math.max(0, y));
+    const i = (y * img.width + x) * 4;
+    return [img.data[i], img.data[i + 1], img.data[i + 2], img.data[i + 3]];
+  };
+  const p00 = at(x0, y0), p10 = at(x0 + 1, y0), p01 = at(x0, y0 + 1), p11 = at(x0 + 1, y0 + 1);
+  return p00.map((v, c) =>
+    (v * (1 - tx) + p10[c] * tx) * (1 - ty) + (p01[c] * (1 - tx) + p11[c] * tx) * ty);
+}
+
+function midpointTab(out, H, cosT, sinT) {
+  const W = TILE, Ht = H * TILE, diag = Math.hypot(W, Ht);
+  const ref3 = ref('structure_1x3_wedge', 'structure.png');
+  const W3 = ref3.width, H3 = ref3.height, diag3 = Math.hypot(W3, H3);
+  // Chord midpoints and chord-aligned unit vectors (u along, n inward normal).
+  const mid = [W / 2, Ht / 2], u = [W / diag, -Ht / diag], nrm = [Ht / diag, W / diag];
+  const mid3 = [W3 / 2, H3 / 2], u3 = [W3 / diag3, -H3 / diag3], n3 = [H3 / diag3, W3 / diag3];
+  for (const name of NAMES) {
+    const src = ref('structure_1x3_wedge', name);
+    const img = out[name], d = img.data, normals = isNormals(name);
+    for (let y = 0; y < Ht; y++) for (let x = 0; x < W; x++) {
+      const px = x + 0.5 - mid[0], py = y + 0.5 - mid[1];
+      const s = px * u[0] + py * u[1], dd = px * nrm[0] + py * nrm[1];
+      if (Math.abs(s) > TAB_S || dd < TAB_D_MIN || dd > TAB_D_MAX) continue;
+      const sx = mid3[0] + s * u3[0] + dd * n3[0], sy = mid3[1] + s * u3[1] + dd * n3[1];
+      let [r, g, b, a] = bilinear(src, sx, sy);
+      if (normals && a > 8) {
+        const nx = r / 127.5 - 1, ny = g / 127.5 - 1;
+        r = (nx * cosT - ny * sinT + 1) * 127.5;
+        g = (nx * sinT + ny * cosT + 1) * 127.5;
+      }
+      const fade = Math.min(1, (TAB_S - Math.abs(s)) / TAB_FEATHER);
+      const t = (a / 255) * fade, inv = 1 - t;
+      const i4 = (y * W + x) * 4;
+      d[i4] = Math.round(r * t + d[i4] * inv);
+      d[i4 + 1] = Math.round(g * t + d[i4 + 1] * inv);
+      d[i4 + 2] = Math.round(b * t + d[i4 + 2] * inv);
+      d[i4 + 3] = Math.max(Math.round(a * fade), d[i4 + 3]);
+    }
+  }
+}
+
 // Clip a tiled set at the hypotenuse of a 1xH wedge and lay the vanilla chord
 // bar along it. Damage levels use the profile of the matching vanilla level.
 function clipAndChord(out, H) {
@@ -151,6 +207,7 @@ function clipAndChord(out, H) {
       d[i4 + 3] = Math.max(Math.round(a), Math.round(d[i4 + 3] * (dist >= 0 ? 1 : 0)));
     }
   }
+  midpointTab(out, H, cosT, sinT);
 }
 
 // Returns { 'structure.png': img, ... } for a structure part of W x H tiles.
