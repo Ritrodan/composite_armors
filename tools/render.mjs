@@ -568,18 +568,20 @@ function buildDamage(P, F, level) {
   // the fine chaos FBM adds small-scale raggedness on top.
   const tear = makeFBM(P.seed ^ 0x77cc, 2, 7);
   const floorScale = P.layeredHoles ? P.floorHoleScale : 1;
-  const hole = new Uint8Array(N), holeFloor = new Uint8Array(N), char = new Float32Array(N), dmgHeight = Float32Array.from(F.height);
+  const hole = new Uint8Array(N), holeFloor = new Uint8Array(N), char = new Float32Array(N), scorch = new Float32Array(N), dmgHeight = Float32Array.from(F.height);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x; let dent = 0, rim = 0, crush = 0, isHole = 0, isHoleFloor = 0;
     // Noise-perturbed hole boundary: blast holes are torn stars, not circles.
     const jag = (tear(x, y) - 0.5) * 2 * P.jagAmp + (chaos(x, y) - 0.5) * 2 * 1.2;
     for (const c of used) {
       const rr = c.r * intens, d = Math.hypot(x - c.x, y - c.y);
+      // Wide soft scorch halo around every crater (vanilla's burn shadow on the
+      // roof bleeds far past the torn metal); char stays tight to the hole.
+      if (d < rr * 2.3) scorch[i] += Math.pow(Math.max(0, 1 - d / (rr * 2.3)), 2);
       if (d < rr * 1.6 + P.jagAmp) {
         const t = Math.max(0, 1 - d / rr); dent += Math.pow(t, 1.3) * c.depth;
         if (d > rr * 0.7 && d < rr * 1.35) rim += (1 - Math.abs(d - rr) / (rr * 0.35)) * c.depth * 0.4;
-        // Tight char halo (vanilla scorch hugs the hole instead of flooding the plate).
-        crush += t; char[i] += Math.pow(t, 1.6);
+        crush += t; char[i] += Math.pow(t, P.charPow);
         const dj = d + jag;
         if (dj < rr * P.holeSize) isHole = 1;
         if (dj < rr * P.holeSize * floorScale) isHoleFloor = 1;
@@ -588,9 +590,11 @@ function buildDamage(P, F, level) {
     if (F.edge[i] < keep) { isHole = 0; isHoleFloor = 0; }
     hole[i] = isHole; holeFloor[i] = isHoleFloor;
     if (crush > 0) { const ch = (chaos(x, y) - 0.5) * 2; dmgHeight[i] += -dent + rim + ch * crush * 2.4 * intens; }
-    char[i] = Math.min(1, char[i]) * Math.max(0, Math.min(1, (F.edge[i] - 2) / keep));
+    const ef = Math.max(0, Math.min(1, (F.edge[i] - 2) / keep));
+    char[i] = Math.min(1, char[i]) * ef;
+    scorch[i] = Math.min(1, scorch[i]) * ef;
   }
-  return { hole, holeFloor, char, dmgHeight, intens };
+  return { hole, holeFloor, char, scorch, dmgHeight, intens };
 }
 
 function normalsFromHeight(P, F, height, hole) {
@@ -623,7 +627,7 @@ function renderArmor(P, F, level) {
     if (!F.solid[i]) { d[i4 + 3] = 0; continue; }
     if (level > 0 && dmg.holeFloor[i]) { d[i4 + 3] = 0; continue; }
     let r = F.aR[i], g = F.aG[i], b = F.aB[i];
-    if (level > 0) { const c = dmg.char[i], f = 1 - c * 0.72; r = r * f - c * 14; g = g * f - c * 14; b = b * f - c * 14; if (P.scorch) b += Math.min(42, c * 9); }
+    if (level > 0) { const c = dmg.char[i], sc = dmg.scorch[i], f = 1 - c * 0.72 - sc * 0.18; r = r * f - c * 14; g = g * f - c * 14; b = b * f - c * 14; if (P.scorch) b += Math.min(42, c * 9); }
     d[i4] = clamp8(r, level); d[i4 + 1] = clamp8(g, level); d[i4 + 2] = clamp8(Math.min(255, b), level); d[i4 + 3] = 255;
   }
   return { img: out, dmg };
@@ -637,7 +641,7 @@ function renderRoof(P, F, level, dmg) {
     const i = y * W + x, i4 = i * 4;
     if (!F.solid[i]) { d[i4 + 3] = 0; continue; }
     if (level > 0 && dmg.hole[i]) { d[i4 + 3] = 0; continue; }
-    let g = F.roofG[i]; if (level > 0) g -= dmg.char[i] * 150 * dmg.intens; g = Math.max(0, Math.min(250, g));
+    let g = F.roofG[i]; if (level > 0) g -= (dmg.char[i] * 0.5 + dmg.scorch[i] * 0.9) * P.scorchMul * dmg.intens; g = Math.max(0, Math.min(250, g));
     if (useTint) { const f = g / 255; d[i4] = Math.round(tint.r * f); d[i4 + 1] = Math.round(tint.g * f); d[i4 + 2] = Math.round(tint.b * f); }
     else { const rb = g * 0.062, w = F.warm[i]; d[i4] = Math.max(0, Math.min(255, Math.round(rb + w))); d[i4 + 1] = Math.round(g); d[i4 + 2] = Math.max(0, Math.min(255, Math.round(rb - w * 0.4))); }
     d[i4 + 3] = 255;

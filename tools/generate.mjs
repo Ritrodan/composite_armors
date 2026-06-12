@@ -27,8 +27,8 @@ const DEFAULTS = {
   aggregateScale: 11, aggregateDensity: 0.55, crackDepth: 0.65,
   bevelBright: 16, bevelWidth: 2, normalStrength: 1.0, normalFlipY: false,
   normalEdgeFade: 0, ballNormalHeight: 2.4, surfaceNormalScale: 1.0,
-  dmg33: 0.85, dmg66: 1.45, cratersPerTile: 6, holeSize: 0.62, edgeMargin: 4,
-  floorHoleScale: 0.8, layeredHoles: true, jagAmp: 3.4,
+  dmg33: 0.92, dmg66: 1.5, cratersPerTile: 6, holeSize: 0.66, edgeMargin: 4,
+  floorHoleScale: 0.76, layeredHoles: true, jagAmp: 3.4, charPow: 1.35, scorchMul: 200,
   scorch: true, seed: 1234, tint: '#7d8a99', applyTint: false,
 };
 
