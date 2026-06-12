@@ -514,6 +514,12 @@ function craterCount(P) {
   return Math.max(2, Math.round(P.cratersPerTile * tiles));
 }
 
+// Two hole masks per damage level, matching vanilla steel armor: the roof gets
+// the full-size hole, the floor/walls a smaller one (vanilla's floor hole area
+// is ~65% of the roof's). The annulus between them reads as a torn-plating
+// ledge inside each crater, and the underlying structure part shows only
+// through the deep center — the vanilla "armor torn open over the frame" look.
+// Parts without underlying structure keep a single punch-through mask.
 function buildDamage(P, F, level) {
   const { W, H, N, diagLen } = F;
   const rng = mulberry32(P.seed ^ 0x9e37);
@@ -534,23 +540,26 @@ function buildDamage(P, F, level) {
   }
   const used = all.slice(0, level === 1 ? Math.max(2, Math.round(nCraters * 0.6)) : nCraters);
   const chaos = makeFBM(P.seed ^ 0x55aa, 3, 2.6);
-  const hole = new Uint8Array(N), char = new Float32Array(N), dmgHeight = Float32Array.from(F.height);
+  const floorScale = P.layeredHoles ? P.floorHoleScale : 1;
+  const hole = new Uint8Array(N), holeFloor = new Uint8Array(N), char = new Float32Array(N), dmgHeight = Float32Array.from(F.height);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
-    const i = y * W + x; let dent = 0, rim = 0, crush = 0, isHole = 0;
+    const i = y * W + x; let dent = 0, rim = 0, crush = 0, isHole = 0, isHoleFloor = 0;
     for (const c of used) {
       const rr = c.r * intens, d = Math.hypot(x - c.x, y - c.y);
       if (d < rr * 1.6) {
         const t = Math.max(0, 1 - d / rr); dent += Math.pow(t, 1.3) * c.depth;
         if (d > rr * 0.7 && d < rr * 1.35) rim += (1 - Math.abs(d - rr) / (rr * 0.35)) * c.depth * 0.4;
-        crush += t; char[i] += t; if (d < rr * P.holeSize) isHole = 1;
+        crush += t; char[i] += t;
+        if (d < rr * P.holeSize) isHole = 1;
+        if (d < rr * P.holeSize * floorScale) isHoleFloor = 1;
       }
     }
-    if (F.edge[i] < keep) isHole = 0;
-    hole[i] = isHole;
+    if (F.edge[i] < keep) { isHole = 0; isHoleFloor = 0; }
+    hole[i] = isHole; holeFloor[i] = isHoleFloor;
     if (crush > 0) { const ch = (chaos(x, y) - 0.5) * 2; dmgHeight[i] += -dent + rim + ch * crush * 2.4 * intens; }
     char[i] = Math.min(1, char[i]) * Math.max(0, Math.min(1, (F.edge[i] - 2) / keep));
   }
-  return { hole, char, dmgHeight, intens };
+  return { hole, holeFloor, char, dmgHeight, intens };
 }
 
 function normalsFromHeight(P, F, height, hole) {
@@ -581,7 +590,7 @@ function renderArmor(P, F, level) {
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x, i4 = i * 4;
     if (!F.solid[i]) { d[i4 + 3] = 0; continue; }
-    if (level > 0 && dmg.hole[i]) { d[i4 + 3] = 0; continue; }
+    if (level > 0 && dmg.holeFloor[i]) { d[i4 + 3] = 0; continue; }
     let r = F.aR[i], g = F.aG[i], b = F.aB[i];
     if (level > 0) { const c = dmg.char[i], f = 1 - c * 0.72; r = r * f - c * 14; g = g * f - c * 14; b = b * f - c * 14; if (P.scorch) b += Math.min(42, c * 9); }
     d[i4] = clamp8(r, level); d[i4 + 1] = clamp8(g, level); d[i4 + 2] = clamp8(Math.min(255, b), level); d[i4 + 3] = 255;
