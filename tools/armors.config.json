@@ -6,10 +6,21 @@
     "version": "1.0.0",
     "compatibleGameVersions": ["0.30.1"],
     "author": "Ritrodan",
-    "description": "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Composite Metal Foam, Gold Plating, and Depleted Uranium, with multiple size and wedge variants.",
+    "description": "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Composite Metal Foam, Gold Plating, and Depleted Uranium, with multiple size and wedge variants, plus scalable structure parts.",
     "modifiesMultiplayer": true,
     "modifiesGameplay": true,
     "stringsFolder": "strings"
+  },
+  "structure": {
+    "_comment": "Procedural structure parts. Blocks scale perTile by W*H; wedges scale wedgePerLongTile by the long axis (matching vanilla: 1x1 wedge = 500 HP / 1 steel, 1x2 = 1000 / 2, ...). Sizes listed here are generated explicitly; in addition, any armor wedge taller than vanilla's 1x3 automatically gets a matching structure wedge generated as its underlying part.",
+    "texture": { "seed": 9090 },
+    "perTile": { "resources": [["steel", 2]], "maxHealth": 1000 },
+    "wedgePerLongTile": { "resources": [["steel", 1]], "maxHealth": 500 },
+    "variants": [
+      { "size": [2, 1] },
+      { "size": [3, 1] },
+      { "size": [2, 2] }
+    ]
   },
   "materials": {
     "nera": {
@@ -110,6 +121,11 @@
     { "material": "nera", "size": [1, 1], "shape": "wedge" },
     { "material": "nera", "size": [1, 2], "shape": "wedge" },
     { "material": "nera", "size": [1, 3], "shape": "wedge" },
+    { "material": "nera", "size": [1, 4], "shape": "wedge" },
+    { "material": "nera", "size": [1, 5], "shape": "wedge" },
+    { "material": "nera", "size": [1, 6], "shape": "wedge" },
+    { "material": "nera", "size": [2, 2], "shape": "wedge" },
+    { "material": "nera", "size": [2, 3], "shape": "wedge" },
     { "material": "tri_steel", "size": [1, 1] },
     { "material": "tri_steel", "size": [2, 1] },
     { "material": "tri_steel", "size": [1, 1], "shape": "wedge" },

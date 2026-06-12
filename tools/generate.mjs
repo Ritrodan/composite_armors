@@ -9,9 +9,10 @@
 // is a pure port of that tool, so the output matches the preview — except crater
 // counts now scale with block area (see render.mjs).
 
-import { writeFileSync, existsSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
 import { renderSet, FILES, WALL_FILES } from './render.mjs';
+import { structureSet, STRUCTURE_FILES } from './structure_tex.mjs';
 import { encodePNG } from './png.mjs';
 import { loadConfig, pruneMaterialOrphans, REPO } from './config.mjs';
 
@@ -26,7 +27,8 @@ const DEFAULTS = {
   aggregateScale: 11, aggregateDensity: 0.55, crackDepth: 0.65,
   bevelBright: 16, bevelWidth: 2, normalStrength: 1.0, normalFlipY: false,
   normalEdgeFade: 0, ballNormalHeight: 2.4, surfaceNormalScale: 1.0,
-  dmg33: 1.0, dmg66: 1.9, cratersPerTile: 6, holeSize: 0.62, edgeMargin: 6,
+  dmg33: 0.92, dmg66: 1.6, cratersPerTile: 6, holeSize: 0.66, edgeMargin: 4,
+  coreHoleScale: 0.45, layeredHoles: true, jagAmp: 3.4, charPow: 1.35, scorchMul: 200,
   scorch: true, seed: 1234, tint: '#7d8a99', applyTint: false,
 };
 
@@ -49,44 +51,54 @@ const MATERIALS = {
 function resolveParams(v) {
   const tex = v.material.texture;          // { material, seed }
   const mat = MATERIALS[tex.material] || {};
-  return { ...DEFAULTS, ...mat, material: tex.material, seed: tex.seed, tilesX: v.W, tilesY: v.H, wedge: v.isWedge, dir: v.dir };
+  return { ...DEFAULTS, ...mat, material: tex.material, seed: tex.seed, tilesX: v.W, tilesY: v.H, wedge: v.isWedge, dir: v.dir,
+    // Only parts with a structural frame bake the lattice into hole interiors.
+    layeredHoles: !v.material.noUnderlyingStructure };
 }
 
 function main() {
   const cfg = loadConfig();
-  const { variants } = cfg;
+  const structureSeed = cfg.structure?.texture?.seed ?? 9090;
   const filter = process.argv.slice(2);
-  const parts = filter.length ? variants.filter(v => filter.includes(v.dir)) : variants;
+  const pick = list => filter.length ? list.filter(v => filter.includes(v.dir)) : list;
+  const parts = pick(cfg.variants);
+  const structParts = pick(cfg.structureVariants);
 
-  if (!parts.length) {
+  if (!parts.length && !structParts.length) {
     console.error(filter.length ? `No matching parts for: ${filter.join(', ')}` : 'No parts in config.');
     process.exit(1);
   }
 
-  // Validate up front: a stale/misspelled `dir` must fail loudly rather than
-  // silently skip, otherwise "Done" would hide a part whose PNGs never wrote.
-  const missing = parts.filter(p => !existsSync(resolve(REPO, p.dir)));
-  if (missing.length) {
-    console.error(`Error: missing part folder(s): ${missing.map(p => p.dir).join(', ')}`);
-    process.exit(1);
-  }
-
   let total = 0;
+  const write = (dir, name, img) => { writeFileSync(join(dir, name), encodePNG(img)); total++; };
   for (const part of parts) {
     const dir = resolve(REPO, part.dir);
+    mkdirSync(dir, { recursive: true });
     const P = resolveParams(part);
+    // The lattice baked into hole interiors: the vanilla structure pixels at
+    // this part's exact size and shape.
+    if (P.layeredHoles) P.lattice = structureSet(part.W, part.H, part.isWedge, structureSeed)['structure.png'];
     const set = renderSet(P);
-    for (const [name] of FILES) {
-      writeFileSync(join(dir, name), encodePNG(set[name]));
-      total++;
-    }
+    for (const [name] of FILES) write(dir, name, set[name]);
     if (part.isWedge) {
-      for (const name of WALL_FILES) {
-        writeFileSync(join(dir, name), encodePNG(set[name]));
-        total++;
-      }
+      for (const name of WALL_FILES) write(dir, name, set[name]);
+    }
+    if (part.isHybrid) {
+      // The hybrid's floor is the integrated structure lattice that shows
+      // through damage holes (vanilla armor_structure_hybrid floor.png).
+      const sset = structureSet(part.W, part.H, true, structureSeed);
+      write(dir, 'floor.png', sset['structure.png']);
+      write(dir, 'floor_33.png', sset['structure_33.png']);
+      write(dir, 'floor_66.png', sset['structure_66.png']);
     }
     console.log(`  ✓ ${part.dir.padEnd(22)} ${P.tilesX}x${P.tilesY} ${P.material} (seed ${P.seed})`);
+  }
+  for (const sv of structParts) {
+    const dir = resolve(REPO, sv.dir);
+    mkdirSync(dir, { recursive: true });
+    const set = structureSet(sv.W, sv.H, sv.isWedge, structureSeed);
+    for (const name of STRUCTURE_FILES) write(dir, name, set[name]);
+    console.log(`  ✓ ${sv.dir.padEnd(22)} ${sv.W}x${sv.H} structure (seed ${structureSeed})`);
   }
   // Drop any stray graphics left loose in a material root (the textures now live
   // in per-variant subfolders), so parent folders never hold orphaned PNGs.

@@ -1,0 +1,215 @@
+Part : <./Data/ships/terran/base_part_terran.rules>/Part
+{
+	NameKey = "Parts/NERA2x3Wedge"
+	IconNameKey = "Parts/NERA2x3WedgeIcon"
+	ID = Ritrodan.nera_2x3Wedge
+	EditorGroup = "Structure"
+	EditorParentParts = [ "Ritrodan.nera" ]
+	EditorReplacementPartID = ""
+	DescriptionKey = "Parts/NERA2x3WedgeDesc"
+	IsFlippable = true
+	OtherIDs = [Ritrodan.nera_2x3Wedge_L, Ritrodan.nera_2x3Wedge_R]
+	FlipWhenLoadingIDs = [Ritrodan.nera_2x3Wedge_R]
+	Resources
+	[
+		[steel, 18]
+	]
+	AIValueFactor = 0
+	Size = [2, 3]
+	AllowedContiguity = [Right, Bottom]
+	SelectionTypeID = "armor"
+	MaxHealth = 7200
+	ExplosiveDamageAbsorption = 50%
+	DamageResistances
+	{
+		explosive = 50%
+		thermal = -1000%
+	}
+	TypeCategories = [armor, non_flammable]
+	Flammable = false
+	ReceivableBuffs : ^/0/ReceivableBuffs []
+	UnderlyingPartPerTile = ""
+	UnderlyingPart = Ritrodan.structure_2x3_wedge
+	CreatePartPerTileWhenGrabbed = ""
+	InitialPenetrationResistance = 4.3
+	ContinuingPenetrationResistance = &InitialPenetrationResistance
+	CrewSpeedFactor = 0
+	Density = 1.2
+	IsRotateable = true
+	IsWalled = true
+	IsSelfDestructible = false
+	ExternalWallsByCell
+	[
+		{
+			Key = [0, 0]
+			Value = [None]
+		}
+		{
+			Key = [1, 0]
+			Value = [TopRight, Right]
+		}
+		{
+			Key = [0, 1]
+			Value = [None]
+		}
+		{
+			Key = [1, 1]
+			Value = [Right]
+		}
+		{
+			Key = [0, 2]
+			Value = [Bottom, BottomLeft]
+		}
+		{
+			Key = [1, 2]
+			Value = [Right, BottomRight, Bottom]
+		}
+	]
+	InternalWallsByCell
+	[
+		{
+			Key = [0, 0]
+			Value = [None]
+		}
+		{
+			Key = [1, 0]
+			Value = [BottomLeft, Left, TopLeft, Top]
+		}
+		{
+			Key = [0, 1]
+			Value = [TopRight, BottomLeft, Left, TopLeft, Top]
+		}
+		{
+			Key = [1, 1]
+			Value = [None]
+		}
+		{
+			Key = [0, 2]
+			Value = [Left, TopLeft]
+		}
+		{
+			Key = [1, 2]
+			Value = [None]
+		}
+	]
+	VirtualInternalCells
+	[
+		{ExternalCell=[1, -1]; InternalCell=[2, 0]}
+		{ExternalCell=[-1, 2]; InternalCell=[0, 3]}
+	]
+	AllowedDoorLocations = []
+	GeneratorRequiresDoor = false
+	FlipHRotate = [0, 3, 2, 1]
+	FlipVRotate = [2, 1, 0, 3]
+	GenerateRectCollider = false
+	EditorIcon
+	{
+		Texture
+		{
+			File = "icon.png"
+			SampleMode = Linear
+		}
+		Size = [64, 96]
+	}
+	Components : ^/0/Components
+	{
+		Collider
+		{
+			Type = PolygonCollider
+			Vertices
+			[
+				[2, 0]
+				[2, 3]
+				[0, 3]
+			]
+		}
+
+		Graphics
+		{
+			Type = Graphics
+			Location = [1, 1.5]
+			Floor
+			{
+				Layer = "floors"
+				DamageLevels
+				[
+					{
+						File = "armor.png"
+						Size = [2, 3]
+					}
+					{
+						File = "armor_33.png"
+						Size = [2, 3]
+					}
+					{
+						File = "armor_66.png"
+						Size = [2, 3]
+					}
+				]
+			}
+			Walls
+			{
+				Layer = "external_walls"
+				DamageLevels
+				[
+					{
+						File = "external_walls.png"
+						NormalsFile = "external_wall_normals.png"
+						Size = [2, 3]
+					}
+					{
+						File = "external_walls_33.png"
+						NormalsFile = "external_wall_normals.png"
+						Size = [2, 3]
+					}
+					{
+						File = "external_walls_66.png"
+						NormalsFile = "external_wall_normals.png"
+						Size = [2, 3]
+					}
+				]
+			}
+			Roof
+			{
+				Layer = "roofs"
+				DamageLevels
+				[
+					{
+						File = "roof.png"
+						NormalsFile = "roof_normals.png"
+						Size = [2, 3]
+					}
+					{
+						File = "roof_33.png"
+						NormalsFile = "roof_normals_33.png"
+						Size = [2, 3]
+					}
+					{
+						File = "roof_66.png"
+						NormalsFile = "roof_normals_66.png"
+						Size = [2, 3]
+					}
+				]
+			}
+		}
+
+		DestroyedEffects
+		{
+			Type = DeathEffects
+			MediaEffects = &/COMMON_EFFECTS/SmallPartDestroyedDry
+			Location = [1, 1.5]
+		}
+
+		Blueprints
+		{
+			Type = BlueprintSprite
+			File = "blueprints.png"
+			Size = [2, 3]
+		}
+	}
+
+	Stats
+	{
+		AOEResist = (&~/Part/DamageResistances/explosive) * 100
+	}
+}

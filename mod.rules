@@ -3,7 +3,7 @@ Name = "Composite Armors"
 Version = 1.0.0
 CompatibleGameVersions = ["0.30.1"]
 Author = "Ritrodan"
-Description = "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Composite Metal Foam, Gold Plating, and Depleted Uranium, with multiple size and wedge variants."
+Description = "Adds new armor types: NERA, Tri-Steel Armor, Combination C, Metal Foam, Composite Metal Foam, Gold Plating, and Depleted Uranium, with multiple size and wedge variants, plus scalable structure parts."
 ModifiesMultiplayer = true
 ModifiesGameplay = true
 StringsFolder = "strings"
@@ -23,6 +23,11 @@ Actions
 			&<nera/wedge/nera_Wedge.rules>/Part
 			&<nera/1x2_wedge/nera_1x2Wedge.rules>/Part
 			&<nera/1x3_wedge/nera_1x3Wedge.rules>/Part
+			&<nera/1x4_wedge/nera_1x4Wedge.rules>/Part
+			&<nera/1x5_wedge/nera_1x5Wedge.rules>/Part
+			&<nera/1x6_wedge/nera_1x6Wedge.rules>/Part
+			&<nera/2x2_wedge/nera_2x2Wedge.rules>/Part
+			&<nera/2x3_wedge/nera_2x3Wedge.rules>/Part
 			&<tri_steel/1x1/tri_steel.rules>/Part
 			&<tri_steel/2x1/tri_steel_2x1.rules>/Part
 			&<tri_steel/wedge/tri_steel_Wedge.rules>/Part
@@ -55,6 +60,14 @@ Actions
 			&<uranium/wedge/uranium_Wedge.rules>/Part
 			&<uranium/1x2_wedge/uranium_1x2Wedge.rules>/Part
 			&<uranium/1x3_wedge/uranium_1x3Wedge.rules>/Part
+			&<structure/2x1/structure_2x1.rules>/Part
+			&<structure/3x1/structure_3x1.rules>/Part
+			&<structure/2x2/structure_2x2.rules>/Part
+			&<structure/1x4_wedge/structure_1x4_wedge.rules>/Part
+			&<structure/1x5_wedge/structure_1x5_wedge.rules>/Part
+			&<structure/1x6_wedge/structure_1x6_wedge.rules>/Part
+			&<structure/2x2_wedge/structure_2x2_wedge.rules>/Part
+			&<structure/2x3_wedge/structure_2x3_wedge.rules>/Part
 		]
 	}
 ]

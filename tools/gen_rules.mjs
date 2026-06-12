@@ -9,7 +9,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
-import { loadConfig, pruneMaterialOrphans, REPO } from './config.mjs';
+import { loadConfig, pruneMaterialOrphans, structureWedgeId, REPO } from './config.mjs';
 
 // Print a JS number without trailing-zero noise: 5 -> "5", 1.2 -> "1.2".
 const n = x => String(x);
@@ -29,6 +29,8 @@ function damageLevels(files, sz) {
 \t\t\t\t\t}`).join('\n');
 }
 const PLATE = [['armor.png'], ['armor_33.png'], ['armor_66.png']];
+// Hybrid floor: the integrated structure lattice that shows through damage holes.
+const FLOOR = [['floor.png'], ['floor_33.png'], ['floor_66.png']];
 const ROOF = [['roof.png', 'roof_normals.png'], ['roof_33.png', 'roof_normals_33.png'], ['roof_66.png', 'roof_normals_66.png']];
 // Wedge external-wall layer: the green lip + its normals along the hypotenuse,
 // rendered per-material (see render.mjs). The albedo damage levels composite the
@@ -42,17 +44,17 @@ const WEDGE_EXT_WALLS = [
 
 // Shared Graphics + DestroyedEffects + Blueprints body.
 // wallFiles: the [[file, normalsFile?],...] list for the Walls DamageLevels.
-function graphicsBody(sz, cx, cy, floorComment, wallsLayer = 'walls', wallFiles = PLATE) {
+function graphicsBody(sz, cx, cy, floorComment, wallsLayer = 'walls', wallFiles = PLATE, floorLayer = 'floors', floorFiles = PLATE) {
   return `\t\tGraphics
 \t\t{
 \t\t\tType = Graphics
 \t\t\tLocation = [${cx}, ${cy}]
 \t\t\tFloor${floorComment}
 \t\t\t{
-\t\t\t\tLayer = "floors"
+\t\t\t\tLayer = "${floorLayer}"
 \t\t\t\tDamageLevels
 \t\t\t\t[
-${damageLevels(PLATE, sz)}
+${damageLevels(floorFiles, sz)}
 \t\t\t\t]
 \t\t\t}
 \t\t\tWalls
@@ -197,13 +199,15 @@ ${emp.stat}\t\tAOEResist = (&~/Part/DamageResistances/explosive) * 100
 `;
 }
 
-// Per-size wedge geometry. Every modded wedge is 1xN (W=1), matching the vanilla
-// armor wedges: a right triangle with vertices [1,0], [1,N], [0,N] (the right and
-// bottom edges are external; the hypotenuse runs top-right to bottom-left).
+// Per-size wedge geometry, generated for any height. Every modded wedge is 1xN
+// (W=1), matching the vanilla armor wedges: a right triangle with vertices
+// [1,0], [1,N], [0,N] (the right and bottom edges are external; the hypotenuse
+// runs top-right to bottom-left).
 function wedgeGeometry(H) {
+  if (H < 1) throw new Error(`unsupported wedge height ${H}`);
   if (H === 1) {
     return {
-      underlying: 'cosmoteer.structure_wedge',
+      underlying: structureWedgeId(1, 1),
       flipBlock: '',
       walls: `\tExternalWalls = [TopRight, Right, BottomRight, Bottom, BottomLeft]
 \tInternalWalls = [Left, TopLeft, Top]`,
@@ -213,99 +217,144 @@ function wedgeGeometry(H) {
       flipV: '[3, 2, 1, 0]',
     };
   }
-  if (H === 2) {
-    return {
-      underlying: 'cosmoteer.structure_1x2_wedge',
-      flipBlock: 'FLIP',
-      walls: `\tExternalWallsByCell
+  // Walls per cell: the top cell exposes the wedge tip, the bottom cell the
+  // full base corner, middle cells just the right edge; internal walls mirror
+  // along the hypotenuse. Identical to the vanilla 1x2/1x3 layouts and extends
+  // naturally to any height.
+  const extFor = r => r === 0 ? 'TopRight, Right' : r === H - 1 ? 'Right, BottomRight, Bottom, BottomLeft' : 'Right';
+  const intFor = r => r === 0 ? 'BottomLeft, Left, TopLeft, Top' : r === H - 1 ? 'Left, TopLeft' : 'TopLeft, Left, BottomLeft';
+  const cell = (r, val) => `\t\t{
+\t\t\tKey = [0, ${r}]
+\t\t\tValue = [${val}]
+\t\t}`;
+  const rows = fn => Array.from({ length: H }, (_, r) => cell(r, fn(r))).join('\n');
+  return {
+    underlying: structureWedgeId(1, H),
+    flipBlock: 'FLIP',
+    walls: `\tExternalWallsByCell
 \t[
-\t\t{
-\t\t\tKey = [0, 0]
-\t\t\tValue = [TopRight, Right]
-\t\t}
-\t\t{
-\t\t\tKey = [0, 1]
-\t\t\tValue = [Right, BottomRight, Bottom, BottomLeft]
-\t\t}
+${rows(extFor)}
 \t]
 \tInternalWallsByCell
 \t[
-\t\t{
-\t\t\tKey = [0, 0]
-\t\t\tValue = [BottomLeft, Left, TopLeft, Top]
-\t\t}
-\t\t{
-\t\t\tKey = [0, 1]
-\t\t\tValue = [Left, TopLeft]
-\t\t}
+${rows(intFor)}
 \t]`,
-      virtual: `\t\t{ExternalCell=[0, -1]; InternalCell=[1, 0]}
-\t\t{ExternalCell=[-1, 1]; InternalCell=[0, 2]}`,
-      flipH: '[0, 3, 2, 1]',
-      flipV: '[2, 1, 0, 3]',
+    virtual: `\t\t{ExternalCell=[0, -1]; InternalCell=[1, 0]}
+\t\t{ExternalCell=[-1, ${H - 1}]; InternalCell=[0, ${H}]}`,
+    flipH: '[0, 3, 2, 1]',
+    flipV: '[2, 1, 0, 3]',
+  };
+}
+
+// Walls for a multi-column WxH wedge (hypotenuse from [W,0] to [0,H]). No
+// vanilla part has this shape, so the rules are generalized from the vanilla
+// 1xN wedges (the algorithm reproduces all three vanilla samples exactly):
+// for each cell, an outer edge is External if the solid triangle touches it
+// with positive length, Internal otherwise; edges shared with another solid
+// cell get no wall. Corners are External where the hypotenuse passes exactly
+// through them or where two External edges meet, Internal next to an Internal
+// edge. Cells entirely outside the triangle get no walls at all.
+function generalWedgeGeometry(W, H) {
+  const d = (x, y) => H * x + W * y - W * H;
+  const RING = ['TopRight', 'Right', 'BottomRight', 'Bottom', 'BottomLeft', 'Left', 'TopLeft', 'Top'];
+  const isEmptyCell = (x, y) => x >= 0 && y >= 0 && x < W && y < H &&
+    Math.max(d(x, y), d(x + 1, y), d(x, y + 1), d(x + 1, y + 1)) <= 0;
+  const extByCell = [], intByCell = [];
+  for (let cy = 0; cy < H; cy++) for (let cx = 0; cx < W; cx++) {
+    const dc = {
+      TopLeft: d(cx, cy), TopRight: d(cx + 1, cy),
+      BottomLeft: d(cx, cy + 1), BottomRight: d(cx + 1, cy + 1),
     };
+    if (Math.max(...Object.values(dc)) <= 0) {
+      extByCell.push([cx, cy, ['None']]); intByCell.push([cx, cy, ['None']]);
+      continue;
+    }
+    const ext = new Set(), int_ = new Set();
+    const edges = {
+      Top: { corners: ['TopLeft', 'TopRight'], outer: cy === 0 || isEmptyCell(cx, cy - 1) },
+      Right: { corners: ['TopRight', 'BottomRight'], outer: cx === W - 1 || isEmptyCell(cx + 1, cy) },
+      Bottom: { corners: ['BottomLeft', 'BottomRight'], outer: cy === H - 1 || isEmptyCell(cx, cy + 1) },
+      Left: { corners: ['TopLeft', 'BottomLeft'], outer: cx === 0 || isEmptyCell(cx - 1, cy) },
+    };
+    const status = {};
+    for (const [name, e] of Object.entries(edges)) {
+      if (!e.outer) { status[name] = null; continue; }
+      status[name] = Math.max(dc[e.corners[0]], dc[e.corners[1]]) > 0 ? 'ext' : 'int';
+      (status[name] === 'ext' ? ext : int_).add(name);
+    }
+    const partial = Math.min(...Object.values(dc)) < 0;
+    const cornerAdj = { TopRight: ['Top', 'Right'], BottomRight: ['Bottom', 'Right'], BottomLeft: ['Bottom', 'Left'], TopLeft: ['Top', 'Left'] };
+    for (const [c, [e1, e2]] of Object.entries(cornerAdj)) {
+      // A hypotenuse-endpoint corner wall only exists where the hypotenuse
+      // actually cuts the cell, not where it merely grazes a solid cell's corner.
+      if (dc[c] === 0 && partial) ext.add(c);
+      else if (status[e1] === 'ext' && status[e2] === 'ext') ext.add(c);
+      else if (status[e1] === 'int' || status[e2] === 'int') int_.add(c);
+    }
+    extByCell.push([cx, cy, RING.filter(k => ext.has(k))]);
+    intByCell.push([cx, cy, RING.filter(k => int_.has(k))]);
   }
-  if (H === 3) {
-    return {
-      underlying: 'cosmoteer.structure_1x3_wedge',
-      flipBlock: 'FLIP',
-      walls: `\tExternalWallsByCell
+  const cell = ([cx, cy, vals]) => `\t\t{
+\t\t\tKey = [${cx}, ${cy}]
+\t\t\tValue = [${vals.length ? vals.join(', ') : 'None'}]
+\t\t}`;
+  const mirrorSym = W === H;
+  return {
+    underlying: structureWedgeId(W, H),
+    flipBlock: mirrorSym ? '' : 'FLIP',
+    walls: `\tExternalWallsByCell
 \t[
-\t\t{
-\t\t\tKey = [0, 0]
-\t\t\tValue = [TopRight, Right]
-\t\t}
-\t\t{
-\t\t\tKey = [0, 1]
-\t\t\tValue = [Right]
-\t\t}
-\t\t{
-\t\t\tKey = [0, 2]
-\t\t\tValue = [Right, BottomRight, Bottom, BottomLeft]
-\t\t}
+${extByCell.map(cell).join('\n')}
 \t]
 \tInternalWallsByCell
 \t[
-\t\t{
-\t\t\tKey = [0, 0]
-\t\t\tValue = [BottomLeft, Left, TopLeft, Top]
-\t\t}
-\t\t{
-\t\t\tKey = [0, 1]
-\t\t\tValue = [TopLeft, Left, BottomLeft]
-\t\t}
-\t\t{
-\t\t\tKey = [0, 2]
-\t\t\tValue = [Left, TopLeft]
-\t\t}
+${intByCell.map(cell).join('\n')}
 \t]`,
-      virtual: `\t\t{ExternalCell=[0, -1]; InternalCell=[1, 0]}
-\t\t{ExternalCell=[-1, 2]; InternalCell=[0, 3]}`,
-      flipH: '[0, 3, 2, 1]',
-      flipV: '[2, 1, 0, 3]',
-    };
+    virtual: `\t\t{ExternalCell=[${W - 1}, -1]; InternalCell=[${W}, 0]}
+\t\t{ExternalCell=[-1, ${H - 1}]; InternalCell=[0, ${H}]}`,
+    flipH: mirrorSym ? '[1, 0, 3, 2]' : '[0, 3, 2, 1]',
+    flipV: mirrorSym ? '[3, 2, 1, 0]' : '[2, 1, 0, 3]',
+  };
+}
+
+// Resource list for a wedge as [name, qty] pairs. A 1x2 wedge covers exactly
+// one tile, so it uses the full per-tile block recipe; every other shape uses
+// the half-block `wedgeRecipe`, scaled by the half-tiles it covers (W*H).
+function wedgeResourcePairs(mat, W, H) {
+  if (W === 1 && H === 2) return mat.perTile.resources.map(([name, qty]) => [name, qty]);
+  return mat.wedgeRecipe.map(([name, qty]) => [name, qty * W * H]);
+}
+
+// Sum two [name, qty] resource lists, preserving first-seen order.
+function mergeResources(a, b) {
+  const out = a.map(([name, qty]) => [name, qty]);
+  for (const [name, qty] of b) {
+    const hit = out.find(r => r[0] === name);
+    if (hit) hit[1] += qty; else out.push([name, qty]);
   }
-  throw new Error(`unsupported wedge height ${H} (only 1x1, 1x2, 1x3 wedges are defined)`);
+  return out;
 }
 
-// Resource list for a wedge. A 1x2 wedge covers exactly one tile, so it uses the
-// full per-tile block recipe; the 1x1 and 1x3 wedges use the half-block
-// `wedgeRecipe`, scaled by the long axis (x1 and x3 respectively).
-function wedgeResources(mat, H) {
-  const src = (H === 2) ? mat.perTile.resources : mat.wedgeRecipe;
-  const mult = (H === 2) ? 1 : H;
-  return src.map(([name, qty]) => `\t\t[${name}, ${qty * mult}]`).join('\n');
-}
+const formatResources = pairs => pairs.map(([name, qty]) => `\t\t[${name}, ${qty}]`).join('\n');
 
-function wedgeRules(v) {
-  const { material: mat, W, H, keySuffix: suffix, partId, areaTiles } = v;
+function wedgeRules(v, structureCfg) {
+  const { material: mat, W, H, keySuffix: suffix, partId, areaTiles, isHybrid } = v;
   const pt = mat.perTile, iv = mat.intensive;
-  const g = wedgeGeometry(H);
+  const g = W === 1 ? wedgeGeometry(H) : generalWedgeGeometry(W, H);
 
   const cx = n(W / 2), cy = n(H / 2);
   const sz = `[${W}, ${H}]`;
-  const resources = wedgeResources(mat, H);
-  const maxHealth = Math.round(pt.maxHealth * areaTiles);
+  // Hybrids fold the structural frame into the part itself (vanilla
+  // armor_structure_hybrid_*): its steel and HP are added on top of the armor
+  // wedge, and there is no separate underlying structure part.
+  let resourcePairs = wedgeResourcePairs(mat, W, H);
+  let maxHealth = Math.round(pt.maxHealth * areaTiles);
+  if (isHybrid) {
+    const st = structureCfg.wedgePerLongTile;
+    resourcePairs = mergeResources(resourcePairs, st.resources.map(([name, qty]) => [name, qty * W * H]));
+    maxHealth += st.maxHealth * W * H;
+  }
+  const resources = formatResources(resourcePairs);
   const penResist = round1(iv.penResist * WEDGE_PEN_FACTOR);
   const emp = empParts(pt.empAbsorb == null ? null : Math.round(pt.empAbsorb * areaTiles), iv.empRecovery);
 
@@ -324,7 +373,7 @@ function wedgeRules(v) {
 \tID = Ritrodan.${partId}
 \tEditorGroup = "Structure"
 \tEditorParentParts = [ "Ritrodan.${mat.id}" ]
-\tEditorReplacementPartID = ""
+\tEditorReplacementPartID = ${isHybrid ? 'structure' : '""'}
 \tDescriptionKey = "Parts/${mat.nameKey}${suffix}Desc"
 ${flipBlock}\tResources
 \t[
@@ -345,8 +394,8 @@ ${resources}
 \tFlammable = false
 \tReceivableBuffs : ^/0/ReceivableBuffs []
 \tUnderlyingPartPerTile = ""
-\tUnderlyingPart = ${mat.noUnderlyingStructure ? '""' : g.underlying}
-\tCreatePartPerTileWhenGrabbed = ""
+\tUnderlyingPart = ${(isHybrid || mat.noUnderlyingStructure) ? '""' : g.underlying}
+\tCreatePartPerTileWhenGrabbed = ${isHybrid ? 'structure' : '""'}
 \tInitialPenetrationResistance = ${n(penResist)}
 \tContinuingPenetrationResistance = &InitialPenetrationResistance
 \tCrewSpeedFactor = 0
@@ -380,13 +429,13 @@ ${g.virtual}
 \t\t\tType = PolygonCollider
 \t\t\tVertices
 \t\t\t[
-\t\t\t\t[1, 0]
-\t\t\t\t[1, ${H}]
+\t\t\t\t[${W}, 0]
+\t\t\t\t[${W}, ${H}]
 \t\t\t\t[0, ${H}]
 \t\t\t]
 \t\t}
 
-${emp.block}${graphicsBody(sz, cx, cy, '', 'external_walls', WEDGE_EXT_WALLS)}
+${emp.block}${graphicsBody(sz, cx, cy, '', 'external_walls', WEDGE_EXT_WALLS, isHybrid ? 'structure' : 'floors', isHybrid ? FLOOR : PLATE)}
 \t}
 
 \tStats
@@ -397,8 +446,163 @@ ${emp.stat}\t\tAOEResist = (&~/Part/DamageResistances/explosive) * 100
 `;
 }
 
-function partRules(v) {
-  return v.isWedge ? wedgeRules(v) : blockRules(v);
+function partRules(v, structureCfg) {
+  return v.isWedge ? wedgeRules(v, structureCfg) : blockRules(v);
+}
+
+// Procedural structure part (block or wedge) of any size, modeled on the
+// vanilla structure / structure_1xN_wedge references. Structure has no walls or
+// roof — just the lattice floor on the "structure" layer, a construction
+// overlay, and (for wedges) a triangle collider.
+function structureRules(sv, st) {
+  const { W, H, isWedge, keySuffix: suffix, partId } = sv;
+  const sz = `[${W}, ${H}]`;
+  const cx = n(W / 2), cy = n(H / 2);
+  // Wedge stats scale with covered half-tiles (W*H), matching vanilla's
+  // 500 HP / 1 steel per half-tile-pair; blocks scale with full tiles.
+  const resourcePairs = isWedge
+    ? st.wedgePerLongTile.resources.map(([name, qty]) => [name, qty * W * H])
+    : st.perTile.resources.map(([name, qty]) => [name, qty * W * H]);
+  const maxHealth = isWedge ? st.wedgePerLongTile.maxHealth * W * H : st.perTile.maxHealth * W * H;
+
+  const flippable = isWedge && W !== H;
+  const flipBlock = flippable
+    ? `\tIsFlippable = true
+\tOtherIDs = [Ritrodan.${partId}_L, Ritrodan.${partId}_R]
+\tFlipWhenLoadingIDs = [Ritrodan.${partId}_R]
+`
+    : '';
+  // Rotation: square blocks gain nothing from rotating (vanilla 1x1 structure
+  // is non-rotatable); everything else rotates, wedges with the vanilla maps.
+  const rotateBlock = isWedge
+    ? `\tIsRotateable = true
+\tFlipHRotate = ${flippable ? '[0, 3, 2, 1]' : '[1, 0, 3, 2]'}
+\tFlipVRotate = ${flippable ? '[2, 1, 0, 3]' : '[3, 2, 1, 0]'}
+\tGenerateRectCollider = false`
+    : (W === H ? '\tIsRotateable = false' : '\tIsRotateable = true');
+  const contiguity = isWedge ? '\tAllowedContiguity = [Right, Bottom]\n' : '';
+  // Multi-tile structure builds tile-by-tile via temporary 1x1s, like vanilla wedges.
+  const tempConstruction = (W * H > 1 || isWedge) ? '\tTempConstructionPartPerTile = cosmoteer.structure\n' : '';
+  const collider = isWedge
+    ? `\t\tCollider
+\t\t{
+\t\t\tType = PolygonCollider
+\t\t\tVertices
+\t\t\t[
+\t\t\t\t[${W}, 0]
+\t\t\t\t[${W}, ${H}]
+\t\t\t\t[0, ${H}]
+\t\t\t]
+\t\t}
+
+`
+    : '';
+
+  const levels = damageLevels([
+    ['structure.png', 'structure_normals.png'],
+    ['structure_33.png', 'structure_normals_33.png'],
+    ['structure_66.png', 'structure_normals_66.png'],
+  ], sz);
+
+  return `Part : <./Data/ships/terran/base_part_terran_structure.rules>/Part
+{
+\tNameKey = "Parts/Structure${suffix}"
+\tIconNameKey = "Parts/Structure${suffix}Icon"
+\tID = Ritrodan.${partId}
+\tEditorGroup = "Structure"
+\tEditorParentParts = [ "cosmoteer.structure" ]
+\tEditorReplacementPartID = ""
+\tDescriptionKey = "Parts/Structure${suffix}Desc"
+${flipBlock}\tResources
+\t[
+${formatResources(resourcePairs)}
+\t]
+\tAIValueFactor = 0
+\tSize = ${sz}
+\tSelectionTypeID = "structure"
+${contiguity}\tDensity = .333
+\tMaxHealth = ${maxHealth}
+\tConstructionWork = 0.25
+\tWorkPerRepairedHealth = 0.25 / 1000
+\tHealthType = Structural
+\tDamageResistances = { thermal=60% }
+\tTypeCategories = [structure, non_flammable]
+\tReceivableBuffs : ^/0/ReceivableBuffs []
+\tUnderlyingPartPerTile = ""
+${tempConstruction}\tCreatePartPerTileWhenGrabbed = ""
+\tInitialPenetrationResistance = 0
+\tContinuingPenetrationResistance = &InitialPenetrationResistance
+\tCrewSpeedFactor = 0
+\tCellOccupancyFactor = 0.25
+\tIsExternal = true
+\tExternalWalls = [None]
+\tInternalWalls = [All]
+${rotateBlock}
+\tIsWalled = false
+\tIsSelfDestructible = false
+\tAllowedDoorLocations = []
+\tGeneratorRequiresDoor = false
+\tNoAutoDoors = true
+\tIgnoreRotationForMirroredSelection = true
+\tEditorIcon
+\t{
+\t\tTexture
+\t\t{
+\t\t\tFile = "structure.png"
+\t\t\tSampleMode = Linear
+\t\t}
+\t\tSize = [${32 * W}, ${32 * H}]
+\t}
+\tComponents : ^/0/Components
+\t{
+${collider}\t\tGraphics
+\t\t{
+\t\t\tType = Graphics
+\t\t\tLocation = [${cx}, ${cy}]
+\t\t\tFloor
+\t\t\t{
+\t\t\t\tLayer = "structure"
+\t\t\t\tDamageLevels
+\t\t\t\t[
+${levels}
+\t\t\t\t]
+\t\t\t}
+\t\t}
+
+\t\tConstructionEffects
+\t\t{
+\t\t\tType = Sprite
+\t\t\tIncludeWhenUnderConstruction = true
+\t\t\tIncludeWhenNotUnderConstruction = false
+\t\t\tGetColorFrom = ConstructionTracker
+\t\t\tLocation = [${cx}, ${cy}]
+\t\t\tAtlasSprite
+\t\t\t{
+\t\t\t\tFile = "structure_mask_combined.png"
+\t\t\t\tNormalsFile = "structure_normals.png"
+\t\t\t\tSize = ${sz}
+\t\t\t}
+\t\t\tRandomUVRotation = false
+\t\t\tLayer = "structure_construction"
+\t\t\tUseConstructionProgressAsDamage = true
+\t\t}
+
+\t\tDestroyedEffects
+\t\t{
+\t\t\tType = DeathEffects
+\t\t\tMediaEffects = &/COMMON_EFFECTS/StructureDestroyed
+\t\t\tLocation = [${cx}, ${cy}]
+\t\t}
+
+\t\tBlueprints
+\t\t{
+\t\t\tType = BlueprintSprite
+\t\t\tFile = "blueprints.png"
+\t\t\tSize = ${sz}
+\t\t}
+\t}
+}
+`;
 }
 
 function stringsFile(cfg) {
@@ -414,11 +618,26 @@ function stringsFile(cfg) {
         lines.push(`\t${mat.nameKey}Desc = "${mat.description}"`);
       } else {
         const label = `${mat.displayName} ${v.labelSuffix}`;
+        const desc = v.isHybrid
+          ? `${mat.description} This hybrid variant is built around an integrated structural frame, which stays visible where the armor plating has been blasted away.`
+          : mat.description;
         lines.push('');
         lines.push(`\t${mat.nameKey}${v.keySuffix} = "${label}"`);
         lines.push(`\t${mat.nameKey}${v.keySuffix}Icon = "${label}"`);
-        lines.push(`\t${mat.nameKey}${v.keySuffix}Desc = "${mat.description}"`);
+        lines.push(`\t${mat.nameKey}${v.keySuffix}Desc = "${desc}"`);
       }
+    }
+    blocks.push(lines.join('\n'));
+  }
+  if (cfg.structureVariants.length) {
+    const desc = 'A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on.';
+    const lines = [];
+    for (const sv of cfg.structureVariants) {
+      const label = `Structure ${sv.labelSuffix}`;
+      if (lines.length) lines.push('');
+      lines.push(`\tStructure${sv.keySuffix} = "${label}"`);
+      lines.push(`\tStructure${sv.keySuffix}Icon = "${label}"`);
+      lines.push(`\tStructure${sv.keySuffix}Desc = "${desc}"`);
     }
     blocks.push(lines.join('\n'));
   }
@@ -427,12 +646,15 @@ function stringsFile(cfg) {
 
 function modFile(cfg) {
   const m = cfg.mod;
-  const adds = cfg.variants.map(v => {
-    const baseName = v.material.id;
-    const variantSuffix = v.keySuffix ? '_' + v.keySuffix : '';
-    const filename = `${baseName}${variantSuffix}.rules`;
-    return `\t\t\t&<${v.dir}/${filename}>/Part`;
-  }).join('\n');
+  const adds = [
+    ...cfg.variants.map(v => {
+      const baseName = v.material.id;
+      const variantSuffix = v.keySuffix ? '_' + v.keySuffix : '';
+      const filename = `${baseName}${variantSuffix}.rules`;
+      return `\t\t\t&<${v.dir}/${filename}>/Part`;
+    }),
+    ...cfg.structureVariants.map(sv => `\t\t\t&<${sv.dir}/${sv.partId}.rules>/Part`),
+  ].join('\n');
   const games = m.compatibleGameVersions.map(g => `"${g}"`).join(', ');
   return `ID = ${m.id}
 Name = "${m.name}"
@@ -467,7 +689,10 @@ function main() {
     const baseName = v.material.id;
     const variantSuffix = v.keySuffix ? '_' + v.keySuffix : '';
     const filename = `${baseName}${variantSuffix}.rules`;
-    outputs.push([join(v.dir, filename), partRules(v)]);
+    outputs.push([join(v.dir, filename), partRules(v, cfg.structure)]);
+  }
+  for (const sv of cfg.structureVariants) {
+    outputs.push([join(sv.dir, `${sv.partId}.rules`), structureRules(sv, cfg.structure)]);
   }
   outputs.push([join(cfg.mod.stringsFolder, 'en.rules'), stringsFile(cfg)]);
   outputs.push(['mod.rules', modFile(cfg)]);

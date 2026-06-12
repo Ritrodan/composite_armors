@@ -58,3 +58,56 @@ export function encodePNG(imgData) {
     chunk('IEND', Buffer.alloc(0)),
   ]);
 }
+
+// Minimal PNG decoder for the vanilla reference textures: 8-bit RGB/RGBA,
+// non-interlaced (which is what Cosmoteer's assets use). Returns the same
+// { width, height, data } shape the renderer works with.
+export function decodePNG(buf) {
+  if (buf.readUInt32BE(0) !== 0x89504e47) throw new Error('not a PNG');
+  let pos = 8, width = 0, height = 0, colorType = 0, bitDepth = 0;
+  const idat = [];
+  while (pos < buf.length) {
+    const len = buf.readUInt32BE(pos);
+    const type = buf.toString('ascii', pos + 4, pos + 8);
+    const data = buf.subarray(pos + 8, pos + 8 + len);
+    if (type === 'IHDR') {
+      width = data.readUInt32BE(0); height = data.readUInt32BE(4);
+      bitDepth = data[8]; colorType = data[9];
+      if (bitDepth !== 8 || (colorType !== 6 && colorType !== 2) || data[12] !== 0) {
+        throw new Error(`unsupported PNG format (bit ${bitDepth}, color ${colorType})`);
+      }
+    } else if (type === 'IDAT') idat.push(data);
+    else if (type === 'IEND') break;
+    pos += 12 + len;
+  }
+  const bpp = colorType === 6 ? 4 : 3;
+  const stride = width * bpp;
+  const raw = zlib.inflateSync(Buffer.concat(idat));
+  const lines = Buffer.alloc(height * stride);
+  for (let y = 0; y < height; y++) {
+    const f = raw[y * (stride + 1)];
+    const line = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
+    const cur = lines.subarray(y * stride, (y + 1) * stride);
+    const prev = y > 0 ? lines.subarray((y - 1) * stride, y * stride) : null;
+    for (let x = 0; x < stride; x++) {
+      const a = x >= bpp ? cur[x - bpp] : 0;
+      const b = prev ? prev[x] : 0;
+      const c = x >= bpp && prev ? prev[x - bpp] : 0;
+      let v = line[x];
+      if (f === 1) v += a;
+      else if (f === 2) v += b;
+      else if (f === 3) v += (a + b) >> 1;
+      else if (f === 4) {
+        const p = a + b - c, pa = Math.abs(p - a), pb = Math.abs(p - b), pc = Math.abs(p - c);
+        v += (pa <= pb && pa <= pc) ? a : (pb <= pc) ? b : c;
+      }
+      cur[x] = v & 255;
+    }
+  }
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let i = 0, j = 0; i < width * height; i++, j += bpp) {
+    data[i * 4] = lines[j]; data[i * 4 + 1] = lines[j + 1]; data[i * 4 + 2] = lines[j + 2];
+    data[i * 4 + 3] = bpp === 4 ? lines[j + 3] : 255;
+  }
+  return { width, height, data };
+}

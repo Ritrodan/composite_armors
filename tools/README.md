@@ -50,10 +50,31 @@ So to retune NERA across every size, edit `materials.nera` once and run
 3. `node tools/gen_rules.mjs && node tools/generate.mjs nera_3x2`.
 
 That writes the `.rules`, the string keys, the `mod.rules` entry, and the
-textures. (Folder naming: `1x1` is the bare material id; others get a `_WxH`
-suffix. In-game labels use the material display name plus the bare size, such as
-`NERA 2x1`; all size variants reuse the material's base description. Square
-parts are generated as non-rotatable because rotation does not change them.)
+textures (part folders are created automatically). (Folder naming: `1x1` is the
+bare material id; others get a `_WxH` suffix. In-game labels use the material
+display name plus the bare size, such as `NERA 2x1`; all size variants reuse
+the material's base description. Square parts are generated as non-rotatable
+because rotation does not change them.)
+
+Wedges can be any `1xN` height — the wall/collider geometry is generated for
+arbitrary heights. For heights above vanilla's 1x3, a matching procedural
+structure wedge is generated automatically and used as the armor wedge's
+underlying part, so the frame stays visible through battle damage.
+
+## Structure parts and hybrids
+
+The top-level `structure` section of the config defines the shared structure
+stats (per-tile for blocks, per-long-axis-tile for wedges, matching vanilla:
+1000 HP / 2 steel per block tile, 500 HP / 1 steel per wedge tile) and its own
+`variants` list of sizes to generate explicitly. Textures are a procedural
+girder lattice (`renderStructureSet` in `render.mjs`) that scales to any size
+and masks to the wedge triangle.
+
+Materials also support `"shape": "hybrid_wedge"` variants — armor wedges with
+the structural frame built in, modeled on vanilla `armor_structure_hybrid_*`:
+the structure's HP and steel are added on top of the armor wedge, the floor is
+the rendered structure lattice (visible through damage holes), and no separate
+underlying structure part is used.
 
 ## Add a new material
 
