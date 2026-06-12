@@ -525,33 +525,64 @@ function buildDamage(P, F, level) {
   const rng = mulberry32(P.seed ^ 0x9e37);
   const intens = level === 1 ? P.dmg33 : P.dmg66;
   const keep = P.edgeMargin;
-  const nCraters = craterCount(P);
-  const all = [];
-  for (let k = 0; k < nCraters; k++) {
-    const r = 6 + rng() * 9;
+  // Vanilla damage mixes a few large rips with a scatter of small nicks and
+  // pinholes across the plate; both counts scale with tile area.
+  const nBig = craterCount(P);
+  const nSmall = Math.round(nBig * 1.4);
+  // Stratified placement: craters are jittered inside the cells of a shuffled
+  // grid covering the plate, so damage spreads like vanilla's (corners included)
+  // instead of clumping wherever uniform sampling happens to land.
+  const makeCells = (n) => {
+    const cols = Math.max(1, Math.round(Math.sqrt(n * W / H))), rows = Math.ceil(n / cols);
+    const cells = [];
+    for (let cy = 0; cy < rows; cy++) for (let cx = 0; cx < cols; cx++) cells.push([cx, cy]);
+    for (let i = cells.length - 1; i > 0; i--) { const j = Math.floor(rng() * (i + 1)); [cells[i], cells[j]] = [cells[j], cells[i]]; }
+    return { cells, cols, rows };
+  };
+  const place = (r, grid, k) => {
+    const [gx, gy] = grid.cells[k % grid.cells.length];
+    const cw = W / grid.cols, chh = H / grid.rows;
     let cx, cy, ok = false;
     for (let tries = 0; tries < 16; tries++) {
-      cx = rng() * W; cy = rng() * H;
-      const need = keep + r * intens * P.holeSize * 0.7;
+      cx = (gx + rng()) * cw; cy = (gy + rng()) * chh;
+      const need = keep + r * intens * P.holeSize * 0.55;
       if (edgeDistAt(P, W, H, diagLen, cx, cy) >= need) { ok = true; break; }
     }
     if (!ok) { cx = P.wedge ? W * 0.62 : W * 0.5; cy = P.wedge ? H * 0.62 : H * 0.5; }
-    all.push({ x: cx, y: cy, r, depth: 8 + rng() * 10 });
+    return { x: cx, y: cy };
+  };
+  const bigs = [], smalls = [];
+  const bigGrid = makeCells(nBig), smallGrid = makeCells(nSmall);
+  for (let k = 0; k < nBig; k++) {
+    const r = 5 + rng() * 9;
+    bigs.push({ ...place(r, bigGrid, k), r, depth: 8 + rng() * 10 });
   }
-  const used = all.slice(0, level === 1 ? Math.max(2, Math.round(nCraters * 0.6)) : nCraters);
+  for (let k = 0; k < nSmall; k++) {
+    const r = 1.6 + rng() * 2.6;
+    smalls.push({ ...place(r, smallGrid, k), r, depth: 3 + rng() * 4 });
+  }
+  const take = (arr, f) => arr.slice(0, Math.max(1, Math.round(arr.length * f)));
+  const used = level === 1 ? [...take(bigs, 0.6), ...take(smalls, 0.55)] : [...bigs, ...smalls];
   const chaos = makeFBM(P.seed ^ 0x55aa, 3, 2.6);
+  // Coarse tear noise: long spike arms on hole boundaries (vanilla's star rips);
+  // the fine chaos FBM adds small-scale raggedness on top.
+  const tear = makeFBM(P.seed ^ 0x77cc, 2, 7);
   const floorScale = P.layeredHoles ? P.floorHoleScale : 1;
   const hole = new Uint8Array(N), holeFloor = new Uint8Array(N), char = new Float32Array(N), dmgHeight = Float32Array.from(F.height);
   for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
     const i = y * W + x; let dent = 0, rim = 0, crush = 0, isHole = 0, isHoleFloor = 0;
+    // Noise-perturbed hole boundary: blast holes are torn stars, not circles.
+    const jag = (tear(x, y) - 0.5) * 2 * P.jagAmp + (chaos(x, y) - 0.5) * 2 * 1.2;
     for (const c of used) {
       const rr = c.r * intens, d = Math.hypot(x - c.x, y - c.y);
-      if (d < rr * 1.6) {
+      if (d < rr * 1.6 + P.jagAmp) {
         const t = Math.max(0, 1 - d / rr); dent += Math.pow(t, 1.3) * c.depth;
         if (d > rr * 0.7 && d < rr * 1.35) rim += (1 - Math.abs(d - rr) / (rr * 0.35)) * c.depth * 0.4;
-        crush += t; char[i] += t;
-        if (d < rr * P.holeSize) isHole = 1;
-        if (d < rr * P.holeSize * floorScale) isHoleFloor = 1;
+        // Tight char halo (vanilla scorch hugs the hole instead of flooding the plate).
+        crush += t; char[i] += Math.pow(t, 1.6);
+        const dj = d + jag;
+        if (dj < rr * P.holeSize) isHole = 1;
+        if (dj < rr * P.holeSize * floorScale) isHoleFloor = 1;
       }
     }
     if (F.edge[i] < keep) { isHole = 0; isHoleFloor = 0; }
