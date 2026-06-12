@@ -32,6 +32,26 @@ Parts
 	NERA1x3WedgeIcon = "NERA 1x3 Wedge"
 	NERA1x3WedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
 
+	NERA1x4Wedge = "NERA 1x4 Wedge"
+	NERA1x4WedgeIcon = "NERA 1x4 Wedge"
+	NERA1x4WedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it."
+
+	NERAHybridWedge = "NERA Hybrid Wedge"
+	NERAHybridWedgeIcon = "NERA Hybrid Wedge"
+	NERAHybridWedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it. This hybrid variant is built around an integrated structural frame, which stays visible where the armor plating has been blasted away."
+
+	NERA1x2HybridWedge = "NERA 1x2 Hybrid Wedge"
+	NERA1x2HybridWedgeIcon = "NERA 1x2 Hybrid Wedge"
+	NERA1x2HybridWedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it. This hybrid variant is built around an integrated structural frame, which stays visible where the armor plating has been blasted away."
+
+	NERA1x3HybridWedge = "NERA 1x3 Hybrid Wedge"
+	NERA1x3HybridWedgeIcon = "NERA 1x3 Hybrid Wedge"
+	NERA1x3HybridWedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it. This hybrid variant is built around an integrated structural frame, which stays visible where the armor plating has been blasted away."
+
+	NERA1x4HybridWedge = "NERA 1x4 Hybrid Wedge"
+	NERA1x4HybridWedgeIcon = "NERA 1x4 Hybrid Wedge"
+	NERA1x4HybridWedgeDesc = "A lightweight composite of steel plates and coils. NERA is very weight efficient and effectively reduces penetration depth, but it has less health than regular armor. NERA is moderately resiliant to blasts, but cannot fully absorb a blast and some damage will pass through it. This hybrid variant is built around an integrated structural frame, which stays visible where the armor plating has been blasted away."
+
 	TriSteel = "Tri-Steel Armor"
 	TriSteelIcon = "Tri-Steel Armor"
 	TriSteelDesc = "A very strong and weight efficient armor."
@@ -159,4 +179,20 @@ Parts
 	Ferroconcrete1x3Wedge = "Ferroconcrete Armor 1x3 Wedge"
 	Ferroconcrete1x3WedgeIcon = "Ferroconcrete Armor 1x3 Wedge"
 	Ferroconcrete1x3WedgeDesc = "Concrete reinforced with rebar. Armor for cheap."
+
+	Structure2x1 = "Structure 2x1"
+	Structure2x1Icon = "Structure 2x1"
+	Structure2x1Desc = "A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on."
+
+	Structure3x1 = "Structure 3x1"
+	Structure3x1Icon = "Structure 3x1"
+	Structure3x1Desc = "A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on."
+
+	Structure2x2 = "Structure 2x2"
+	Structure2x2Icon = "Structure 2x2"
+	Structure2x2Desc = "A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on."
+
+	Structure1x4Wedge = "Structure 1x4 Wedge"
+	Structure1x4WedgeIcon = "Structure 1x4 Wedge"
+	Structure1x4WedgeDesc = "A lightweight structural frame. Provides no protection, but is cheap, blocks very little weapons fire, and gives armor a skeleton to hang on."
 }

@@ -807,3 +807,82 @@ export const WALL_FILES = [
   'external_walls.png', 'external_walls_33.png', 'external_walls_66.png',
   'external_wall_normals.png',
 ];
+
+// ----------------------------------------------------------------------------
+// Structure parts (girder lattice).
+//
+// Vanilla structure is a steel truss: a perimeter frame around each tile with
+// diagonal X cross-braces, and open (transparent) space between the bars. The
+// procedural version reproduces that per 64px tile, so it scales to any WxH
+// block, and masks to the triangle for 1xN wedges (with an extra chord bar
+// along the hypotenuse). Damage levels reuse the same crater pipeline as the
+// armor plating: holes punch the lattice transparent, char darkens it.
+export const STRUCTURE_FILES = [
+  'structure.png', 'structure_33.png', 'structure_66.png',
+  'structure_normals.png', 'structure_normals_33.png', 'structure_normals_66.png',
+  'structure_mask_combined.png', 'blueprints.png',
+];
+
+export function renderStructureSet(P) {
+  const W = P.tilesX * TILE, H = P.tilesY * TILE, N = W * H, diagLen = Math.hypot(W, H);
+  const fbm = makeFBM(P.seed, 3, 9);
+  const solid = new Uint8Array(N), edge = new Float32Array(N), height = new Float32Array(N);
+  const cov = new Float32Array(N), lum = new Float32Array(N);
+  const BAR = 4.5, BRACE = 3.2, FEATHER = 1.4;
+  // Bar coverage: 1 well inside a bar of half-width w, feathering to 0 at the rim.
+  const coverage = (d, w) => Math.max(0, Math.min(1, (w - d) / FEATHER));
+  for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+    const i = y * W + x;
+    let de, isSolid = 1, dHyp = Infinity;
+    if (P.wedge) { dHyp = (H * (x + 0.5) + W * (y + 0.5) - W * H) / diagLen; isSolid = dHyp >= 0 ? 1 : 0; de = Math.min(W - 1 - x, H - 1 - y, dHyp); }
+    else de = Math.min(x, y, W - 1 - x, H - 1 - y);
+    edge[i] = de;
+    if (!isSolid) continue;
+    const lx = x % TILE, ly = y % TILE;
+    const dFrame = Math.min(lx, ly, TILE - 1 - lx, TILE - 1 - ly);
+    const dBrace = Math.min(Math.abs(lx - ly), Math.abs(lx + ly - (TILE - 1))) * 0.7071068;
+    let c = Math.max(coverage(dFrame, BAR), coverage(dBrace, BRACE));
+    if (P.wedge) c = Math.max(c, coverage(dHyp, BAR)); // chord bar along the hypotenuse
+    if (c <= 0) continue;
+    solid[i] = 1;
+    cov[i] = c;
+    const gn = (fbm(x, y) - 0.5) * 2;
+    height[i] = Math.sqrt(c) * 1.5 + gn * 0.25;
+    lum[i] = 58 + gn * 7 + c * 13;
+  }
+  const F = { W, H, N, diagLen, solid, edge, height };
+  const albedo = (dmg) => {
+    const out = newImage(W, H), d = out.data;
+    for (let i = 0; i < N; i++) {
+      const i4 = i * 4;
+      if (!solid[i] || (dmg && dmg.hole[i])) { d[i4 + 3] = 0; continue; }
+      let v = lum[i];
+      if (dmg) { const c = dmg.char[i]; v = v * (1 - c * 0.72) - c * 12; }
+      v = Math.max(4, Math.min(220, v));
+      d[i4] = Math.round(v * 0.96); d[i4 + 1] = Math.round(v); d[i4 + 2] = Math.min(255, Math.round(v * 1.06));
+      d[i4 + 3] = Math.round(255 * cov[i]);
+    }
+    return out;
+  };
+  const silhouette = (r, g, b) => {
+    const out = newImage(W, H), d = out.data;
+    for (let i = 0; i < N; i++) {
+      if (!solid[i]) continue;
+      const i4 = i * 4;
+      d[i4] = r; d[i4 + 1] = g; d[i4 + 2] = b; d[i4 + 3] = Math.round(255 * cov[i]);
+    }
+    return out;
+  };
+  const d1 = buildDamage(P, F, 1), d2 = buildDamage(P, F, 2);
+  return {
+    'structure.png': albedo(null),
+    'structure_33.png': albedo(d1),
+    'structure_66.png': albedo(d2),
+    'structure_normals.png': normalsFromHeight(P, F, height, null),
+    'structure_normals_33.png': normalsFromHeight(P, F, d1.dmgHeight, d1.hole),
+    'structure_normals_66.png': normalsFromHeight(P, F, d2.dmgHeight, d2.hole),
+    // Construction overlay: white silhouette tinted at runtime by ConstructionTracker.
+    'structure_mask_combined.png': silhouette(255, 255, 255),
+    'blueprints.png': silhouette(0, 0, 205),
+  };
+}
