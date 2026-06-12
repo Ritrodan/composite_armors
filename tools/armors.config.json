@@ -13,6 +13,7 @@
   },
   "structure": {
     "_comment": "Procedural structure parts. Blocks scale perTile by W*H; wedges scale wedgePerLongTile by the long axis (matching vanilla: 1x1 wedge = 500 HP / 1 steel, 1x2 = 1000 / 2, ...). Sizes listed here are generated explicitly; in addition, any armor wedge taller than vanilla's 1x3 automatically gets a matching structure wedge generated as its underlying part.",
+    "description": "The underlying structural frame that holds a ship together. Structure is automatically included with all rooms and corridors.",
     "texture": { "seed": 9090 },
     "perTile": { "resources": [["steel", 2]], "maxHealth": 1000 },
     "wedgePerLongTile": { "resources": [["steel", 1]], "maxHealth": 500 },
